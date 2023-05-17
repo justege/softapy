@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PrototurkWidget from './PrototurkWidget';
+import SoftapyWidget from './SoftapyWidget';
 import { ChakraProvider } from "@chakra-ui/react";
 
-const widgets = document.querySelectorAll('.prototurk-widget')
+const widgets = document.querySelectorAll('.softapy-widget')
 
 
 window.addEventListener('DOMContentLoaded', function () {
-  const widgets = document.querySelectorAll('.prototurk-widget');
+  const widgets = document.querySelectorAll('.softapy-widget');
 
   widgets.forEach(widget => {
     const appContainer = document.createElement('div');
@@ -16,7 +16,7 @@ window.addEventListener('DOMContentLoaded', function () {
     ReactDOM.render(
       <ChakraProvider>
       <React.StrictMode>
-        <PrototurkWidget widget={widget as HTMLElement} />
+        <SoftapyWidget widget={widget as HTMLElement} />
       </React.StrictMode>
     </ChakraProvider>,
       appContainer

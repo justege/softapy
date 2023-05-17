@@ -1,6 +1,7 @@
 
 
 import { useEffect, useState } from "react";
+import { Box, Heading, Text } from "@chakra-ui/react";
 
 interface User {
   id: number;
@@ -13,7 +14,7 @@ interface Props {
   widget: HTMLElement;
 }
 
-function PrototurkWidget({ widget }: Props) {
+function SoftapyWidget({ widget }: Props) {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,7 +39,7 @@ function PrototurkWidget({ widget }: Props) {
   }
 
   return (
-    <div>
+    <Box>
       {users.map((user) => (
         <div key={user.id}>
           <h2>{user.name}</h2>
@@ -46,9 +47,9 @@ function PrototurkWidget({ widget }: Props) {
           <p>Email: {user.email}</p>
         </div>
       ))}
-    </div>
+    </Box>
   );
 }
 
-export default PrototurkWidget;
+export default SoftapyWidget;
 

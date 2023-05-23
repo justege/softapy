@@ -2,5 +2,8 @@
   "devDependencies": {
     "parcel": "^2.8.3",
     "postcss": "^8.4.23"
+  },
+  "dependencies": {
+    "react-router-dom": "^6.11.2"
   }
 }

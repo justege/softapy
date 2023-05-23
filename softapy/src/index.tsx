@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import SoftapyWidget from './SoftapyWidget';
 import { ChakraProvider } from "@chakra-ui/react";
 
-const widgets = document.querySelectorAll('.softapy-widget')
 
 
 window.addEventListener('DOMContentLoaded', function () {

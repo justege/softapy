@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Heading, Text } from "@chakra-ui/react";
 import { baseUrl} from './shared'
 
 interface User {
@@ -33,36 +33,22 @@ function SoftapyWidget({ widget }: Props) {
   const [users, setUsers] = useState<User[]>([]);
   const [websiteUrl, setWebsiteUrl] = useState<string | null>(null);
   const [cacheKeys, setCacheKeys] = useState<string[]>([]);
-
-  const [customer, setCustomer] = useState<Customer>();
-  const [tempCustomer, setTempCustomer] = useState<Customer>();
   const [notFound, setNotFound] = useState<boolean>();
   const [changed, setChanged] = useState(false);
   const [error, setError] = useState<unknown>();
-  const id = parseInt(widget.getAttribute('userId') ?? '1');
+  const id = parseInt(widget.getAttribute('userId') ?? '2');
   const [chatGPTs, setChatGPTs] = useState<ChatGPT[]>([]);
   
-
+  // 1. Create new engagement popup 
+  // 2. Request the Id of the popup 
+  // 3. Request the initial popup title and content 
+  // 4. Prepare for chatinput and send input 
+  // 5. Get chatouput 
 
   useEffect(() => {
-    const fetchCustomer = async () => {
-      try {
-        const response = await fetch(baseUrl + 'api/customer/' + id);
-        if (!response.ok) {
-          throw new Error('Something went wrong, try again later');
-        }
-        const data = await response.json();
-        setCustomer(data.customer);
-        setTempCustomer(data.customer);
-        setError(undefined);
-      } catch (error) {
-        setError(error);
-      }
-    };
-
     const fetchChatGPTs = async () => {
       try {
-        const response = await fetch(baseUrl + 'clients/' + id + '/ABC12332' +'/chatgpt/');
+        const response = await fetch(baseUrl + 'clients/' + id + '/ABC12332/' +'chatgpt/');
         if (!response.ok) {
           throw new Error('Something went wrong, try again later');
         }
@@ -75,23 +61,36 @@ function SoftapyWidget({ widget }: Props) {
         console.log('error',error)
       }
     };
-
-    fetchCustomer();
     fetchChatGPTs();
   }, [id]);
 
+  const createNewPopupEngagement = async () => {
+    try {
+      const response = await fetch(`${baseUrl}popup/createNewPopupEngagement/${id}`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error('Something went wrong, try again later');
+      }
+      const data = await response.json();
+      console.log('createNew', data);
+      setError(undefined);
+    } catch (error) {
+      setError(error);
+      console.log('error', error);
+    }
+  };
+ 
+
   return (
     <Box w={[1000, 700, 1500]} bg="green.400">
-      <Heading>{customer ? customer.name : 'no customer'}</Heading>
-      
-      {/* Display the chatGPTs */}
+      <Button onClick = {() =>  createNewPopupEngagement()}>
+      Button for popup creation
+      </Button>
+      {/* Display the chatGPT */}
       {chatGPTs.map((chatGPT) => (
         <Box key={chatGPT.id}>
           <Text>{chatGPT.visitorInputChatGPT}</Text>
-          <Text>{chatGPT.visitorOutputChatGPT}</Text>
-          <Text>{chatGPT.clientInputChatGPT}</Text>
-          <Text>{chatGPT.processedTitle}</Text>
-          <Text>{chatGPT.processedContent}</Text>
         </Box>
       ))}
     </Box>

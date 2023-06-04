@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Box, Button, Flex, Heading, Input, Text } from "@chakra-ui/react";
+import { useEffect, useState, useRef } from 'react';
+import { Box, Button, Flex, Heading, Input, Text, Spacer } from "@chakra-ui/react";
 import { baseUrl} from './shared'
 
 interface Props {
@@ -22,11 +22,58 @@ type PopupEngagement = {
   popupEngagementUniqueIdentifier: string;
 }
 
-type Popup = {
-  popupId : number;
-  popupTitle: string;
-  popupContent: string;
+interface Popup {
+  popupId: number;
+  popupGoal: number | null;
+  popupHeight: number | null;
+  popupWidth: number | null;
+  popupEmailSubscription: boolean | null;
+  popupPromo: boolean | null;
+  popupImage: string | null;
+  popupBackgroundColor: string | null;
+  popupBorderColor: string | null;
+  popupBorderWidth: string | null;
+  popupTitle: string | null;
+  popupTitleHeight: number | null;
+  popupTitleWidth: number | null;
+  popupTitlePositioning: number | null;
+  popupTitleTextColor: string | null;
+  popupContent: string | null;
+  popupContentHasBorder: boolean | null;
+  popupContentHeight: number | null;
+  popupContentWidth: number | null;
+  popupContentPositioning: number | null;
+  popupContentTextColor: string | null;
+  popupChatHistoryPositioning: number | null;
+  popupChatHistoryTextColor: string | null;
+  popupChatHistoryTextSize: number | null;
+  popupChatHistoryBoxColor: string | null;
+  popupChatHistoryFocusBorderColor: string | null;
+  popupChatButtonText: string | null;
+  popupChatButtonPositioning: number | null;
+  popupChatButtonTextColor: string | null;
+  popupChatButtonTextSize: number | null;
+  popupChatButtonBoxColor: string | null;
+  popupChatButtonFocusBorderColor: string | null;
+  popupSuggestionButtonPositioning: number | null;
+  popupSuggestionButtonTextColor: string | null;
+  popupSuggestionButtonTextSize: number | null;
+  popupSuggestionButtonBoxColor: string | null;
+  popupSuggestionButtonFocusBorderColor: string | null;
+  popupCloseButtonText: string | null;
+  popupCloseButtonPositioning: number | null;
+  popupCloseButtonTextColor: string | null;
+  popupCloseButtonTextSize: number | null;
+  popupCTAButtonText: string | null;
+  popupCTAButtonPositioning: number | null;
+  popupCTAButtonTextColor: string | null;
+  popupCTAButtonHeight: number | null;
+  popupCTAButtonWidth: number | null;
+  popupCTAButtonLink: string | null;
+  popupCTAButtonBorderColor: string | null;
+  popupCTAButtonHasBorder: boolean | null;
 }
+
 
 
 function SoftapyWidget({ widget }: Props) {
@@ -42,7 +89,7 @@ function SoftapyWidget({ widget }: Props) {
   const [chatGPTs, setChatGPTs] = useState<ChatGPT[]>([]);
   const [inputChatGPT, setInputChatGPT] = useState('');
   const [pastChatGPTInput, setPastChatGPTInput] = useState<string[]>([]);
-  const [popupCreationState, setPopupCreationState] = useState(false)
+
   
   // 1. Create new engagement popup  - Done
   // 2. Request the Id of the popup  - Done
@@ -92,12 +139,10 @@ function SoftapyWidget({ widget }: Props) {
         throw new Error('Something went wrong, try again later');
       }
       const data = await response.json();
-      console.log('popupData',data)
       setPopup(data.popup);
       setError(undefined);
     } catch (error) {
       setError(error);
-      console.log('error',error)
     }
   };
   const fetchChatGPTs = async () => {
@@ -107,12 +152,10 @@ function SoftapyWidget({ widget }: Props) {
         throw new Error('Something went wrong, try again later');
       }
       const data = await response.json();
-      console.log('data',data)
       setChatGPTs(data.chatgpt);
       setError(undefined);
     } catch (error) {
       setError(error);
-      console.log('error',error)
     }
   };
   
@@ -136,63 +179,125 @@ function SoftapyWidget({ widget }: Props) {
     setInputChatGPT('')
   };
 
+  const [popupCreationState, setPopupCreationState] = useState(false);
 
+  useEffect(() => {
+    const handleMouseOut = (event: MouseEvent) => {
+      if (event.clientY <= 0) {
+        setPopupCreationState(true);
+      }
+    };
+    window.addEventListener('mouseout', handleMouseOut);
+    return () => {
+      window.removeEventListener('mouseout', handleMouseOut);
+    };
+  }, []);
+
+  useEffect(()=>{
+    if (popupCreationState){
+      createNewPopupEngagement()
+      console.log(popup)
+    }
+  },[popupCreationState])
+
+  const flexContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (flexContainerRef.current) {
+      flexContainerRef.current.scrollTop = flexContainerRef.current.scrollHeight;
+    }
+  }, [popupEngagement, chatGPTs]);
+  
   return (
     <>
-    <Button onClick={createNewPopupEngagement} mt={4} colorScheme="gray">
-      Create Popup
-    </Button>
-
-    { popupEngagement ? <Box
-    w={[800, 650, 540]}
-    bg="rgba(0, 0, 0, 0.8)"
+{popupEngagement ?
+  <Flex
+    ref={flexContainerRef} // Add this line
+    direction="row"
+    w={popup?.popupWidth ?? [800,550]}
+    h={popup?.popupHeight ?? [500,350]}
+    bg={popup?.popupBackgroundColor ?? "white"}
     p={4}
     position="fixed"
     top="50%"
     left="50%"
     transform="translate(-50%, -50%)"
-    borderRadius="md"
-    boxShadow="lg"
-    color="white"
+    border={popup?.popupBorderWidth ?? undefined}
+    borderColor={popup?.popupBorderColor ?? undefined}
+    borderRadius="md" // TODO: can be done better
+    boxShadow="lg" // TODO: can be done better
+    overflow="auto" // Add this line
   >
 
-{popupEngagement?.popupEngagementUniqueIdentifier && (
-      <Box borderRadius="lg" p={4} mt={4} boxShadow="md">
-        <Text fontWeight="bold">{popup?.popupTitle}</Text>
-        <Text>{popup?.popupContent}</Text>
-      </Box>
-    )}
-    <Box borderRadius="lg" p={4} mb={4} boxShadow="md">
-      <Text fontSize="xl" fontWeight="bold" mb={2}>
-        Chatbot
-      </Text>
-      <Flex direction="column">
-        {chatGPTs.length > 0 && pastChatGPTInput.length > 0 ? (
-          chatGPTs.map((chatGPT, index) => (
-            <Box key={`${chatGPT.requestId}--${chatGPT.id}`} mt={2} p={2} borderWidth={1} borderRadius="md">
-              <Text>{pastChatGPTInput[index]}</Text>
-              <Text>{chatGPT.outputChatGPT}</Text>
-            </Box>
-          ))
-        ) : (
-          <Text>No chat history yet.</Text>
-        )}
+    <Box w={'50%'}>
+      Image.png
+    </Box>
+
+
+    <Spacer />
+
+
+    <Box w={'50%'}>
+      {popupEngagement?.popupEngagementUniqueIdentifier && (
+        <Flex direction={'column'}>
+          <Box>
+            {/* -------------- popupTitle ----------------*/}
+            {popup?.popupTitle ?
+              <Box borderColor={'black'} p={2} mt={2} minHeight={popup?.popupTitleHeight ?? undefined} width={popup?.popupTitleWidth ?? undefined} >
+                <Text fontSize="3xl" textAlign={'center'}>{popup?.popupTitle}</Text>
+              </Box>
+              : null}
+
+            {/* -------------- popupContent --------------*/}
+            {popup?.popupContent ?
+              <Box borderColor={'black'} p={4} minHeight={popup?.popupContentHeight ?? undefined} width={popup?.popupContentWidth ?? undefined}>
+                <Text fontSize="bold" textAlign={'center'}>{popup?.popupContent}</Text>
+              </Box>
+              : null}
+          </Box>
+        </Flex>
+      )}
+
+      {/* -------------- PopupChatHistory ----------------*/}
+      {chatGPTs.length > 0 && pastChatGPTInput.length > 0 ?
+        <Box p={2} m={1}>
+          <Flex direction="column">
+            {chatGPTs.map((chatGPT, index) => (
+              <Box key={`${chatGPT.requestId}--${chatGPT.id}`} mt={1} p={4} borderRadius="md" boxShadow="md">
+                <Text>{pastChatGPTInput[index]}</Text>
+                <Text>{chatGPT.outputChatGPT}</Text>
+              </Box>
+            ))}
+          </Flex>
+        </Box>
+        : null}
+
+      <Flex>
+        <Box width={'80%'}>
+          <Input
+            type="text"
+            value={inputChatGPT}
+            onChange={handleInputChange}
+            placeholder={popup?.popupChatButtonText ?? "You can enter text here"}
+            borderRadius="md"
+            bgColor={popup?.popupChatButtonBoxColor ?? 'white'}
+            focusBorderColor={popup?.popupChatButtonTextColor ?? 'white'}
+            _placeholder={{ color: 'white' }}
+            p={2}
+            m={2}
+          />
+        </Box>
+        <Box>
+          <Button onClick={handleSubmit} colorScheme="blue" m={2} ml={3}>
+            {'Send'}
+          </Button>
+        </Box>
       </Flex>
     </Box>
-    <Input
-      type="text"
-      value={inputChatGPT}
-      onChange={handleInputChange}
-      placeholder="Enter your message"
-      borderRadius="md"
-      mb={2}
-    />
-    <Button onClick={handleSubmit} mt={2} colorScheme="blue">
-      Send
-    </Button>
-    </Box> : null}
-    </>
-    
+  </Flex>
+  : null}
+</>
+
   );
 };
 

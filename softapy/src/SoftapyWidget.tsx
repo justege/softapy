@@ -110,10 +110,8 @@ interface Popup {
 function SoftapyWidget({ widget }: Props) {
   const [popupEngagement, setPopupEngagement] = useState<PopupEngagement>()
   const [popupAdditionals, setPopupAdditionals] = useState<PopupAdditional[]>([])
+  const [pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([])
   const [popup, setPopup] = useState<Popup>()
-  const [cacheKeys, setCacheKeys] = useState<string[]>([]);
-  const [notFound, setNotFound] = useState<boolean>();
-  const [changed, setChanged] = useState(false);
   const [error, setError] = useState<unknown>();
   const id = parseInt(widget.getAttribute('userId') ?? '0');
   const popupId = parseInt(widget.getAttribute('popupId') ?? '0');
@@ -138,28 +136,28 @@ function SoftapyWidget({ widget }: Props) {
   };
 
   const chatGPTInput = async (inputChatGPT: string) => {
-    try {
-      const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ inputChatGPT: inputChatGPT, chatWebsiteURL: window.location.href }),
-      });
-      if (!response.ok) {
-        throw new Error('Something went wrong, try again later');
+      try {
+        const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ inputChatGPT: inputChatGPT, chatWebsiteURL: window.location.href }),
+        });
+        if (!response.ok) {
+          throw new Error('Something went wrong, try again later');
+        }
+        const data = await response.json();
+        setError(undefined);
+      } catch (error) {
+        setError(error);
       }
-      const data = await response.json();
-      setError(undefined);
-    } catch (error) {
-      setError(error);
-    }
+
   };
 
   const [popupImage, setPopupImage] = useState<string | null>(null);
 
   const fetchImage = async (imageUrl: string | null) => {
-    if (imageUrl) {
       try {
         const response = await fetch(`${baseUrl}${imageUrl}`);
         if (!response.ok) {
@@ -172,7 +170,6 @@ function SoftapyWidget({ widget }: Props) {
       } catch (error) {
         setError(error);
       }
-    }
   };
 
   const fetchPopup = async () => {
@@ -192,58 +189,68 @@ function SoftapyWidget({ widget }: Props) {
   };
 
   const fetchChatGPTs = async () => {
-    try {
-      const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
-      if (!response.ok) {
-        throw new Error('Something went wrong, try again later');
+    if (popupEngagement?.popupEngagementUniqueIdentifier){
+      try {
+        const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
+        if (!response.ok) {
+          throw new Error('Something went wrong, try again later');
+        }
+        const data = await response.json();
+        setPopupAdditionals(data.popupAdditional)
+  
+        if (data.chatgpt.length) {
+          setChatGPTs(data.chatgpt);
+          setPastChatGPTOutput(data.chatgpt.map((e: any)=> e.outputChatGPT))
+        } 
+        
+        setError(undefined);
+      } catch (error) {
+        setError(error);
       }
-      const data = await response.json();
-      setPopupAdditionals(data.popupAdditional)
-
-      if (data.chatgpt.length) {
-        setChatGPTs(data.chatgpt);
-      } 
-      
-      setError(undefined);
-    } catch (error) {
-      setError(error);
     }
   };
   
+
+
   useEffect(() => {
-    fetchPopup();
-    fetchChatGPTs();
-
-  }, [id,popupEngagement?.popupEngagementUniqueIdentifier,pastChatGPTInput]);
-
- 
+    if (popupEngagement?.popupEngagementUniqueIdentifier){
+      fetchPopup();
+      fetchChatGPTs();
+    }
+  }, [id,popupEngagement?.popupEngagementUniqueIdentifier]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const message = event.target.value
     setInputChatGPT(message);
 
   };
+  
+  useEffect(() => {
+    fetchChatGPTs();
+}, [id,pastChatGPTInput]);
 
   const handleSubmit = () => {
+    setPastChatGPTInput((state) => [...state, inputChatGPT])
     chatGPTInput(inputChatGPT);
     fetchChatGPTs();
-    setPastChatGPTInput((state) => [...state, inputChatGPT])
     setInputChatGPT('')
   };
 
   const handleButtonSubmit = (ButtonInput: string) => {
+    setPastChatGPTInput((state) => [...state, ButtonInput])
     chatGPTInput(ButtonInput);
     fetchChatGPTs();
-    setPastChatGPTInput((state) => [...state, ButtonInput])
     setInputChatGPT('')
   }
 
   const [popupCreationState, setPopupCreationState] = useState(false);
+  const [shouldCreatePopupEngagement, setShouldCreatePopupEngagement] = useState(false);
 
   useEffect(() => {
     const handleMouseOut = (event: MouseEvent) => {
       if (event.clientY <= 0) {
         setPopupCreationState(true);
+        
       }
     };
     window.addEventListener('mouseout', handleMouseOut);
@@ -252,11 +259,22 @@ function SoftapyWidget({ widget }: Props) {
     };
   }, []);
 
+  useEffect(() => {
+    const handleWindowLoad = () => {
+      setShouldCreatePopupEngagement(true);
+    };
+    window.addEventListener('load', handleWindowLoad);
+    return () => {
+      window.removeEventListener('load', handleWindowLoad);
+    };
+  }, []);
+
+
   useEffect(()=>{
-    if (popupCreationState){
+    if (shouldCreatePopupEngagement){
       createNewPopupEngagement()
     }
-  },[popupCreationState])
+  },[shouldCreatePopupEngagement])
 
   const flexContainerRef = useRef<HTMLDivElement>(null);
 
@@ -266,12 +284,9 @@ function SoftapyWidget({ widget }: Props) {
     }
   }, [popupEngagement, chatGPTs]);
   
-
-
-
   return (
 <>
-{popupEngagement && (
+{ (popupEngagement && popupCreationState) && (
   <Flex
     direction="row"
     w={popup?.popupWidth ?? [800, 550]}
@@ -354,40 +369,39 @@ function SoftapyWidget({ widget }: Props) {
           </Box>
         </Flex>
       )}
-
-      <Box ref={flexContainerRef} overflowY="scroll" h={popup?.popupChatHistoryPercentage ?? undefined }>
-          <Box p={2} m={1}>
-            <Flex direction="column">
-              {(chatGPTs.length > 0 ? chatGPTs :  [{id: 0, requestId: 0, inputChatGPT: popup?.popupExampleInputChatGPT, outputChatGPT: popup?.popupExampleOutputChatGPT }]).map((chatGPT, index) => (
-                <Box key={`${chatGPT.requestId}--${chatGPT.id}--${index}`}>
-                  <Flex justifyContent="flex-end">
-                    <Box
-                      mt={1}
-                      px={2}
-                      py={1}
-                      fontSize="sm"
-                      borderRadius="8px 8px 0 8px"
-                      borderWidth="1px"
-                      borderColor={popup?.popupChatHistoryInputFocusBorderColor ?? undefined}
-                      boxShadow="md"
-                      textColor={popup?.popupChatHistoryInputTextColor ?? undefined}
-                      backgroundColor={popup?.popupChatHistoryInputBoxColor ?? undefined}
-                      position="relative"
-                      _after={{
-                        content: '""',
-                        position: "absolute",
-                        bottom: 0,
-                        right: 0,
-                        width: "8px",
-                        height: "8px",
-                        borderTopRightRadius: 0,
-                        backgroundColor: popup?.popupChatHistoryInputBoxColor ?? undefined,
-                      }}
-                      textAlign={"left" }
-                    >
-                      {chatGPTs.length > 0 ? pastChatGPTInput[index] : popup?.popupExampleInputChatGPT}
-                    </Box>
-                  </Flex>
+      <Box ref={flexContainerRef} overflowY="scroll" h={popup?.popupChatHistoryPercentage ?? undefined}>
+        <Box p={2} m={1}>
+          <Flex direction="column">
+            {(pastChatGPTInput.length>0 ? pastChatGPTInput : ['']).map((input, index) => (
+              <Box key={index}>
+                <Flex justifyContent="flex-end">
+                  <Box
+                    mt={1}
+                    px={2}
+                    py={1}
+                    fontSize="sm"
+                    borderRadius="8px 8px 0 8px"
+                    borderWidth="1px"
+                    borderColor={popup?.popupChatHistoryInputFocusBorderColor ?? undefined}
+                    boxShadow="md"
+                    textColor={popup?.popupChatHistoryInputTextColor ?? undefined}
+                    backgroundColor={popup?.popupChatHistoryInputBoxColor ?? undefined}
+                    position="relative"
+                    _after={{
+                      content: '""',
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                      width: "8px",
+                      height: "8px",
+                      borderTopRightRadius: 0,
+                      backgroundColor: popup?.popupChatHistoryInputBoxColor ?? undefined,
+                    }}
+                    textAlign={"left"}
+                  >
+                    { pastChatGPTInput.length >0 ? input : popup?.popupExampleInputChatGPT}
+                  </Box>
+                </Flex>
                   <Flex justifyContent="flex-start">
                     <Box
                       mt={1}
@@ -401,26 +415,28 @@ function SoftapyWidget({ widget }: Props) {
                       textColor={popup?.popupChatHistoryOutputTextColor ?? undefined}
                       backgroundColor={popup?.popupChatHistoryOutputBoxColor ?? undefined}
                       position="relative"
-                      _before={{
+                      _after={{
                         content: '""',
                         position: "absolute",
                         bottom: 0,
                         left: 0,
-                        width: "16px",
+                        width: "8px",
                         height: "8px",
                         borderTopLeftRadius: 0,
                         backgroundColor: popup?.popupChatHistoryOutputBoxColor ?? undefined,
                       }}
-                      textAlign={"right" }
+                      textAlign={"left"}
                     >
-                      {chatGPT.outputChatGPT }
+                      {pastChatGPTInput.length >0 ?  (pastChatGPTOutput[index]== null? '...' : pastChatGPTOutput[index]) : popup?.popupExampleOutputChatGPT}
                     </Box>
                   </Flex>
-                </Box>
-              ))}
-            </Flex>
-          </Box>
+              </Box>
+            ))}
+          </Flex>
+        </Box>
       </Box>
+
+
 
       <Box h={popup?.popupChatSendPercentage ?? undefined}>
         {chatGPTs.length === 0 && (

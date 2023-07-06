@@ -3,12 +3,12 @@ import { Box, Button, Flex, Input, Text, Spacer, Img } from "@chakra-ui/react";
 import { baseUrl} from './shared'
 
 interface Props {
-  widget: HTMLElement;
+  id: number;
+  popupId: number;
 }
 
 type ChatGPT = {
   id: number;
-  chatWebsiteURL: string;
   requestId: number;
   inputChatGPT: string;
   outputChatGPT: string;
@@ -115,14 +115,12 @@ interface Popup {
 }
 
 
-function ConvertPopup({ widget }: Props) {
+function ConvertPopup({ id, popupId }: Props) {
   const [popupEngagement, setPopupEngagement] = useState<PopupEngagement>()
   const [popupAdditionals, setPopupAdditionals] = useState<PopupAdditional[]>([])
   const [pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([])
   const [popup, setPopup] = useState<Popup>()
   const [error, setError] = useState<unknown>();
-  const id = parseInt(widget.getAttribute('userId') ?? '0');
-  const popupId = parseInt(widget.getAttribute('popupId') ?? '0');
   const [chatGPTs, setChatGPTs] = useState<ChatGPT[]>([]);
   const [inputChatGPT, setInputChatGPT] = useState('');
   const [pastChatGPTInput, setPastChatGPTInput] = useState<string[]>([]);
@@ -131,6 +129,10 @@ function ConvertPopup({ widget }: Props) {
     try {
       const response = await fetch(`${baseUrl}popup/createNewPopupEngagement/${popupId}/${id}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ conversationStartedAtWebsiteLink: window.location.href }),
       });
       if (!response.ok) {
         throw new Error('Something went wrong, try again later');
@@ -150,7 +152,7 @@ function ConvertPopup({ widget }: Props) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ inputChatGPT: inputChatGPT, chatWebsiteURL: window.location.href }),
+          body: JSON.stringify({ inputChatGPT: inputChatGPT }),
         });
         if (!response.ok) {
           throw new Error('Something went wrong, try again later');

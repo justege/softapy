@@ -3,23 +3,22 @@ import ReactDOM from 'react-dom';
 import ConvertPopup from './ConvertPopup';
 import { ChakraProvider } from "@chakra-ui/react";
 
+const scriptElement = document.querySelector('script[name="convert-popup"]') as HTMLScriptElement;
 
+// Retrieve the parameters from the script tag attributes
+const userId = scriptElement.getAttribute('userId')  ?? '0';
+const popupId = scriptElement.getAttribute('popupId')  ?? '0';
 
-window.addEventListener('DOMContentLoaded', function () {
-  const widgets = document.querySelectorAll('.convert-popup');
+// Create the container element for the widget
+const widgetContainer = document.createElement('div');
+document.body.appendChild(widgetContainer);
 
-  widgets.forEach(widget => {
-    const appContainer = document.createElement('div');
-    widget.appendChild(appContainer);
-
-    ReactDOM.render(
-      <ChakraProvider>
-      <React.StrictMode>
-        <ConvertPopup widget={widget as HTMLElement} />
-      </React.StrictMode>
-    </ChakraProvider>,
-      appContainer
-    );
-  });
-});
-
+// Render the ConvertPopup component with the parameters
+ReactDOM.render(
+  <ChakraProvider>
+    <React.StrictMode>
+      <ConvertPopup id={parseInt(userId) } popupId={parseInt(popupId)} />
+    </React.StrictMode>
+  </ChakraProvider>,
+  widgetContainer
+);

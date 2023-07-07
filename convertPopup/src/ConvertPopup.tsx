@@ -115,6 +115,7 @@ interface Popup {
 }
 
 
+
 function ConvertPopup({ id, popupId }: Props) {
   const [popupEngagement, setPopupEngagement] = useState<PopupEngagement>()
   const [popupAdditionals, setPopupAdditionals] = useState<PopupAdditional[]>([])
@@ -169,24 +170,7 @@ function ConvertPopup({ id, popupId }: Props) {
         setError(error);
       }
   };
-
-  const [popupImage, setPopupImage] = useState<string | null>(null);
-
-  const fetchImage = async (imageUrl: string | null) => {
-      try {
-        const response = await fetch(`${baseUrl}${imageUrl}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch popup image');
-        }
-        const blob = await response.blob();
-        const imageSrc = URL.createObjectURL(blob);
-        setPopupImage(imageSrc);
-        setError(undefined);
-      } catch (error) {
-        setError(error);
-      }
-  };
-
+  
   const fetchPopup = async () => {
     try {
       const response = await fetch(`${baseUrl}popup/${popupId}/${id}`);
@@ -197,7 +181,6 @@ function ConvertPopup({ id, popupId }: Props) {
       setPopup(data.popup);
 
       setError(undefined);
-      await fetchImage(data.popup.popupImage); // Fetch the popup image
     } catch (error) {
       setError(error);
     }
@@ -299,6 +282,8 @@ function ConvertPopup({ id, popupId }: Props) {
 
   const flexContainerRef = useRef<HTMLDivElement>(null);
 
+  console.log('imageUrl', `${baseUrl}/${popup?.popupImage}`)
+
   useEffect(() => {
     handleScrollToBottom(); // Scroll to the bottom after chatGPTs update
   }, [pastChatGPTOutput]);
@@ -330,15 +315,14 @@ function ConvertPopup({ id, popupId }: Props) {
     borderRadius={popup?.popupBorderRadius ?? '0'}
     boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
   >
-    {popupImage && (
+    {popup?.popupImage && (
       <Box w="50%">
         <Img
           border={popup?.popupImageBorderWidth ?? undefined}
           borderColor={popup?.popupImageBorderColor ?? undefined}
           width={popup?.popupImageWidth ?? undefined}
           height={popup?.popupImageHeight ?? undefined}
-          src={popupImage}
-          alt="Popup Image"
+          src={`${baseUrl}/${popup?.popupImage}`}
         />
         { popup?.popupHasLogo && 
         <Text h={'5%'} mt={1} align={'center'} fontSize={'sm'}>

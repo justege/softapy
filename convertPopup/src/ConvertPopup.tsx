@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { Box, Button, Flex, Input, Text, Spacer, Img } from "@chakra-ui/react";
+import { Box, Button,  Flex, Input, Text, Spacer, Img,  Stack, Image, useColorModeValue , VStack,Center} from "@chakra-ui/react";
 import { baseUrl} from './shared'
 
 interface Props {
@@ -31,6 +31,7 @@ interface PopupAdditional {
 
 interface Popup {
   popupId: number;
+  popupType: number;
   popupGoal: number | null;
   popupHeight: number | null;
   popupWidth: number | null;
@@ -114,6 +115,22 @@ interface Popup {
   popupExampleOutputChatGPT: string | null;  
 }
 
+type Answer = {
+  id: number;
+  text: string;
+  next_question: number | null;
+	//image = models.ImageField(null=True, blank=True)
+	answerHasInputField: boolean;
+	answerInputTextField: string;
+	answerHasCallToAction: boolean;
+	answerCallToActionURL: string;
+};
+
+type Question = {
+  id: number;
+  text: string;
+  answers: Answer[];
+};
 
 
 function ConvertPopup({ id, popupId }: Props) {
@@ -125,6 +142,12 @@ function ConvertPopup({ id, popupId }: Props) {
   const [chatGPTs, setChatGPTs] = useState<ChatGPT[]>([]);
   const [inputChatGPT, setInputChatGPT] = useState('');
   const [pastChatGPTInput, setPastChatGPTInput] = useState<string[]>([]);
+  const [question, setQuestion] = useState<Question  | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);  
+
+  const answer = 'Example Answer';
+  const groupId = 1;
+
 
   const createNewPopupEngagement = async () => {
     try {
@@ -184,6 +207,8 @@ function ConvertPopup({ id, popupId }: Props) {
     } catch (error) {
       setError(error);
     }
+
+    
   };
 
   const fetchChatGPTs = async () => {
@@ -207,7 +232,54 @@ function ConvertPopup({ id, popupId }: Props) {
       }
     }
   };
-  
+
+  // Fetch the questionnaire on component mount
+  useEffect(() => {
+    fetch(`${baseUrl}/start/1/`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => setQuestion(data))
+      .catch((error) => {
+        console.error('There has been a problem with your fetch operation:', error);
+      });
+  }, []);
+
+
+
+  const postAnswer = () => {  // Adjust this function to post an array of answer IDs
+    fetch(`${baseUrl}answer/${question?.id}/`, {  
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ answer_ids: selectedAnswers }),
+    })
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then((data) => {
+        setQuestion(data);
+        setSelectedAnswers([]);  // Reset the selected answers when a new question is fetched
+    })
+    .catch((error) => {
+        console.error('There has been a problem with your fetch operation:', error);
+    });
+};
+
+  const toggleAnswer = (answerId: number) => {  // Add this function to handle selecting and deselecting answers
+    setSelectedAnswers((prevSelectedAnswers) =>
+      prevSelectedAnswers.includes(answerId)
+        ? prevSelectedAnswers.filter((id) => id !== answerId)
+        : [...prevSelectedAnswers, answerId]
+    );
+  };
 
   useEffect(() => {
     if (popupEngagement?.popupEngagementUniqueIdentifier){
@@ -230,13 +302,17 @@ function ConvertPopup({ id, popupId }: Props) {
     chatGPTInput(inputChatGPT);
     fetchChatGPTs();
     setInputChatGPT('')
-  };
+
+  }
+
 
   const handleButtonSubmit = (ButtonInput: string) => {
     setPastChatGPTInput((state) => [...state, ButtonInput])
     chatGPTInput(ButtonInput);
     fetchChatGPTs();
     setInputChatGPT('')
+
+
   }
 
   const [popupCreationState, setPopupCreationState] = useState(false);
@@ -294,6 +370,16 @@ function ConvertPopup({ id, popupId }: Props) {
       return popup?.popupChatHistoryPercentage
     }
   }, [popup, chatGPTs]);
+
+  const calculateAnswerHeight = useMemo(() => {
+    if (!popup?.popupImageHeight || !question?.answers.length) {
+      return null;
+    }
+    
+    return (popup.popupImageHeight ) / (question.answers.length + 1.2) -10;
+}, [popup, question?.answers]);
+
+  const bgColor = useColorModeValue('white', 'gray.800');
   
   return (
 <>
@@ -313,22 +399,85 @@ function ConvertPopup({ id, popupId }: Props) {
     borderRadius={popup?.popupBorderRadius ?? '0'}
     boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
   >
-    {popup?.popupImage && (
+    
       <Box w="50%">
-        <Img
-          border={popup?.popupImageBorderWidth ?? undefined}
+        <Box
+          p={5}
+          bg={bgColor}
+          display="flex"
+          borderRight ={popup?.popupImageBorderWidth ?? undefined}
           borderColor={popup?.popupImageBorderColor ?? undefined}
           width={popup?.popupImageWidth ?? undefined}
-          height={popup?.popupImageHeight ?? undefined}
-          src={`${baseUrl}${popup?.popupImage}`}
-        />
+          height={popup?.popupImageHeight ?? undefined} 
+          borderRightWidth={2}
+          flexDirection="column"
+          justifyContent="space-between"
+        >
+          <Text fontSize="md" mb={3} height='5%'>{question?.text}</Text>
+
+          <VStack spacing={2} align="stretch" overflow='auto' height='90%'>
+    {question?.answers.map((answer) => (
+        <Box 
+            position="relative"
+            borderRadius="md"
+            overflow="hidden"
+            borderColor={selectedAnswers.includes(answer.id) ? "teal" : "gray"}
+            borderWidth={3}
+        >
+            <Button
+                key={answer.id}
+                colorScheme={selectedAnswers.includes(answer.id) ? "teal" : "gray"}
+                bg="whiteAlpha.700"
+                variant="solid"
+                onClick={() => answer.answerHasCallToAction ? console.log('routed') : toggleAnswer(answer.id)}
+                p={0} // remove padding to make image cover the whole button area
+                width="100%"
+                height={ calculateAnswerHeight ?? undefined}
+                alignItems="center"
+                justifyContent="center"
+            >
+              <Box p={0}                    
+              width="100%" 
+              height='100%'>
+              <Image 
+                    src={`${baseUrl}${popup?.popupImage}`} 
+                    width="100%" 
+                    height={(calculateAnswerHeight ? calculateAnswerHeight - 30 : undefined) ?? undefined}
+                />
+                    <Text                    
+                    backgroundColor={selectedAnswers.includes(answer.id) ? "teal" : "gray"}
+                    p={2}
+                    w="100%" fontSize={'sm'} textColor={'white'}>
+                    {answer.text}
+                      </Text>
+
+
+                {answer.answerHasInputField && <Input placeholder="Enter response" />}
+              </Box>
+
+
+
+
+            </Button>
+        </Box>
+    ))}
+</VStack>
+          
+          <Button position="absolute"  onClick={postAnswer} colorScheme="teal" mt={5} bottom="14px" w='290px'>Submit</Button>
+        </Box>
+
+        {false && 
+                <Img
+                src={`${baseUrl}${popup?.popupImage}`}
+              />
+        }
+
         { popup?.popupHasLogo && 
         <Text h={'5%'} mt={1} align={'center'} fontSize={'sm'}>
         {'Made with ♥ by convertpopup.com'}
         </Text>
         } 
       </Box>
-    )}
 
     <Spacer />
 
@@ -513,5 +662,6 @@ function ConvertPopup({ id, popupId }: Props) {
 
   );
 };
+
 
 export default ConvertPopup;

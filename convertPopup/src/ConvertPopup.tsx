@@ -119,7 +119,7 @@ type Answer = {
   id: number;
   text: string;
   next_question: number | null;
-	//image = models.ImageField(null=True, blank=True)
+	image: string;
 	answerHasInputField: boolean;
 	answerInputTextField: string;
 	answerHasCallToAction: boolean;
@@ -250,13 +250,13 @@ function ConvertPopup({ id, popupId }: Props) {
 
 
 
-  const postAnswer = () => {  // Adjust this function to post an array of answer IDs
-    fetch(`${baseUrl}answer/${question?.id}/`, {  
+  const postAnswer =  () => {  // Adjust this function to post an array of answer IDs
+     fetch(`${baseUrl}answer/${question?.id}/`, {  
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ answer_ids: selectedAnswers }),
+        body: JSON.stringify({ answer_ids: selectedAnswers, popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier }),
     })
     .then((response) => {
         if (!response.ok) {
@@ -265,8 +265,10 @@ function ConvertPopup({ id, popupId }: Props) {
         return response.json();
     })
     .then((data) => {
+        AnswerQuestionForChatGPTInput()
         setQuestion(data);
         setSelectedAnswers([]);  // Reset the selected answers when a new question is fetched
+        
     })
     .catch((error) => {
         console.error('There has been a problem with your fetch operation:', error);
@@ -292,6 +294,12 @@ function ConvertPopup({ id, popupId }: Props) {
     const message = event.target.value
     setInputChatGPT(message);
   };
+
+  const AnswerQuestionForChatGPTInput = () => {
+    const stringValue: string = selectedAnswers.map(String).join(', ');
+    setPastChatGPTInput([...pastChatGPTInput,...[stringValue]])
+  };
+
   
   useEffect(() => {
     fetchChatGPTs();
@@ -384,6 +392,7 @@ function ConvertPopup({ id, popupId }: Props) {
   return (
 <>
 { (popupEngagement && popupCreationState) && (
+  <>   
   <Flex
     direction="row"
     w={popup?.popupWidth ?? [800, 550]}
@@ -413,11 +422,19 @@ function ConvertPopup({ id, popupId }: Props) {
           flexDirection="column"
           justifyContent="space-between"
         >
-          <Text fontSize="md" mb={3} height='5%'>{question?.text}</Text>
+          <Text 
+          fontSize="lg" 
+          mb={1} 
+          color={'black'} //TODO
+          fontWeight= {"bold"} // TODO
+          >
+            {question?.text} 
+          </Text>
 
           <VStack spacing={2} align="stretch" overflow='auto' height='90%'>
     {question?.answers.map((answer) => (
         <Box 
+            key = {answer.id}
             position="relative"
             borderRadius="md"
             overflow="hidden"
@@ -440,7 +457,7 @@ function ConvertPopup({ id, popupId }: Props) {
               width="100%" 
               height='100%'>
               <Image 
-                    src={`${baseUrl}${popup?.popupImage}`} 
+                    src={`${baseUrl}${answer.image}`} 
                     width="100%" 
                     height={(calculateAnswerHeight ? calculateAnswerHeight - 30 : undefined) ?? undefined}
                 />
@@ -457,13 +474,12 @@ function ConvertPopup({ id, popupId }: Props) {
 
 
 
-
             </Button>
         </Box>
     ))}
 </VStack>
           
-          <Button position="absolute"  onClick={postAnswer} colorScheme="teal" mt={5} bottom="14px" w='290px'>Submit</Button>
+    <Button position="absolute"  onClick={postAnswer} colorScheme="teal" mt={5} bottom="14px" w='290px'>Submit</Button>
         </Box>
 
         {false && 
@@ -471,13 +487,12 @@ function ConvertPopup({ id, popupId }: Props) {
                 src={`${baseUrl}${popup?.popupImage}`}
               />
         }
-
-        { popup?.popupHasLogo && 
-        <Text h={'5%'} mt={1} align={'center'} fontSize={'sm'}>
-        {'Made with ♥ by convertpopup.com'}
-        </Text>
-        } 
-      </Box>
+    {popup?.popupHasLogo && 
+    <Text h={'3%'} align={'center'}  fontSize={'xs'}>
+    {'Powered with ♥ by convertpopup.com'}
+    </Text>} 
+    
+    </Box>
 
     <Spacer />
 
@@ -652,9 +667,9 @@ function ConvertPopup({ id, popupId }: Props) {
           </Box>
         </Flex>
         </Box>
-
     </Box>
   </Flex>
+  </>
 )}
 
 </>

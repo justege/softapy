@@ -1,137 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { Box, Button,  Flex, Input, Text, Spacer, Img,  Stack, Image, useColorModeValue , VStack,Center} from "@chakra-ui/react";
+import { Box, Button,  Flex, Input, Text, Spacer, Img,  Stack, Image, useColorModeValue , VStack, Center, Textarea} from "@chakra-ui/react";
 import { baseUrl} from './shared'
-
-interface Props {
-  id: number;
-  popupId: number;
-}
-
-type ChatGPT = {
-  id: number;
-  requestId: number;
-  inputChatGPT: string;
-  outputChatGPT: string;
-}
-
-type PopupEngagement = {
-  id: number;
-  popupEngagementId: number;
-  popupEngagementTitle: string;
-  popupEngagementEnd: string;
-  popupEngagementStart: string;
-  popupEngagementUniqueIdentifier: string;
-}
-
-interface PopupAdditional {
-	popupAdditionalId : number;
-	popupAdditionalText : string;
-	popupAdditionalLink : string;
-}
-
-interface Popup {
-  popupId: number;
-  popupType: number;
-  popupGoal: number | null;
-  popupHeight: number | null;
-  popupWidth: number | null;
-  popupEmailSubscription: boolean | null;
-  popupPromo: boolean | null;
-  popupBorderRadius: string | null;
-  popupBorderBoxShadow: string | null;
-  popupImage: string | null;
-  popupImageBorderColor: string | null;
-  popupImageBorderWidth: string | null;
-  popupImageWidth: number | null;
-  popupImageHeight: number | null;
-  popupHasLogo: boolean | null;
-  popupBackgroundColor: string | null;
-  popupBorderColor: string | null;
-  popupBorderWidth: string | null;
-  popupTitle: string | null;
-  popupTitleHeight: number | null;
-  popupTitleWidth: number | null;
-  popupTitlePositioning: number | null;
-  popupTitleTextColor: string | null;
-  popupTitleFontSize: string | null;
-  popupTitleFontWeight: string | null;
-  popupContentFontSize: string | null;
-  popupContentFontWeight: string | null;
-  popupChatHistoryFontSize: string | null; 
-  popupTextMarginLeft: number | null;
-  popupTextMarginRight: number | null;
-  popupContent: string | null;
-  popupContentHasBorder: boolean | null;
-  popupContentHeight: number | null;
-  popupContentWidth: number | null;
-  popupContentPositioning: number | null;
-  popupContentTextColor: string | null;
-  popupChatHistoryPositioning: number | null;
-  popupChatHistoryInputBoxColor: string | null;
-  popupChatHistoryOutputBoxColor: string | null;
-  popupChatHistoryTextSize: number | null;
-  popupChatHistoryBoxColor: string | null;
-  popupChatHistoryInputTextColor: string | null;
-  popupChatHistoryOutputTextColor: string  | null;
-  popupChatHistoryInputFocusBorderColor: string | null;
-  popupChatHistoryOutputFocusBorderColor: string | null;
-  popupChatButtonText: string | null;
-  popupChatButtonPositioning: number | null;
-  popupChatButtonTextColor: string | null;
-  popupChatButtonTextSize: number | null;
-  popupChatButtonBoxColor: string | null;
-  popupChatButtonFocusBorderColor: string | null;
-  popupSuggestionButtonPositioning: number | null;
-  popupSuggestionButtonTextColor: string | null;
-  popupSuggestionButtonTextSize: number | null;
-  popupSuggestionButtonBoxColor: string | null;
-  popupSuggestionButtonFocusBorderColor: string | null;
-  popupCloseButtonText: string | null;
-  popupCloseButtonPositioning: number | null;
-  popupCloseButtonTextColor: string | null;
-  popupCloseButtonBoxColor: string | null;
-  popupCloseButtonVariantBoxColor: string | null;
-  popupCloseColorScheme: string | null;
-  popupCloseButtonTextSize: string | null;
-  popupCloseButtonVariant: string | null;
-  popupCTAButtonText: string | null;
-  popupCTAButtonPositioning: number | null;
-  popupCTAButtonTextColor: string | null;
-  popupCTAButtonHeight: number | null;
-  popupCTAButtonWidth: number | null;
-  popupCTAButtonLink: string | null;
-  popupCTAButtonBorderColor: string | null;
-  popupCTAButtonHasBorder: boolean | null;
-  popupSendButtonColor: string | null;
-  popupSendButtonTextColor: string | null;
-  popupSendButtonText: string | null;
-  popupSendButtonVariant: string | null;
-  popupSendButtonColorScheme: string | null;
-	popupTitleAndContentPercentage : string | null;
-	popupChatHistoryPercentage: string | null;
-	popupChatSendPercentage: string | null;
-	popupCTAPercentage : string | null;
-  popupExampleInputChatGPT: string | null;
-  popupExampleOutputChatGPT: string | null;  
-}
-
-type Answer = {
-  id: number;
-  text: string;
-  next_question: number | null;
-	image: string;
-	answerHasInputField: boolean;
-	answerInputTextField: string;
-	answerHasCallToAction: boolean;
-	answerCallToActionURL: string;
-};
-
-type Question = {
-  id: number;
-  text: string;
-  answers: Answer[];
-};
-
+import {Props, ChatGPT, PopupEngagement, PopupAdditional, Popup, Answer, Question} from './ConvertPopupTypes'
 
 function ConvertPopup({ id, popupId }: Props) {
   const [popupEngagement, setPopupEngagement] = useState<PopupEngagement>()
@@ -143,10 +13,13 @@ function ConvertPopup({ id, popupId }: Props) {
   const [inputChatGPT, setInputChatGPT] = useState('');
   const [pastChatGPTInput, setPastChatGPTInput] = useState<string[]>([]);
   const [question, setQuestion] = useState<Question  | null>(null);
-  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);  
+  const [selectedAnswers, setSelectedAnswers] = useState<{answerId: number, text_for_chatgpt: string}[]>([]);  
+  const [value, setValue] = useState<{answerId: number, answerInput: string}[]>([])
 
-  const answer = 'Example Answer';
-  const groupId = 1;
+
+  const handleTextAreaChange = (answerId: number,e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue((state)=> [...state, {answerId: answerId, answerInput: e.target.value}])
+  }
 
 
   const createNewPopupEngagement = async () => {
@@ -256,7 +129,7 @@ function ConvertPopup({ id, popupId }: Props) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ answer_ids: selectedAnswers, popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier }),
+        body: JSON.stringify({ answer_ids: selectedAnswers.map((e)=> e.answerId), popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier }),
     })
     .then((response) => {
         if (!response.ok) {
@@ -275,13 +148,14 @@ function ConvertPopup({ id, popupId }: Props) {
     });
 };
 
-  const toggleAnswer = (answerId: number) => {  // Add this function to handle selecting and deselecting answers
-    setSelectedAnswers((prevSelectedAnswers) =>
-      prevSelectedAnswers.includes(answerId)
-        ? prevSelectedAnswers.filter((id) => id !== answerId)
-        : [...prevSelectedAnswers, answerId]
-    );
-  };
+const toggleAnswer = (answerId: number, answerChatGPT: string) => {
+  setSelectedAnswers((selectedAnswers) => {
+    const isSelected = selectedAnswers.some((e) => e.answerId === answerId);
+    return isSelected
+      ? selectedAnswers.filter((selectedAnswer) => selectedAnswer.answerId !== answerId)
+      : [...selectedAnswers, { answerId: answerId, text_for_chatgpt: answerChatGPT }];
+  });
+};
 
   useEffect(() => {
     if (popupEngagement?.popupEngagementUniqueIdentifier){
@@ -296,8 +170,10 @@ function ConvertPopup({ id, popupId }: Props) {
   };
 
   const AnswerQuestionForChatGPTInput = () => {
-    const stringValue: string = selectedAnswers.map(String).join(', ');
+    const stringValue: string = selectedAnswers.map((e) => e.text_for_chatgpt).join(', ');
     setPastChatGPTInput([...pastChatGPTInput,...[stringValue]])
+    chatGPTInput(stringValue);
+    fetchChatGPTs();
   };
 
   
@@ -310,17 +186,13 @@ function ConvertPopup({ id, popupId }: Props) {
     chatGPTInput(inputChatGPT);
     fetchChatGPTs();
     setInputChatGPT('')
-
   }
-
 
   const handleButtonSubmit = (ButtonInput: string) => {
     setPastChatGPTInput((state) => [...state, ButtonInput])
     chatGPTInput(ButtonInput);
     fetchChatGPTs();
     setInputChatGPT('')
-
-
   }
 
   const [popupCreationState, setPopupCreationState] = useState(false);
@@ -384,10 +256,10 @@ function ConvertPopup({ id, popupId }: Props) {
       return null;
     }
     
-    return (popup.popupImageHeight ) / (question.answers.length + 1.2) -10;
+    return (popup.popupImageHeight ) / (question.answers.length + 1.2) - 10;
 }, [popup, question?.answers]);
 
-  const bgColor = useColorModeValue('white', 'gray.800');
+  const bgColor = useColorModeValue('white', 'white');
   
   return (
 <>
@@ -408,7 +280,6 @@ function ConvertPopup({ id, popupId }: Props) {
     borderRadius={popup?.popupBorderRadius ?? '0'}
     boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
   >
-    
       <Box w="50%">
         <Box
           p={5}
@@ -431,54 +302,67 @@ function ConvertPopup({ id, popupId }: Props) {
             {question?.text} 
           </Text>
 
-          <VStack spacing={2} align="stretch" overflow='auto' height='90%'>
-    {question?.answers.map((answer) => (
-        <Box 
-            key = {answer.id}
-            position="relative"
-            borderRadius="md"
-            overflow="hidden"
-            borderColor={selectedAnswers.includes(answer.id) ? "teal" : "gray"}
-            borderWidth={3}
-        >
-            <Button
-                key={answer.id}
-                colorScheme={selectedAnswers.includes(answer.id) ? "teal" : "gray"}
-                bg="whiteAlpha.700"
-                variant="solid"
-                onClick={() => answer.answerHasCallToAction ? console.log('routed') : toggleAnswer(answer.id)}
-                p={0} // remove padding to make image cover the whole button area
-                width="100%"
-                height={ calculateAnswerHeight ?? undefined}
-                alignItems="center"
-                justifyContent="center"
-            >
-              <Box p={0}                    
-              width="100%" 
-              height='100%'>
-              <Image 
-                    src={`${baseUrl}${answer.image}`} 
-                    width="100%" 
-                    height={(calculateAnswerHeight ? calculateAnswerHeight - 30 : undefined) ?? undefined}
-                />
-                    <Text                    
-                    backgroundColor={selectedAnswers.includes(answer.id) ? "teal" : "gray"}
-                    p={2}
-                    w="100%" fontSize={'sm'} textColor={'white'}>
-                    {answer.text}
-                      </Text>
+      <VStack spacing={2} align="stretch" overflow='auto' height='90%'>
+      
+      {question?.answers.map((answer) => (
+      <>
+      {!answer.answerHasInputField &&
+      (
+      <Box 
+      className='MainComponent'
+      key = {answer.id}
+      borderRadius="md"
+      overflow="hidden"
+      borderColor={selectedAnswers.some((e) => e.answerId === answer.id) ? "teal" : "gray"}
+      borderWidth={2}
+      >
+      <Button
+      key={answer.id}
+      variant="solid"
+      borderRadius="md"
+      onClick={() => answer.answerHasCallToAction ? false : toggleAnswer(answer.id, answer.text_for_chatgpt)} // TODO
+      width="100%"
+      height={ calculateAnswerHeight ?? undefined}
+      p={0} // Remove padding to make image cover the whole button area
+      >
+      <Flex
+        bg={selectedAnswers.some((e) => e.answerId === answer.id) ? "teal" : "gray"}
+        direction="column" // stack child components vertically
+        align="center" // center-align child components
+        justify="flex-start" // align child components to the start
+        width="100%"
+        height="100%"
+        overflow="hidden"
+      >
+        <Image 
+          src={`${baseUrl}${answer.image}`} 
+          boxSize="100%" 
+          objectFit="cover"
+          flexShrink={0} // Prevent the image from shrinking
+          flexGrow={1} // Allow the image to grow
+          minHeight='80%'
+          maxHeight="80%" // Limit image height to 80% of the flex container
+          />
+        <Text
+          backgroundColor={selectedAnswers.some((e) => e.answerId === answer.id) ? "teal" : "gray"}
+          p={1}
+          width={'100%'}
+          fontSize={'sm'} 
+          color={'white'}
+          minHeight='20%'
+          maxHeight="20%" // Limit text height to 20% of the flex container
+          overflow="auto" // Add scroll if the text is too much to fit in the allocated space
+          >
+          {answer.text}
+        </Text>
+      </Flex>
+      </Button>
+      </Box>)
+      }
+      </>
+      ))}
+      </VStack>    
 
-
-                {answer.answerHasInputField && <Input placeholder="Enter response" />}
-              </Box>
-
-
-
-            </Button>
-        </Box>
-    ))}
-</VStack>
-          
     <Button position="absolute"  onClick={postAnswer} colorScheme="teal" mt={5} bottom="14px" w='290px'>Submit</Button>
         </Box>
 

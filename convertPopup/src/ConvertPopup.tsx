@@ -14,11 +14,24 @@ function ConvertPopup({ id, popupId }: Props) {
   const [pastChatGPTInput, setPastChatGPTInput] = useState<string[]>([]);
   const [question, setQuestion] = useState<Question  | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<{answerId: number, text_for_chatgpt: string}[]>([]);  
-  const [value, setValue] = useState<{answerId: number, answerInput: string}[]>([])
+  const [questionInputState, setQuestionInputState] = useState<{answerId: number, answerInput: string}[]>([])
 
 
-  const handleTextAreaChange = (answerId: number,e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue((state)=> [...state, {answerId: answerId, answerInput: e.target.value}])
+  const handleTextAreaChange = (answerId: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const message = e.target.value
+    setQuestionInputState((state) => {
+      // find the index of the existing object
+      const existingIndex = state.findIndex((item) => item.answerId === answerId);
+      if (existingIndex >= 0) {
+        // if the object exists, create a new array with the updated object
+        const newState = [...state];
+        newState[existingIndex].answerInput = message;
+        return newState;
+      } else {
+        // if the object doesn't exist, add a new object to the array
+        return [...state, { answerId: answerId, answerInput: message }];
+      }
+    })
   }
 
 
@@ -361,6 +374,19 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
       }
       </>
       ))}
+
+    {question?.answers.filter((e) => e.answerHasInputField).map((answer) => (
+    <>
+    <Text mb={4} maxH={'40%'}>Please enter your answer</Text>
+    <Input
+      maxH={'60%'}
+      value={questionInputState.find((e) => e.answerId===answer.id)?.answerInput}
+      onChange={(event) => handleTextAreaChange(answer.id, event)}
+      placeholder='Here is a sample placeholder'
+      size='sm'
+    />
+    </>
+    ))}
       </VStack>    
 
     <Button position="absolute"  onClick={postAnswer} colorScheme="teal" mt={5} bottom="14px" w='290px'>Submit</Button>
@@ -492,7 +518,7 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
                       }}
                       textAlign={"left"}
                     >
-                      {pastChatGPTInput.length >0 ?  (pastChatGPTOutput[index]== null? '...' : pastChatGPTOutput[index]) : popup?.popupExampleOutputChatGPT}
+                      {pastChatGPTInput.length >0 ?  (pastChatGPTOutput[index]=== null? '...' : pastChatGPTOutput[index]) : popup?.popupExampleOutputChatGPT}
                     </Box>
                   </Flex>
               </Box>

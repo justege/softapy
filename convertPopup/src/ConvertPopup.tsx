@@ -1,7 +1,17 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Box, Button,  Flex, Input, Text, Spacer, Img,  Stack, Image, useColorModeValue , VStack, Center, Textarea} from "@chakra-ui/react";
 import { baseUrl} from './shared'
-import {Props, ChatGPT, PopupEngagement, PopupAdditional, Popup, Answer, Question} from './ConvertPopupTypes'
+import { Props, ChatGPT, PopupEngagement, PopupAdditional, Popup, Answer, Question} from './Types'
+import { Controller, useForm } from 'react-hook-form';
+import FormComponent from './FormComponent';
+
+
+
+type FieldValues = {
+  questionId: {
+    [key: string]: string;
+  };
+}
 
 function ConvertPopup({ id, popupId }: Props) {
   const [popupEngagement, setPopupEngagement] = useState<PopupEngagement>()
@@ -13,9 +23,10 @@ function ConvertPopup({ id, popupId }: Props) {
   const [inputChatGPT, setInputChatGPT] = useState('');
   const [pastChatGPTInput, setPastChatGPTInput] = useState<string[]>([]);
   const [question, setQuestion] = useState<Question  | null>(null);
-  const [selectedAnswers, setSelectedAnswers] = useState<{answerId: number, text_for_chatgpt: string}[]>([]);  
+  const [selectedAnswers, setSelectedAnswers] = useState<{answerId: number, customTextInput: string}[]>([]);  
   const [questionInputState, setQuestionInputState] = useState<{answerId: number, answerInput: string}[]>([])
-
+  const [popupCreationState, setPopupCreationState] = useState(false);
+  const [shouldCreatePopupEngagement, setShouldCreatePopupEngagement] = useState(false);
 
   const handleTextAreaChange = (answerId: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const message = e.target.value
@@ -33,7 +44,6 @@ function ConvertPopup({ id, popupId }: Props) {
       }
     })
   }
-
 
   const createNewPopupEngagement = async () => {
     try {
@@ -93,8 +103,6 @@ function ConvertPopup({ id, popupId }: Props) {
     } catch (error) {
       setError(error);
     }
-
-    
   };
 
   const fetchChatGPTs = async () => {
@@ -119,6 +127,8 @@ function ConvertPopup({ id, popupId }: Props) {
     }
   };
 
+  const { control, handleSubmit, watch, reset } = useForm<FieldValues>();
+
   // Fetch the questionnaire on component mount
   useEffect(() => {
     fetch(`${baseUrl}/start/1/`)
@@ -135,14 +145,27 @@ function ConvertPopup({ id, popupId }: Props) {
   }, []);
 
 
+  const postAnswer = async () => {  // Adjust this function to post an array of answer IDs
 
-  const postAnswer =  () => {  // Adjust this function to post an array of answer IDs
-     fetch(`${baseUrl}answer/${question?.id}/`, {  
+
+    const questionInputFormWatch = watch('questionId');
+    
+    const combinedList = [
+      ...selectedAnswers,
+      ...(questionInputFormWatch
+        ? Object.entries(questionInputFormWatch).map(([answerId, text_for_chatgpt]) => text_for_chatgpt !=='' ? ({
+            answerId: parseInt(answerId),
+            customTextInput: text_for_chatgpt ?? '',
+          }) : null) 
+        : []),
+    ];
+
+    await fetch(`${baseUrl}answer/${question?.id}/`, {  
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ answer_ids: selectedAnswers.map((e)=> e.answerId), popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier }),
+        body: JSON.stringify({answer: combinedList, popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier}),
     })
     .then((response) => {
         if (!response.ok) {
@@ -154,6 +177,8 @@ function ConvertPopup({ id, popupId }: Props) {
         AnswerQuestionForChatGPTInput()
         setQuestion(data);
         setSelectedAnswers([]);  // Reset the selected answers when a new question is fetched
+        setQuestionInputState([])
+        reset()
         
     })
     .catch((error) => {
@@ -162,12 +187,17 @@ function ConvertPopup({ id, popupId }: Props) {
 };
 
 const toggleAnswer = (answerId: number, answerChatGPT: string) => {
+
   setSelectedAnswers((selectedAnswers) => {
     const isSelected = selectedAnswers.some((e) => e.answerId === answerId);
+
     return isSelected
-      ? selectedAnswers.filter((selectedAnswer) => selectedAnswer.answerId !== answerId)
-      : [...selectedAnswers, { answerId: answerId, text_for_chatgpt: answerChatGPT }];
+     ? selectedAnswers.filter((selectedAnswer) => selectedAnswer.answerId !== answerId)
+     : [...selectedAnswers, { answerId: answerId, customTextInput: answerChatGPT }];
   });
+
+  return { answerId: answerId, text_for_chatgpt: answerChatGPT }
+
 };
 
   useEffect(() => {
@@ -183,7 +213,7 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
   };
 
   const AnswerQuestionForChatGPTInput = () => {
-    const stringValue: string = selectedAnswers.map((e) => e.text_for_chatgpt).join(', ');
+    const stringValue: string = selectedAnswers.map((e) => e.customTextInput).join(', ');
     setPastChatGPTInput([...pastChatGPTInput,...[stringValue]])
     chatGPTInput(stringValue);
     fetchChatGPTs();
@@ -194,7 +224,7 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
     fetchChatGPTs();
 }, [id,pastChatGPTInput]);
 
-  const handleSubmit = () => {
+  const handleChatGPTSubmit = () => {
     setPastChatGPTInput((state) => [...state, inputChatGPT])
     chatGPTInput(inputChatGPT);
     fetchChatGPTs();
@@ -208,8 +238,9 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
     setInputChatGPT('')
   }
 
-  const [popupCreationState, setPopupCreationState] = useState(false);
-  const [shouldCreatePopupEngagement, setShouldCreatePopupEngagement] = useState(false);
+  useEffect(()=> {
+    questionInputState.map((e)=> toggleAnswer(e.answerId, e.answerInput))
+  },[])
 
   useEffect(() => {
     const handleMouseOut = (event: MouseEvent) => {
@@ -235,6 +266,8 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
   }, []);
 
 
+  const flexContainerRef = useRef<HTMLDivElement>(null);
+
   const handleScrollToBottom = () => {
     if (flexContainerRef.current) {
       const { scrollHeight, offsetHeight } = flexContainerRef.current;
@@ -242,14 +275,11 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
     }
   };
 
-
   useEffect(()=>{
     if (shouldCreatePopupEngagement){
       createNewPopupEngagement()
     }
   },[shouldCreatePopupEngagement])
-
-  const flexContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     handleScrollToBottom(); // Scroll to the bottom after chatGPTs update
@@ -324,22 +354,30 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
       <Box 
       className='MainComponent'
       key = {answer.id}
-      borderRadius="md"
+      borderWidth={2} 
+      padding={0} 
+      borderRadius={!!answer.answerBorderRadius ? answer.answerBorderRadius : (popup?.answerBorderRadius ?? undefined)}
+      boxShadow={!!answer.answerBorderBoxShadow ? answer.answerBorderBoxShadow : (popup?.answerBorderBoxShadow ?? undefined)}
+      bgColor={!!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)} 
+      textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
       overflow="hidden"
-      borderColor={selectedAnswers.some((e) => e.answerId === answer.id) ? "teal" : "gray"}
-      borderWidth={2}
+      borderColor={!selectedAnswers.some((e) => e.answerId === answer.id) ? !!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? 'teal') : "gray"}
       >
       <Button
       key={answer.id}
       variant="solid"
-      borderRadius="md"
+      borderRadius={!!answer.answerBorderRadius ? answer.answerBorderRadius : (popup?.answerBorderRadius ?? undefined)}
+      boxShadow={!!answer.answerBorderBoxShadow ? answer.answerBorderBoxShadow : (popup?.answerBorderBoxShadow ?? undefined)}
+      borderColor={!!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? undefined)} 
+      bgColor={!!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)} 
+      textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
       onClick={() => answer.answerHasCallToAction ? false : toggleAnswer(answer.id, answer.text_for_chatgpt)} // TODO
       width="100%"
       height={ calculateAnswerHeight ?? undefined}
       p={0} // Remove padding to make image cover the whole button area
       >
       <Flex
-        bg={selectedAnswers.some((e) => e.answerId === answer.id) ? "teal" : "gray"}
+        borderColor={!selectedAnswers.some((e) => e.answerId === answer.id) ? !!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? 'teal') : "gray"}
         direction="column" // stack child components vertically
         align="center" // center-align child components
         justify="flex-start" // align child components to the start
@@ -374,22 +412,44 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
       }
       </>
       ))}
+     {question?.answers.map(answer => (
+          <>
+          {answer.answerHasInputField &&
+            <Box 
+            borderWidth={2} 
+            padding={!!answer.answerPadding ? answer.answerPadding : (popup?.answerPadding ?? undefined)} 
+            borderRadius={!!answer.answerBorderRadius ? answer.answerBorderRadius : (popup?.answerBorderRadius ?? undefined)}
+            boxShadow={!!answer.answerBorderBoxShadow ? answer.answerBorderBoxShadow : (popup?.answerBorderBoxShadow ?? undefined)}
+            borderColor={!!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? undefined)} 
+            bgColor={!!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)} 
+            textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
+            margin = {!!answer.answerMargin ? answer.answerMargin : (popup?.answerMargin ?? undefined)}
+            >
+            <Text my={2} maxH={'40%'}>{answer.text}</Text>
+            <Controller
+            key={answer.id}
+            control={control}
+            name={`questionId.${answer.id}`}
+            render={({ field }) => (
+              <Input
+                variant='flushed' 
+                maxH={'60%'}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder= {answer.answerInputTextField}
+                size='sm'
+              />
+            )}
+          />
+           </Box>
+        }
+        </>
+      ))}
+    </VStack>    
 
-    {question?.answers.filter((e) => e.answerHasInputField).map((answer) => (
-    <>
-    <Text mb={4} maxH={'40%'}>Please enter your answer</Text>
-    <Input
-      maxH={'60%'}
-      value={questionInputState.find((e) => e.answerId===answer.id)?.answerInput}
-      onChange={(event) => handleTextAreaChange(answer.id, event)}
-      placeholder='Here is a sample placeholder'
-      size='sm'
-    />
-    </>
-    ))}
-      </VStack>    
-
-    <Button position="absolute"  onClick={postAnswer} colorScheme="teal" mt={5} bottom="14px" w='290px'>Submit</Button>
+    <Button position="absolute"  onClick={() => {
+      postAnswer()
+      }} colorScheme="teal" mt={5} bottom="14px" w='290px'>Submit</Button>
         </Box>
 
         {false && 
@@ -565,7 +625,7 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
           </Box>
           <Box>
             <Button 
-            onClick={handleSubmit} 
+            onClick={handleChatGPTSubmit} 
             colorScheme={popup?.popupSendButtonColorScheme ?? undefined} 
             m={2} 
             ml={3} 
@@ -590,3 +650,4 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
 
 
 export default ConvertPopup;
+

@@ -20,6 +20,13 @@ answerHasInputField: boolean;
 answerInputTextField: string;
 answerHasCallToAction: boolean;
 answerCallToActionURL: string;
+answerBorderColor: string | null;  
+answerBackgroundColor: string | null;  
+answerTextColor: string | null;  
+answerBorderRadius: string | null;  
+answerBorderBoxShadow: string | null;  
+answerPadding: string | null;  
+answerMargin: string | null;
 };
 
 export type Question = {
@@ -128,4 +135,15 @@ popupChatSendPercentage: string | null;
 popupCTAPercentage : string | null;
 popupExampleInputChatGPT: string | null;
 popupExampleOutputChatGPT: string | null;  
+popupQuestionarySubmitButtonText : string | null;  
+popupQuestionarySubmitButtonTextColor : string | null;  
+popupQuestionarySubmitButtonColor : string | null;  
+
+answerBorderColor : string | null;  
+answerBackgroundColor : string | null;  
+answerTextColor : string | null;  
+answerBorderRadius: string | null;  
+answerBorderBoxShadow: string | null;  
+answerPadding: string | null;  
+answerMargin: string | null;
 }

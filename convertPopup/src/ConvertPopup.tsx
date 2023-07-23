@@ -198,11 +198,26 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const message = event.target.value
-    setInputChatGPT(message);
+    setInputChatGPT(message ?? '');
   };
 
   const AnswerQuestionForChatGPTInput = () => {
-    const stringValue: string = selectedAnswers.map((e) => e.customTextInput).join(', ');
+    const and = popup?.popupWordForAnd
+
+    const questionInputFormWatch = watch('questionId');
+    const combinedList = [
+      ...selectedAnswers,
+      ...(questionInputFormWatch
+        ? Object.entries(questionInputFormWatch).map(([answerId, text_for_chatgpt]) => {if(text_for_chatgpt !== ''){ return ({
+            answerId: parseInt(answerId),
+            customTextInput: text_for_chatgpt ?? '',
+          })}}) 
+        : []),
+    ];
+
+    console.log('combinedList',combinedList)
+  
+    const stringValue: string =  combinedList.map((e) => e?.customTextInput).filter((e)=> e !== '').join(` ${and} `) 
     setPastChatGPTInput([...pastChatGPTInput,...[stringValue]])
     chatGPTInput(stringValue);
     fetchChatGPTs();
@@ -366,7 +381,7 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
       borderColor={!!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? undefined)} 
       bgColor={!!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)} 
       textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
-      onClick={() => answer.answerHasCallToAction ? undefined : toggleAnswer(answer.id, answer.text_for_chatgpt)}
+      onClick={() => answer.answerHasCallToAction ? false : toggleAnswer(answer.id, answer.text_for_chatgpt)}
       href={answer.answerHasCallToAction ? answer.answerCallToActionURL : undefined} 
       target="_blank" // Open the URL in a new tab
       rel="noopener noreferrer" // Recommended for security reasons
@@ -572,7 +587,7 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
                     }}
                     textAlign={"left"}
                   >
-                    { pastChatGPTInput.length >0 ? input : popup?.popupExampleInputChatGPT}
+                    { pastChatGPTInput.length > 0 ? input : popup?.popupExampleInputChatGPT}
                   </MotionBox>
                 </Flex>
                   <Flex justifyContent="flex-start">

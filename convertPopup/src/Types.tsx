@@ -53,6 +53,8 @@ popupAdditionalLink: string;
 
 export interface Popup {
 popupId: number;
+popupLanguage: string;
+popupWordForAnd: string;
 popupType: number;
 popupGoal: number | null;
 popupHeight: number | null;

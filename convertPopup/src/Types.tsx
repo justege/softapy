@@ -129,6 +129,7 @@ popupSendButtonTextColor: string | null;
 popupSendButtonText: string | null;
 popupSendButtonVariant: string | null;
 popupSendButtonColorScheme: string | null;
+popupSendButtonBorderColor: string | null;
 popupTitleAndContentPercentage : string | null;
 popupChatHistoryPercentage: string | null;
 popupChatSendPercentage: string | null;
@@ -138,7 +139,8 @@ popupExampleOutputChatGPT: string | null;
 popupQuestionarySubmitButtonText : string | null;  
 popupQuestionarySubmitButtonTextColor : string | null;  
 popupQuestionarySubmitButtonColor : string | null;  
-
+popupQuestionarySubmitBorderColor : string | null;  
+popupQuestionarySubmitHasBorder : boolean | null;  
 answerBorderColor : string | null;  
 answerBackgroundColor : string | null;  
 answerTextColor : string | null;  

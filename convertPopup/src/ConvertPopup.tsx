@@ -1,10 +1,17 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { Box, Button,  Flex, Input, Text, Spacer, Img,  Stack, Image, useColorModeValue , VStack, Center, Textarea} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Input, Text, Spacer, Img,  Stack, Image, useColorModeValue , VStack, Center, Textarea} from "@chakra-ui/react";
 import { baseUrl} from './shared'
 import { Props, ChatGPT, PopupEngagement, PopupAdditional, Popup, Answer, Question} from './Types'
 import { Controller, useForm } from 'react-hook-form';
 import FormComponent from './FormComponent';
+import { motion } from 'framer-motion';
 
+
+const MotionImage = motion(Image);
+const MotionButton = motion(ChakraButton);
+const MotionFlex = motion(Flex)
+const MotionInput = motion(Input);
+const MotionBox = motion(ChakraBox)
 
 
 type FieldValues = {
@@ -28,22 +35,7 @@ function ConvertPopup({ id, popupId }: Props) {
   const [popupCreationState, setPopupCreationState] = useState(false);
   const [shouldCreatePopupEngagement, setShouldCreatePopupEngagement] = useState(false);
 
-  const handleTextAreaChange = (answerId: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const message = e.target.value
-    setQuestionInputState((state) => {
-      // find the index of the existing object
-      const existingIndex = state.findIndex((item) => item.answerId === answerId);
-      if (existingIndex >= 0) {
-        // if the object exists, create a new array with the updated object
-        const newState = [...state];
-        newState[existingIndex].answerInput = message;
-        return newState;
-      } else {
-        // if the object doesn't exist, add a new object to the array
-        return [...state, { answerId: answerId, answerInput: message }];
-      }
-    })
-  }
+
 
   const createNewPopupEngagement = async () => {
     try {
@@ -127,7 +119,7 @@ function ConvertPopup({ id, popupId }: Props) {
     }
   };
 
-  const { control, handleSubmit, watch, reset } = useForm<FieldValues>();
+  const { control, watch, reset } = useForm<FieldValues>();
 
   // Fetch the questionnaire on component mount
   useEffect(() => {
@@ -146,10 +138,7 @@ function ConvertPopup({ id, popupId }: Props) {
 
 
   const postAnswer = async () => {  // Adjust this function to post an array of answer IDs
-
-
     const questionInputFormWatch = watch('questionId');
-    
     const combinedList = [
       ...selectedAnswers,
       ...(questionInputFormWatch
@@ -323,8 +312,8 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
     borderRadius={popup?.popupBorderRadius ?? '0'}
     boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
   >
-      <Box w="50%">
-        <Box
+      <ChakraBox w="50%">
+        <ChakraBox
           p={5}
           bg={bgColor}
           display="flex"
@@ -346,12 +335,11 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
           </Text>
 
       <VStack spacing={2} align="stretch" overflow='auto' height='90%'>
-      
       {question?.answers.map((answer) => (
       <>
       {!answer.answerHasInputField &&
       (
-      <Box 
+      <MotionBox 
       className='MainComponent'
       key = {answer.id}
       borderWidth={2} 
@@ -362,8 +350,14 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
       textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
       overflow="hidden"
       borderColor={!selectedAnswers.some((e) => e.answerId === answer.id) ? !!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? 'teal') : "gray"}
+      whileHover={{ scale: 1.003 }}
+      whileTap={{ scale: 0.94 }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      transition={{ duration: 0.3 }}
       >
-      <Button
+      <ChakraButton
       key={answer.id}
       as="a"
       variant="solid"
@@ -389,7 +383,7 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
         height="100%"
         overflow="hidden"
       >
-        <Image 
+        <MotionImage 
           src={`${baseUrl}${answer.image}`} 
           boxSize="100%" 
           objectFit="cover"
@@ -412,15 +406,15 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
           {answer.text}
         </Text>
       </Flex>
-      </Button>
-      </Box>)
+      </ChakraButton>
+      </MotionBox>)
       }
       </>
       ))}
      {question?.answers.map(answer => (
           <>
           {answer.answerHasInputField &&
-            <Box 
+            <MotionBox 
             borderWidth={2} 
             padding={!!answer.answerPadding ? answer.answerPadding : (popup?.answerPadding ?? undefined)} 
             borderRadius={!!answer.answerBorderRadius ? answer.answerBorderRadius : (popup?.answerBorderRadius ?? undefined)}
@@ -429,8 +423,13 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
             bgColor={!!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)} 
             textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
             margin = {!!answer.answerMargin ? answer.answerMargin : (popup?.answerMargin ?? undefined)}
+            whileFocus={{ boxShadow: "0 0 0 2px #black" }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
             >
-            <Text my={2} maxH={'40%'}>{answer.text}</Text>
+            <Text maxH={'40%'}>{answer.text}</Text>
             <Controller
             key={answer.id}
             control={control}
@@ -446,16 +445,31 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
               />
             )}
           />
-           </Box>
+           </MotionBox>
         }
         </>
       ))}
     </VStack>    
 
-    <Button position="absolute"  onClick={() => {
+    <MotionButton 
+    position="absolute" 
+    backgroundColor={popup?.popupQuestionarySubmitButtonColor ?? undefined}
+    textColor={popup?.popupQuestionarySubmitButtonTextColor ?? undefined} 
+    borderColor={popup?.popupQuestionarySubmitBorderColor ?? undefined}
+    borderWidth={popup?.popupQuestionarySubmitHasBorder ? 'thin' : 'unset'}
+    mt={5} 
+    bottom="14px" 
+    w='290px'
+    whileHover={{ scale: 1.01 }}
+    whileTap={{ scale: 0.94 }}
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    exit={{ opacity: 0, x: 20 }}
+    transition={{ duration: 0.3 }}
+    onClick={() => {
       postAnswer()
-      }} colorScheme="teal" mt={5} bottom="14px" w='290px'>Submit</Button>
-        </Box>
+      }} >{popup?.popupQuestionarySubmitButtonText}</MotionButton>
+        </ChakraBox>
 
         {false && 
                 <Img
@@ -467,12 +481,12 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
     {'Powered with ♥ by convertpopup.com'}
     </Text>} 
     
-    </Box>
+    </ChakraBox>
 
     <Spacer />
 
-    <Box w="50%">
-      <Button
+    <ChakraBox w="50%">
+      <ChakraButton
         onClick={() => setPopupEngagement(undefined)}
         bg={popup?.popupCloseButtonBoxColor ?? undefined}
         color={popup?.popupCloseButtonTextColor ?? undefined}
@@ -485,7 +499,7 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
         p={1}
       >
         {popup?.popupCloseButtonText}
-      </Button>
+      </ChakraButton>
 
       {popupEngagement?.popupEngagementUniqueIdentifier && (
         <Flex
@@ -494,9 +508,9 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
           ml={popup?.popupTextMarginLeft ?? undefined}
           mr={popup?.popupTextMarginRight ?? undefined}
         >
-          <Box>
+          <ChakraBox>
             {popup?.popupTitle && (
-              <Box
+              <ChakraBox
                 p={2}
                 mt={2}
                 minHeight={popup?.popupTitleHeight ?? undefined}
@@ -506,11 +520,11 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
                 <Text fontSize= {popup?.popupTitleFontSize ?? "3xl"} fontWeight= {popup?.popupTitleFontWeight ?? "bold"} textAlign="center">
                   {popup?.popupTitle}
                 </Text>
-              </Box>
+              </ChakraBox>
             )}
 
             {popup?.popupContent && (
-              <Box
+              <ChakraBox
                 p={4}
                 minHeight={popup?.popupContentHeight ?? undefined}
                 width={popup?.popupContentWidth ?? undefined}
@@ -519,18 +533,18 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
                 <Text fontSize= {popup?.popupContentFontSize ?? "sm"} fontWeight= {popup?.popupContentFontWeight ?? "bold"} >
                   {popup?.popupContent}
                   </Text>
-              </Box>
+              </ChakraBox>
             )}
-          </Box>
+          </ChakraBox>
         </Flex>
       )}
-        <Box ref={flexContainerRef} overflowY="scroll" h={calculateHeight}>
-        <Box p={2} m={1}>
+        <ChakraBox ref={flexContainerRef} overflowY="scroll" h={calculateHeight}>
+        <ChakraBox p={2} m={1}>
           <Flex direction="column">
-            {(pastChatGPTInput.length>0 ? pastChatGPTInput : ['']).map((input, index) => (
-              <Box key={index}>
+            {(pastChatGPTInput.length>0 ? pastChatGPTInput : ['...']).map((input, index) => (
+              <ChakraBox key={index}>
                 <Flex justifyContent="flex-end">
-                  <Box
+                  <MotionBox
                     mt={1}
                     px={2}
                     py={1}
@@ -542,6 +556,10 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
                     textColor={popup?.popupChatHistoryInputTextColor ?? undefined}
                     backgroundColor={popup?.popupChatHistoryInputBoxColor ?? undefined}
                     position="relative"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
                     _after={{
                       content: '""',
                       position: "absolute",
@@ -555,10 +573,10 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
                     textAlign={"left"}
                   >
                     { pastChatGPTInput.length >0 ? input : popup?.popupExampleInputChatGPT}
-                  </Box>
+                  </MotionBox>
                 </Flex>
                   <Flex justifyContent="flex-start">
-                    <Box
+                    <MotionBox
                       mt={1}
                       px={2}
                       py={1}
@@ -571,6 +589,10 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
                       backgroundColor={popup?.popupChatHistoryOutputBoxColor ?? undefined}
                       position="relative"
                       overflow="hidden"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.3 }}
                       _after={{
                         content: '""',
                         position: "absolute",
@@ -584,37 +606,39 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
                       textAlign={"left"}
                     >
                       {pastChatGPTInput.length >0 ?  (pastChatGPTOutput[index]=== null? '...' : pastChatGPTOutput[index]) : popup?.popupExampleOutputChatGPT}
-                    </Box>
+                    </MotionBox>
                   </Flex>
-              </Box>
+              </ChakraBox>
             ))}
           </Flex>
-        </Box>
-      </Box>
+        </ChakraBox>
+      </ChakraBox>
 
 
       {chatGPTs.length === 0 && (
-      <Box h={popup?.popupCTAPercentage  ?? undefined}>
-            <Box mx={2}>
+      <ChakraBox h={popup?.popupCTAPercentage  ?? undefined}>
+            <ChakraBox mx={2}>
               {popupAdditionals?.map((suggestion, idx) => (
-                <Button
+                <MotionButton
                   key={`${suggestion.popupAdditionalId }--${idx}`} 
                   size="xs"
                   mt={1}
                   ml={1}
                   onClick={() => handleButtonSubmit(suggestion.popupAdditionalText)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.94 }}
                 >
                   {suggestion.popupAdditionalText}
-                </Button>
+                </MotionButton>
               ))}
-            </Box>
-      </Box>
+            </ChakraBox>
+      </ChakraBox>
       )}
 
 
-        <Box h={popup?.popupChatSendPercentage ?? undefined}>
+        <ChakraBox h={popup?.popupChatSendPercentage ?? undefined}>
         <Flex>
-          <Box width="80%">
+          <ChakraBox width="80%">
             <Input
               type="text"
               value={inputChatGPT}
@@ -627,22 +651,27 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
               p={2}
               m={2}
             />
-          </Box>
-          <Box>
-            <Button 
+          </ChakraBox>
+          <ChakraBox>
+            <MotionButton 
             onClick={handleChatGPTSubmit} 
             colorScheme={popup?.popupSendButtonColorScheme ?? undefined} 
+            bgColor={popup?.popupSendButtonColor ?? undefined} 
+            borderColor={popup?.popupSendButtonBorderColor ?? undefined}
+            borderWidth={'thin'}
             m={2} 
             ml={3} 
             textColor={popup?.popupSendButtonTextColor ?? undefined} 
             variant = {popup?.popupSendButtonVariant ?? undefined} 
-            bgColor={popup?.popupSendButtonColor ?? undefined} >
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.94 }}
+            >
             {popup?.popupSendButtonText ?? 'Send'}
-            </Button>
-          </Box>
+            </MotionButton>
+          </ChakraBox>
         </Flex>
-        </Box>
-    </Box>
+        </ChakraBox>
+    </ChakraBox>
   </Flex>
   </>
 )}

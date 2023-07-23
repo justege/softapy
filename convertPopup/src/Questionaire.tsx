@@ -1,10 +1,9 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Input, Text, Spacer, Img,  Stack, Image, useColorModeValue , VStack, Center, Textarea} from "@chakra-ui/react";
+import { useMemo } from 'react';
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Input, Text, Img, Image, useColorModeValue , VStack} from "@chakra-ui/react";
 import { baseUrl} from './shared'
-import { Props, ChatGPT, PopupEngagement, PopupAdditional, Popup, Answer, Question, selectedAnswersType} from './Types'
-import { Controller, useForm } from 'react-hook-form';
-import FormComponent from './FormComponent';
-import { motion, useAnimation } from 'framer-motion';
+import {  Popup, Question, selectedAnswersType} from './Types'
+import { Controller } from 'react-hook-form';
+import { motion } from 'framer-motion';
 
 const MotionImage = motion(Image);
 const MotionButton = motion(ChakraButton);
@@ -39,11 +38,9 @@ export const Questionaire = (props: QuestionaireProps) => {
           p={5}
           bg={bgColor}
           display="flex"
-          borderRight ={popup?.popupImageBorderWidth ?? undefined}
           borderColor={popup?.popupImageBorderColor ?? undefined}
           width={popup?.popupImageWidth ?? undefined}
           height={popup?.popupImageHeight ?? undefined} 
-          borderRightWidth={2}
           flexDirection="column"
           justifyContent="space-between"
         >
@@ -181,7 +178,7 @@ export const Questionaire = (props: QuestionaireProps) => {
     borderWidth={popup?.popupQuestionarySubmitHasBorder ? 'thin' : 'unset'}
     mt={5} 
     bottom="14px" 
-    w='290px'
+    w= {'47%'}
     whileHover={{ scale: 1.01 }}
     whileTap={{ scale: 0.94 }}
     initial={{ opacity: 0, x: -20 }}
@@ -193,15 +190,10 @@ export const Questionaire = (props: QuestionaireProps) => {
       }} >{popup?.popupQuestionarySubmitButtonText}</MotionButton>
         </ChakraBox>
 
-        {false && 
-                <Img
-                src={`${baseUrl}${popup?.popupImage}`}
-              />
-        }
     {popup?.popupHasLogo && 
     <Text h={'3%'} align={'center'} fontSize={'xs'}>
     {'Powered with ♥ by convertpopup.com'}
-    </Text>} 
-    </>
+    </Text>}
+        </>
     )
 }

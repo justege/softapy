@@ -1,13 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Input, Text, Spacer, Img,  Stack, Image, useColorModeValue , VStack, Center, Textarea} from "@chakra-ui/react";
-import { baseUrl} from './shared'
-import { Props, ChatGPT, PopupEngagement, PopupAdditional, Popup, Answer, Question, selectedAnswersType} from './Types'
-import { Controller, useForm } from 'react-hook-form';
-import FormComponent from './FormComponent';
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Input, Text} from "@chakra-ui/react";
+import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType} from './Types'
 import { motion, useAnimation } from 'framer-motion';
-import {Questionaire} from './Questionaire'
-
-
 
 const MotionButton = motion(ChakraButton);
 const MotionBox = motion(ChakraBox)
@@ -197,7 +191,7 @@ export const ChatComponent = (props: ChatComponentProps) => {
 
 
       {chatGPTs.length === 0 && (
-      <ChakraBox h={popup?.popupCTAPercentage  ?? undefined}>
+      <ChakraBox h={popup?.popupCTAPercentage  ?? undefined} >
             <ChakraBox mx={2}>
               {popupAdditionals?.map((suggestion, idx) => (
                 <MotionButton

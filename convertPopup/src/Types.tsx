@@ -69,6 +69,7 @@ popupImageBorderColor: string | null;
 popupImageBorderWidth: string | null;
 popupImageWidth: number | null;
 popupImageHeight: number | null;
+popupImageUrl: string | null;
 popupHasLogo: boolean | null;
 popupBackgroundColor: string | null;
 popupBorderColor: string | null;

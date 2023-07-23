@@ -1,10 +1,8 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Input, Text, Spacer, Img,  Stack, Image, useColorModeValue , VStack, Center, Textarea} from "@chakra-ui/react";
+import { useEffect, useState } from 'react';
+import { Box as ChakraBox, Button as ChakraButton,  Flex,  Spacer, Img, Text} from "@chakra-ui/react";
 import { baseUrl} from './shared'
-import { Props, ChatGPT, PopupEngagement, PopupAdditional, Popup, Answer, Question, selectedAnswersType} from './Types'
-import { Controller, useForm } from 'react-hook-form';
-import FormComponent from './FormComponent';
-import { motion, useAnimation } from 'framer-motion';
+import { Props, ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType} from './Types'
+import { useForm } from 'react-hook-form';
 import {Questionaire} from './Questionaire'
 import {ChatComponent} from './ChatComponent'
 
@@ -163,7 +161,11 @@ function ConvertPopup({ id, popupId }: Props) {
     })
     .then((data) => {
         AnswerQuestionForChatGPTInput(combinedList)
-        setQuestion(data);
+        if(data.id){
+          setQuestion(data);
+        } else {
+          setQuestion(null)
+        }
         setSelectedAnswers([]);  // Reset the selected answers when a new question is fetched
         reset()
         
@@ -295,8 +297,9 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
     borderRadius={popup?.popupBorderRadius ?? '0'}
     boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
   >
-  <ChakraBox w="50%">
-    <Questionaire 
+  <ChakraBox w="55%">
+  {question ? (<>
+  <Questionaire 
       {...{
         popup,
         question,
@@ -307,6 +310,28 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
         submitAnswer,
       }}
     />
+    </>
+    )
+  :
+      <>
+     <a href={popup?.popupImageUrl!} target="_blank" rel="noopener noreferrer">
+      <Img
+        border={popup?.popupImageBorderWidth ?? undefined}
+        borderColor={popup?.popupImageBorderColor ?? undefined}
+        width={popup?.popupImageWidth ?? undefined}
+        height={popup?.popupImageHeight ?? undefined}
+        src={`${baseUrl}${popup?.popupImage}`}
+        alt="Popup Image"
+      />
+    </a>
+      { popup?.popupHasLogo && 
+      <Text h={'5%'} mt={1} align={'center'} fontSize={'sm'}>
+      {'Made with ♥ by convertpopup.com'}
+      </Text>
+      } 
+      </>
+        }
+
   </ChakraBox>
   
   <Spacer />
@@ -326,8 +351,8 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
         {popup?.popupCloseButtonText}
       </ChakraButton>
 
-    <ChakraBox w="50%">
-      <ChatComponent 
+    <ChakraBox w="45%">
+    <ChatComponent 
         {...{
           popupEngagement,
           popup,

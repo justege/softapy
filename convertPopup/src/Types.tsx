@@ -32,6 +32,7 @@ answerMargin: string | null;
 export type Question = {
 id: number;
 text: string;
+multiSelection: boolean;
 answers: Answer[];
 };
 
@@ -151,3 +152,8 @@ answerBorderBoxShadow: string | null;
 answerPadding: string | null;  
 answerMargin: string | null;
 }
+
+export type selectedAnswersType = {
+    answerId: number, 
+    customTextInput: string
+}[]

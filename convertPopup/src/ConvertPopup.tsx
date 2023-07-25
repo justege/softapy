@@ -5,6 +5,7 @@ import { Props, ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, sele
 import { useForm } from 'react-hook-form';
 import {Questionaire} from './Questionaire'
 import {ChatComponent} from './ChatComponent'
+import { PopupCustomizationPage } from './PopupComponent'
 
 type FieldValues = {
   questionId: {
@@ -369,6 +370,7 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
         }}
       />
     </ChakraBox>
+    <PopupCustomizationPage componentId={popupId} />
   </Flex>
   </>
 )}

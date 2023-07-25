@@ -9,6 +9,27 @@ const MotionImage = motion(Image);
 const MotionButton = motion(ChakraButton);
 const MotionBox = motion(ChakraBox)
 
+/*
+Good and clean code that we can use later. 
+try {
+  const [popupResponse, customizationResponse] = await Promise.all([
+    fetch('/api/popup/1/'), // Replace '1' with the actual popup ID
+    fetch('/api/customization-settings/1/'), // Replace '1' with the actual client ID
+  ]);
+  if (!popupResponse.ok || !customizationResponse.ok) {
+    throw new Error('Failed to fetch data');
+  }
+  const popupData = await popupResponse.json();
+  setPopupData(popupData.components);
+
+  const customizationSettingsData = await customizationResponse.json();
+  setCustomizationSettings(customizationSettingsData);
+} catch (error) {
+  console.error(error);
+  alert('Failed to load data. Please try again later.');
+}
+*/
+
 type QuestionaireProps  = {
     popup?: Popup;
     question: Question | null;
@@ -100,7 +121,6 @@ export const Questionaire = (props: QuestionaireProps) => {
         justify="flex-start" // align child components to the start
         width="100%"
         height="100%"
-        overflow="hidden"
       >
         <MotionImage 
           src={`${baseUrl}${answer.image}`} 
@@ -108,22 +128,24 @@ export const Questionaire = (props: QuestionaireProps) => {
           objectFit="cover"
           flexShrink={0} // Prevent the image from shrinking
           flexGrow={1} // Allow the image to grow
-          minHeight='80%'
-          maxHeight="80%" // Limit image height to 80% of the flex container
+          height={'100px'}
           />
-        <Text
+        <Flex 
           backgroundColor={selectedAnswers.some((e) => e.answerId === answer.id) ? "teal" : "gray"}
           p={1}
-          justifyItems={'center'}
-          width={'100%'}
-          fontSize={'sm'} 
-          color={'white'}
-          minHeight='20%'
-          maxHeight="20%" // Limit text height to 20% of the flex container
-          overflow="auto" // Add scroll if the text is too much to fit in the allocated space
+          alignItems="center"
+          justifyContent="center"
+          width="100%"
+          height={'100px'}
+        >
+          <Text 
+            fontSize='sm' 
+            color='white'
+            textAlign="center" // Center align text
           >
-          {answer.text}
-        </Text>
+            {answer.text}
+          </Text>
+        </Flex>
       </Flex>
       </ChakraButton>
       </MotionBox>)

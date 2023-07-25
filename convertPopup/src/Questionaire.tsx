@@ -188,7 +188,7 @@ export const Questionaire = (props: QuestionaireProps) => {
     onClick={() => {
       submitAnswer()
       }} >{popup?.popupQuestionarySubmitButtonText}</MotionButton>
-        </ChakraBox>
+    </ChakraBox>
 
     {popup?.popupHasLogo && 
     <Text h={'3%'} align={'center'} fontSize={'xs'}>

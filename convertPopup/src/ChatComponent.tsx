@@ -24,7 +24,7 @@ type ChatComponentProps = {
 
 export const ChatComponent = (props: ChatComponentProps) => {
 
-    const { popupEngagement, popup, question, selectedAnswers, pastChatGPTInput, chatGPTs, pastChatGPTOutput, popupAdditionals, inputChatGPT, handleChatGPTSubmit, handleButtonSubmit, handleInputChange} = props
+    const { popupEngagement, popup, pastChatGPTInput, chatGPTs, pastChatGPTOutput, popupAdditionals, inputChatGPT, handleChatGPTSubmit, handleButtonSubmit, handleInputChange} = props
 
     const flexContainerRef = useRef<HTMLDivElement>(null);
 
@@ -48,21 +48,24 @@ export const ChatComponent = (props: ChatComponentProps) => {
         }
       }, [popup, chatGPTs]);
 
-      const [loading, setLoading] = useState(true);
+      const [loading, setLoading] = useState(false);
       const loadingAnimation = useAnimation();
     
       useEffect(() => {
-        const startLoadingAnimation = async () => {
-          await loadingAnimation.start({
-            opacity: [1, 0.6, 0.2, 1], // Opacity values for the loading animation
-            transition: { duration: 1, repeat: Infinity }, // Duration and repeat options
-          });
-        };
+        if (chatGPTs.length === 0) {
+          setLoading(true); // Set loading to true when there is no chat output
+          const startLoadingAnimation = async () => {
+            await loadingAnimation.start({
+              opacity: [1, 0.6, 0.2, 1], // Opacity values for the loading animation
+              transition: { duration: 1, repeat: Infinity }, // Duration and repeat options
+            });
+          };
     
-        startLoadingAnimation();
-      }, [loadingAnimation]);
-    
-
+          startLoadingAnimation();
+        } else {
+          setLoading(false); // Set loading to false when chatGPTs have some output
+        }
+      }, [chatGPTs, loadingAnimation]);
 
 
     return (
@@ -160,7 +163,6 @@ export const ChatComponent = (props: ChatComponentProps) => {
                       exit={{ opacity: 0, x: 20 }}
                       transition={{ duration: 0.3 }}
                       _after={{
-                        content: '""',
                         position: "absolute",
                         bottom: 0,
                         left: 0,
@@ -171,10 +173,16 @@ export const ChatComponent = (props: ChatComponentProps) => {
                       }}
                       textAlign={"left"}
                     >
-                    { pastChatGPTInput.length >0 ?  
-                      (pastChatGPTOutput[index]=== null?       
-                      <MotionBox animate={loadingAnimation}>
-                      <Text fontSize="lg" fontWeight="bold">
+                    {pastChatGPTInput.length > 0 ?  
+                      (!pastChatGPTOutput[index] ?       
+                    <MotionBox 
+                    animate={{                                
+                        opacity: [1, 0.6, 0.4, 0.3, 0.6, 1, 0.6, 0.3, 0.6, 1, 1.4],
+                        repeat: Infinity,
+                        duration: 10
+                    }}
+                    >
+                      <Text>
                         ...
                       </Text>
                       </MotionBox> 

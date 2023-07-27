@@ -40,12 +40,15 @@ export const PopupCustomizationPage = (props: { componentId: number }) => {
   useEffect(() => {
     // Fetch the popup data from the backend using the proxy
     fetch(`${baseUrl}popup-component/${props.componentId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => response.json())
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((response) => {
+        if (!response.ok) { throw Error(response.statusText); }
+        return response.json();
+      })
       .then((data) => setPopupData(data))
       .catch((error) => console.error(error));
   }, [props.componentId]);
@@ -75,7 +78,7 @@ export const PopupCustomizationPage = (props: { componentId: number }) => {
   };
 
   if (!popupData) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   return (

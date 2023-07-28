@@ -1,1 +1,1 @@
-export const baseUrl =  'http://127.0.0.1:8000/' //'https://www.convertpopup.com/'
+export const baseUrl =  '' //'https://www.convertpopup.com/'

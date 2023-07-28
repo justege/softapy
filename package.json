@@ -1,4 +1,5 @@
 {
+  "proxy": "http://127.0.0.1:8000",
   "devDependencies": {
     "parcel": "^2.8.3",
     "postcss": "^8.4.23"

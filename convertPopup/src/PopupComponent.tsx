@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Box, Input, Image, Flex, Spacer } from '@chakra-ui/react';
-import { baseUrl} from './shared'
+import { Button, Box, Image } from '@chakra-ui/react';
+import { baseUrl } from './shared';
 
 interface PopupComponent {
   id: number;
@@ -26,31 +26,37 @@ interface PopupComponent {
   z_index?: number;
   grid_row?: string;
   grid_column?: string;
-}
-
-interface PopupData {
-  id: number;
-  // Add other popup attributes as needed
-  components: PopupComponent[];
+  nestedComponents: PopupComponent[]; // Array of nested components
+  layout?: 'horizontal' | 'vertical'; // Optional property to specify layout direction
 }
 
 export const PopupCustomizationPage = (props: { componentId: number }) => {
-  const [popupData, setPopupData] = useState<PopupData | null>(null);
+  const [popupData, setPopupData] = useState<PopupComponent | null>(null);
 
   useEffect(() => {
-    // Fetch the popup data from the backend using the proxy
-    fetch(`${baseUrl}popup-component/${props.componentId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .then((response) => {
-        if (!response.ok) { throw Error(response.statusText); }
-        return response.json();
-      })
-      .then((data) => setPopupData(data))
-      .catch((error) => console.error(error));
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${baseUrl}popup-component/${props.componentId}`, {
+          method: 'GET',
+          redirect: 'follow',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+
+        const data = await response.json();
+        console.log('Fetched popupData:', data); // Add this line to log the fetched data
+        setPopupData(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
   }, [props.componentId]);
 
   const handleClick = (handler: string | null) => {
@@ -77,87 +83,120 @@ export const PopupCustomizationPage = (props: { componentId: number }) => {
     // Add other cases as needed for different hover handlers
   };
 
-  if (!popupData) {
-    return null;
-  }
+  const renderNestedComponents = (
+    components: PopupComponent[],
+    parentPosition: { x: number; y: number }, // Parent component's position
+    parentLayout: 'horizontal' | 'vertical' = 'vertical' // Default to vertical layout
+  ): JSX.Element[] => {
+    let nextPositionX = parentPosition.x;
+    let nextPositionY = parentPosition.y;
+  
+    return components.map((component) => {
+      const position_x = parentPosition.x + nextPositionX; // Adjust x position relative to parent
+      const position_y = parentPosition.y + nextPositionY; // Adjust y position relative to parent
+  
+      let renderedComponent = null;
+  
+      // Adjust next position based on layout direction
+      if (parentLayout === 'horizontal') {
+        nextPositionX += component.width; // Place components next to each other
+      } else {
+        nextPositionY += component.height; // Place components below each other
+      }
+  
+      if (component.component_type === 'button') {
+        renderedComponent = (
+          <Button
+            style={{
+              position: 'relative', // Use 'relative' instead of 'absolute'
+              left: component.position_x, // Use the original x position
+              top: component.position_y, // Use the original y position
+              width: component.width,
+              height: component.height,
+              fontSize: component.font_size,
+              backgroundColor: component.background_color,
+              color: component.text_color,
+              borderColor: component.border_color,
+              borderWidth: component.border_width,
+              borderRadius: component.border_radius,
+              boxShadow: component.box_shadow,
+              zIndex: component.z_index,
+              gridRow: component.grid_row,
+              gridColumn: component.grid_column,
+              overflow: 'hidden', // Clip any overflow content
+            }}
+          >
+            {component.content}
+            {renderNestedComponents(component.nestedComponents, {
+              x: position_x, // Pass the current component's adjusted x position as parent x
+              y: position_y, // Pass the current component's adjusted y position as parent y
+            })}
+          </Button>
+        );
+      } else if (component.component_type === 'text') {
+        renderedComponent = (
+          <Box
+            style={{
+              position: 'relative', // Use 'relative' instead of 'absolute'
+              left: component.position_x, // Use the original x position
+              top: component.position_y, // Use the original y position
+              width: component.width,
+              height: component.height,
+              fontSize: component.font_size,
+              backgroundColor: component.background_color,
+              color: component.text_color,
+              borderColor: component.border_color,
+              borderWidth: component.border_width,
+              borderRadius: component.border_radius,
+              boxShadow: component.box_shadow,
+              zIndex: component.z_index,
+              gridRow: component.grid_row,
+              gridColumn: component.grid_column,
+              overflow: 'hidden', // Clip any overflow content
+            }}
+          >
+            {component.content}
+            {renderNestedComponents(component.nestedComponents, {
+              x: position_x, // Pass the current component's adjusted x position as parent x
+              y: position_y, // Pass the current component's adjusted y position as parent y
+            })}
+          </Box>
+        );
+      } else if (component.component_type === 'image') {
+        renderedComponent = (
+          <Image
+            src={component.image_url}
+            style={{
+              position: 'relative', // Use 'relative' instead of 'absolute'
+              left: component.position_x, // Use the original x position
+              top: component.position_y, // Use the original y position
+              width: component.width,
+              height: component.height,
+              zIndex: component.z_index,
+              gridRow: component.grid_row,
+              gridColumn: component.grid_column,
+              overflow: 'hidden', // Clip any overflow content
+            }}
+          />
+        );
+      }
 
-  return (
-    <div>
-      {popupData.components.map((component) => (
+      return (
         <div
           key={component.id}
           onClick={() => handleClick(component.click_handler!)}
           onMouseEnter={() => handleHover(component.hover_handler!)}
-          // Add other event handlers as needed
         >
-          {component.component_type === 'button' && (
-            <Button
-              style={{
-                position: 'absolute',
-                left: component.position_x,
-                top: component.position_y,
-                width: component.width,
-                height: component.height,
-                fontSize: component.font_size,
-                backgroundColor: component.background_color,
-                color: component.text_color,
-                borderColor: component.border_color,
-                borderWidth: component.border_width,
-                borderRadius: component.border_radius,
-                boxShadow: component.box_shadow,
-                zIndex: component.z_index,
-                gridRow: component.grid_row,
-                gridColumn: component.grid_column,
-              }}
-            >
-              {component.content}
-            </Button>
-          )}
-
-          {component.component_type === 'text' && (
-            <Box
-              style={{
-                position: 'absolute',
-                left: component.position_x,
-                top: component.position_y,
-                width: component.width,
-                height: component.height,
-                fontSize: component.font_size,
-                backgroundColor: component.background_color,
-                color: component.text_color,
-                borderColor: component.border_color,
-                borderWidth: component.border_width,
-                borderRadius: component.border_radius,
-                boxShadow: component.box_shadow,
-                zIndex: component.z_index,
-                gridRow: component.grid_row,
-                gridColumn: component.grid_column,
-              }}
-            >
-              {component.content}
-            </Box>
-          )}
-
-          {component.component_type === 'image' && (
-            <Image
-              src={component.image_url}
-              style={{
-                position: 'absolute',
-                left: component.position_x,
-                top: component.position_y,
-                width: component.width,
-                height: component.height,
-                zIndex: component.z_index,
-                gridRow: component.grid_row,
-                gridColumn: component.grid_column,
-              }}
-            />
-          )}
-
-          {/* Add other component types as needed */}
+          {renderedComponent}
         </div>
-      ))}
+      );
+    });
+  };
+
+  // Inside the return statement of the `PopupCustomizationPage` component
+  return (
+    <div>
+      {popupData && renderNestedComponents([popupData], { x: 0, y: 0 })} {/* Initial parent position is (0, 0) */}
     </div>
   );
 };
-

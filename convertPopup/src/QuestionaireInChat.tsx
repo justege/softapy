@@ -34,14 +34,6 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
     const { popupEngagement, popup, pastChatGPTInput, chatGPTs, pastChatGPTOutput, popupAdditionals, inputChatGPT, handleChatGPTSubmit, handleButtonSubmit, handleInputChange, question, selectedAnswers, control, clickAnswer, toggleAnswer, submitAnswer} = props
 
-    const calculateAnswerHeight = useMemo(() => {
-        if (!popup?.popupImageHeight || !question?.answers.length) {
-          return null;
-        }
-        
-        return (popup.popupImageHeight ) / (question.answers.length + 1.2) - 10;
-    }, [popup, question?.answers]);
-
     const flexContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {

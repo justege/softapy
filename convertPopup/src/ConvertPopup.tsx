@@ -204,9 +204,7 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
   });
 
   postAnswer(selectedAnswer)
-  
   setPastChatGPTInput([...pastChatGPTInput,...[answerChatGPT]])
-  chatGPTInput(answerChatGPT);
 
 }
 

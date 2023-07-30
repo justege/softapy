@@ -26,6 +26,7 @@ function ConvertPopup({ id, popupId }: Props) {
   const [selectedAnswers, setSelectedAnswers] = useState<selectedAnswersType>([]);  
   const [popupCreationState, setPopupCreationState] = useState(false);
   const [shouldCreatePopupEngagement, setShouldCreatePopupEngagement] = useState(false);
+  const mainComponents = ['popupCustomization', ''] // TODO: change to dictionary 
 
 
   const createNewPopupEngagement = async () => {
@@ -298,6 +299,7 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
     borderRadius={popup?.popupBorderRadius ?? '0'}
     boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
   >
+  {mainComponents.includes('Questionaire') &&
   <ChakraBox w="55%">
   {question ? (<>
   <Questionaire 
@@ -332,10 +334,8 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
       } 
       </>
         }
-
   </ChakraBox>
-  
-  <Spacer />
+}
 
     <ChakraButton
         onClick={() => setPopupEngagement(undefined)}
@@ -350,9 +350,11 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
         p={1}
       >
         {popup?.popupCloseButtonText}
-      </ChakraButton>
+    </ChakraButton>
 
-    <ChakraBox w="45%">
+    
+    {mainComponents.includes('ChatComponent') &&
+    <ChakraBox w='45%'>
     <ChatComponent 
         {...{
           popupEngagement,
@@ -368,9 +370,13 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
           handleButtonSubmit,
           handleInputChange,
         }}
-      />
+      /> 
     </ChakraBox>
+    } 
+    {mainComponents.includes('popupCustomization') && 
     <PopupCustomizationPage componentId={popupId} />
+    }
+
   </Flex>
   </>
 )}

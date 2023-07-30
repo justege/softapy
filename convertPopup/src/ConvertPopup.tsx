@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import {Questionaire} from './Questionaire'
 import {ChatComponent} from './ChatComponent'
 import { PopupCustomizationPage } from './PopupComponent'
+import { QuestionaireInChat } from './QuestionaireInChat';
 
 type FieldValues = {
   questionId: {
@@ -26,7 +27,7 @@ function ConvertPopup({ id, popupId }: Props) {
   const [selectedAnswers, setSelectedAnswers] = useState<selectedAnswersType>([]);  
   const [popupCreationState, setPopupCreationState] = useState(false);
   const [shouldCreatePopupEngagement, setShouldCreatePopupEngagement] = useState(false);
-  const mainComponents = ['popupCustomization', ''] // TODO: change to dictionary 
+  const mainComponents = [''] // TODO: change to dictionary 
 
 
   const createNewPopupEngagement = async () => {
@@ -300,7 +301,7 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
     boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
   >
   {mainComponents.includes('Questionaire') &&
-  <ChakraBox w="55%">
+  <>
   {question ? (<>
   <Questionaire 
       {...{
@@ -334,24 +335,8 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
       } 
       </>
         }
-  </ChakraBox>
+  </>
 }
-
-    <ChakraButton
-        onClick={() => setPopupEngagement(undefined)}
-        bg={popup?.popupCloseButtonBoxColor ?? undefined}
-        color={popup?.popupCloseButtonTextColor ?? undefined}
-        colorScheme={popup?.popupCloseButtonVariantBoxColor ?? undefined}
-        variant={popup?.popupCloseButtonVariant ?? undefined}
-        position="absolute"
-        top={0}
-        right={0}
-        m={1}
-        p={1}
-      >
-        {popup?.popupCloseButtonText}
-    </ChakraButton>
-
     
     {mainComponents.includes('ChatComponent') &&
     <ChakraBox w='45%'>
@@ -371,13 +356,50 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
           handleInputChange,
         }}
       /> 
-    </ChakraBox>
+      </ChakraBox>
     } 
     {mainComponents.includes('popupCustomization') && 
     <PopupCustomizationPage componentId={popupId} />
     }
 
+    <QuestionaireInChat         
+    {...{
+          popupEngagement,
+          popup,
+          question,
+          selectedAnswers,
+          pastChatGPTInput,
+          chatGPTs,
+          pastChatGPTOutput,
+          popupAdditionals,
+          inputChatGPT,
+          handleChatGPTSubmit,
+          handleButtonSubmit,
+          handleInputChange,
+          control,
+          clickAnswer,
+          toggleAnswer,
+          submitAnswer,
+        }}
+    />
+
+    <ChakraButton
+        onClick={() => setPopupEngagement(undefined)}
+        bg={popup?.popupCloseButtonBoxColor ?? undefined}
+        color={popup?.popupCloseButtonTextColor ?? undefined}
+        colorScheme={popup?.popupCloseButtonVariantBoxColor ?? undefined}
+        variant={popup?.popupCloseButtonVariant ?? undefined}
+        position="absolute"
+        top={-47}
+        right={-47}
+        m={1}
+        p={1}
+      >
+        {popup?.popupCloseButtonText}
+    </ChakraButton>
   </Flex>
+
+  
   </>
 )}
 

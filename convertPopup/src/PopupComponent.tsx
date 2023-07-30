@@ -85,118 +85,107 @@ export const PopupCustomizationPage = (props: { componentId: number }) => {
 
   const renderNestedComponents = (
     components: PopupComponent[],
-    parentPosition: { x: number; y: number }, // Parent component's position
     parentLayout: 'horizontal' | 'vertical' = 'vertical' // Default to vertical layout
-  ): JSX.Element[] => {
-    let nextPositionX = parentPosition.x;
-    let nextPositionY = parentPosition.y;
-  
-    return components.map((component) => {
-      const position_x = parentPosition.x + nextPositionX; // Adjust x position relative to parent
-      const position_y = parentPosition.y + nextPositionY; // Adjust y position relative to parent
-  
-      let renderedComponent = null;
-  
-      // Adjust next position based on layout direction
-      if (parentLayout === 'horizontal') {
-        nextPositionX += component.width; // Place components next to each other
-      } else {
-        nextPositionY += component.height; // Place components below each other
-      }
-  
-      if (component.component_type === 'button') {
-        renderedComponent = (
-          <Button
-            style={{
-              position: 'relative', // Use 'relative' instead of 'absolute'
-              left: component.position_x, // Use the original x position
-              top: component.position_y, // Use the original y position
-              width: component.width,
-              height: component.height,
-              fontSize: component.font_size,
-              backgroundColor: component.background_color,
-              color: component.text_color,
-              borderColor: component.border_color,
-              borderWidth: component.border_width,
-              borderRadius: component.border_radius,
-              boxShadow: component.box_shadow,
-              zIndex: component.z_index,
-              gridRow: component.grid_row,
-              gridColumn: component.grid_column,
-              overflow: 'hidden', // Clip any overflow content
-            }}
-          >
-            {component.content}
-            {renderNestedComponents(component.nestedComponents, {
-              x: position_x, // Pass the current component's adjusted x position as parent x
-              y: position_y, // Pass the current component's adjusted y position as parent y
-            })}
-          </Button>
-        );
-      } else if (component.component_type === 'text') {
-        renderedComponent = (
-          <Box
-            style={{
-              position: 'relative', // Use 'relative' instead of 'absolute'
-              left: component.position_x, // Use the original x position
-              top: component.position_y, // Use the original y position
-              width: component.width,
-              height: component.height,
-              fontSize: component.font_size,
-              backgroundColor: component.background_color,
-              color: component.text_color,
-              borderColor: component.border_color,
-              borderWidth: component.border_width,
-              borderRadius: component.border_radius,
-              boxShadow: component.box_shadow,
-              zIndex: component.z_index,
-              gridRow: component.grid_row,
-              gridColumn: component.grid_column,
-              overflow: 'hidden', // Clip any overflow content
-            }}
-          >
-            {component.content}
-            {renderNestedComponents(component.nestedComponents, {
-              x: position_x, // Pass the current component's adjusted x position as parent x
-              y: position_y, // Pass the current component's adjusted y position as parent y
-            })}
-          </Box>
-        );
-      } else if (component.component_type === 'image') {
-        renderedComponent = (
-          <Image
-            src={component.image_url}
-            style={{
-              position: 'relative', // Use 'relative' instead of 'absolute'
-              left: component.position_x, // Use the original x position
-              top: component.position_y, // Use the original y position
-              width: component.width,
-              height: component.height,
-              zIndex: component.z_index,
-              gridRow: component.grid_row,
-              gridColumn: component.grid_column,
-              overflow: 'hidden', // Clip any overflow content
-            }}
-          />
-        );
-      }
+  ): JSX.Element => {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: parentLayout === 'horizontal' ? 'row' : 'column',
+        }}
+      >
+        {components.map((component) => {
+          let renderedComponent = null;
 
-      return (
-        <div
-          key={component.id}
-          onClick={() => handleClick(component.click_handler!)}
-          onMouseEnter={() => handleHover(component.hover_handler!)}
-        >
-          {renderedComponent}
-        </div>
-      );
-    });
+          if (component.component_type === 'button') {
+            renderedComponent = (
+              <Button
+                style={{
+                  position: 'relative', // Use 'relative' instead of 'absolute'
+                  left: component.position_x, // Use the original x position
+                  top: component.position_y, // Use the original y position
+                  width: component.width,
+                  height: component.height,
+                  fontSize: component.font_size,
+                  backgroundColor: component.background_color,
+                  color: component.text_color,
+                  borderColor: component.border_color,
+                  borderWidth: component.border_width,
+                  borderRadius: component.border_radius,
+                  boxShadow: component.box_shadow,
+                  zIndex: component.z_index,
+                  gridRow: component.grid_row,
+                  gridColumn: component.grid_column,
+                  overflow: 'hidden', // Clip any overflow content
+                }}
+              >
+                {component.content}
+                {renderNestedComponents(component.nestedComponents, component.layout)}
+              </Button>
+            );
+          } else if (component.component_type === 'text') {
+            renderedComponent = (
+              <Box
+                style={{
+                  position: 'relative', // Use 'relative' instead of 'absolute'
+                  left: component.position_x, // Use the original x position
+                  top: component.position_y, // Use the original y position
+                  width: component.width,
+                  height: component.height,
+                  fontSize: component.font_size,
+                  backgroundColor: component.background_color,
+                  color: component.text_color,
+                  borderColor: component.border_color,
+                  borderWidth: component.border_width,
+                  borderRadius: component.border_radius,
+                  boxShadow: component.box_shadow,
+                  zIndex: component.z_index,
+                  gridRow: component.grid_row,
+                  gridColumn: component.grid_column,
+                  overflow: 'hidden', // Clip any overflow content
+                }}
+              >
+                {component.content}
+                {renderNestedComponents(component.nestedComponents, component.layout)}
+              </Box>
+            );
+          } else if (component.component_type === 'image') {
+            renderedComponent = (
+              <Image
+                src={component.image_url}
+                style={{
+                  position: 'relative', // Use 'relative' instead of 'absolute'
+                  left: component.position_x, // Use the original x position
+                  top: component.position_y, // Use the original y position
+                  width: component.width,
+                  height: component.height,
+                  zIndex: component.z_index,
+                  gridRow: component.grid_row,
+                  gridColumn: component.grid_column,
+                  overflow: 'hidden', // Clip any overflow content
+                }}
+              />
+            );
+          }
+
+          return (
+            <div
+              key={component.id}
+              onClick={() => handleClick(component.click_handler!)}
+              onMouseEnter={() => handleHover(component.hover_handler!)}
+            >
+              {renderedComponent}
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   // Inside the return statement of the `PopupCustomizationPage` component
   return (
     <div>
-      {popupData && renderNestedComponents([popupData], { x: 0, y: 0 })} {/* Initial parent position is (0, 0) */}
+      {popupData && renderNestedComponents([popupData], popupData.layout || 'vertical')} {/* Initial parent position is (0, 0) */}
     </div>
   );
 };

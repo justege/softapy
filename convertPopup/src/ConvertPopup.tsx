@@ -50,9 +50,9 @@ function ConvertPopup({ id, popupId }: Props) {
     }
   };
 
-  const chatGPTInput = async (inputChatGPT: string) => {
+  const chatGPTInput = async (inputChatGPT: string, question_id?: number) => {
       try {
-        const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
+        const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}/${question_id ?? null}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ function ConvertPopup({ id, popupId }: Props) {
   const fetchChatGPTs = async () => {
     if (popupEngagement?.popupEngagementUniqueIdentifier){
       try {
-        const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
+        const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}/${question?.id}`);
         if (!response.ok) {
           throw new Error('Something went wrong, try again later');
         }
@@ -163,7 +163,7 @@ function ConvertPopup({ id, popupId }: Props) {
         return response.json();
     })
     .then((data) => {
-        AnswerQuestionForChatGPTInput(combinedList)
+        AnswerQuestionForChatGPTInput(combinedList, data.id)
         if(data.id){
           setQuestion(data);
         } else {
@@ -215,12 +215,12 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
     }
   }, [id,popupEngagement?.popupEngagementUniqueIdentifier]);
 
-  const AnswerQuestionForChatGPTInput = (combinedList: any) => {
+  const AnswerQuestionForChatGPTInput = (combinedList: any, next_question_id?: number) => {
     const and = popup?.popupWordForAnd
   
     const stringValue: string =  combinedList.map((e: any) => e?.customTextInput).filter((e: any)=> e !== '').join(` ${and} `) 
     setPastChatGPTInput([...pastChatGPTInput,...[stringValue]])
-    chatGPTInput(stringValue);
+    chatGPTInput(stringValue, next_question_id);
     fetchChatGPTs();
   };
 

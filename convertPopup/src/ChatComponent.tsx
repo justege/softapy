@@ -16,7 +16,7 @@ type ChatComponentProps = {
     pastChatGPTOutput: string[];
     popupAdditionals: PopupAdditional[];
     inputChatGPT: string; 
-    handleChatGPTSubmit: () => void;
+    handleChatGPTSubmit: (questionId: number) => void;
     handleButtonSubmit: (ButtonInput: string) => void; 
     handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -237,7 +237,7 @@ export const ChatComponent = (props: ChatComponentProps) => {
           </ChakraBox>
           <ChakraBox>
             <MotionButton 
-            onClick={handleChatGPTSubmit} 
+            onClick={()=>handleChatGPTSubmit(1)} 
             colorScheme={popup?.popupSendButtonColorScheme ?? undefined} 
             bgColor={popup?.popupSendButtonColor ?? undefined} 
             borderColor={popup?.popupSendButtonBorderColor ?? undefined}

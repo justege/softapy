@@ -4,6 +4,8 @@ import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAns
 import { motion, useAnimation } from 'framer-motion';
 import { Controller } from 'react-hook-form';
 import { baseUrl} from './shared'
+import DOMPurify from 'dompurify';
+
 
 
 const MotionButton = motion(ChakraButton);
@@ -25,7 +27,7 @@ type QuestionaireInChatProps = {
     clickAnswer: (answerId: number, answerChatGPT: string) => void;
     toggleAnswer: (answerId: number, answerChatGPT: string) => void; 
     submitAnswer: () => void;
-    handleChatGPTSubmit: () => void;
+    handleChatGPTSubmit: (questionId: number) => void;
     handleButtonSubmit: (ButtonInput: string) => void; 
     handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -35,6 +37,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
     const { popupEngagement, popup, pastChatGPTInput, chatGPTs, pastChatGPTOutput, popupAdditionals, inputChatGPT, handleChatGPTSubmit, handleButtonSubmit, handleInputChange, question, selectedAnswers, control, clickAnswer, toggleAnswer, submitAnswer} = props
 
     const flexContainerRef = useRef<HTMLDivElement>(null);
+
+    function formatTextWithLinks(text: string) {
+      const urlRegex = /(?:https?:\/\/[^\s]+(?:\.[^\s]+)*(?:\/[^\s]*)?)(?<![.,?!])/g;
+      return text.replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`);
+      }
 
     useEffect(() => {
         handleScrollToBottom(); // Scroll to the bottom after chatGPTs update
@@ -194,7 +201,8 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                         ...
                       </Text>
                       </MotionBox> 
-                      : pastChatGPTOutput[index]) 
+                      : <Text dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(formatTextWithLinks(pastChatGPTOutput[index]))}} />) 
                       : popup?.popupExampleOutputChatGPT
                       }
                     </MotionBox>
@@ -353,6 +361,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
               type="text"
               value={inputChatGPT}
               onChange={handleInputChange}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleChatGPTSubmit(question?.id ?? 1);
+                }
+              }}
               placeholder={popup?.popupChatButtonText ?? "Enter text here"}
               borderRadius="md"
               bgColor={popup?.popupChatButtonBoxColor ?? undefined}
@@ -364,7 +377,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           </ChakraBox>
           <ChakraBox>
             <MotionButton 
-            onClick={handleChatGPTSubmit} 
+            onClick={()=>handleChatGPTSubmit(question?.id ?? 1)} 
             colorScheme={popup?.popupSendButtonColorScheme ?? undefined} 
             bgColor={popup?.popupSendButtonColor ?? undefined} 
             borderColor={popup?.popupSendButtonBorderColor ?? undefined}

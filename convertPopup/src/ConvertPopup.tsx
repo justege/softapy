@@ -117,7 +117,7 @@ function ConvertPopup({ id, popupId }: Props) {
 
   // Fetch the questionnaire on component mount
   useEffect(() => {
-    fetch(`${baseUrl}/start/1/`)
+    fetch(`${baseUrl}/start/${popupId}/1/`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -229,9 +229,9 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
     fetchChatGPTs();
 }, [id,pastChatGPTInput]);
 
-  const handleChatGPTSubmit = () => {
+  const handleChatGPTSubmit = (questionId: number) => {
     setPastChatGPTInput((state) => [...state, inputChatGPT])
-    chatGPTInput(inputChatGPT);
+    chatGPTInput(inputChatGPT, questionId);
     fetchChatGPTs();
     setInputChatGPT('')
   }

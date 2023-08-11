@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, extendTheme} from "@chakra-ui/react";
 import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType} from './Types'
 import { motion, useAnimation } from 'framer-motion';
 import { Controller } from 'react-hook-form';
@@ -101,7 +101,13 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                 width={popup?.popupTitleWidth ?? undefined}
                 textColor={popup?.popupTitleTextColor ?? undefined}
               >
-                <Text fontSize= {popup?.popupTitleFontSize ?? "3xl"} fontWeight= {popup?.popupTitleFontWeight ?? "bold"} textAlign="center">
+                <Text 
+                fontSize= {popup?.popupTitleFontSize ?? "3xl"} 
+                fontWeight= {popup?.popupTitleFontWeight ?? "bold"} 
+                textAlign="center"   
+                bgGradient='linear(to-l, #7928CA, #FF0080)'
+                bgClip='text'
+                >
                   {popup?.popupTitle}
                 </Text>
               </ChakraBox>
@@ -131,7 +137,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                   <MotionBox
                     mt={1}
                     px={2}
-                    py={1}
+                    py={2}
                     fontSize={popup?.popupChatHistoryFontSize ?? "sm"}
                     borderRadius="8px 8px 0 8px"
                     borderWidth="1px"
@@ -163,7 +169,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                     <MotionBox
                       mt={1}
                       px={2}
-                      py={1}
+                      py={2}
                       fontSize={popup?.popupChatHistoryFontSize ?? "sm"}
                       borderRadius="8px 8px 8px 0"
                       borderWidth="1px"
@@ -235,7 +241,6 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       <ChakraButton
       key={answer.id}
       as="a"
-      variant="solid"
       borderRadius={!!answer.answerBorderRadius ? answer.answerBorderRadius : (popup?.answerBorderRadius ?? undefined)}
       boxShadow={!!answer.answerBorderBoxShadow ? answer.answerBorderBoxShadow : (popup?.answerBorderBoxShadow ?? undefined)}
       borderColor={!!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? undefined)} 
@@ -250,7 +255,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       p={0} // Remove padding to make image cover the whole button area
       >
       <Flex
-        borderColor={!selectedAnswers.some((e) => e.answerId === answer.id) ? !!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? 'teal') : "gray"}
+        borderColor={!selectedAnswers.some((e) => e.answerId === answer.id) ? !!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? 'white') : undefined}
         direction="column" // stack child components vertically
         align="center" // center-align child components
         justify="flex-start" // align child components to the start
@@ -266,7 +271,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           height={'100px'}
           />
         <Flex 
-          backgroundColor={selectedAnswers.some((e) => e.answerId === answer.id) ? "teal" : "gray"}
+          backgroundColor={selectedAnswers.some((e) => e.answerId === answer.id) ? "white" : !!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)}
           p={1}
           alignItems="center"
           justifyContent="center"
@@ -275,7 +280,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         >
           <Text 
             fontSize='sm' 
-            color='white'
+            color={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
             textAlign="center" // Center align text
           >
             {answer.text}
@@ -330,9 +335,9 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 </ChakraBox>
 </ChakraBox>
 
-    
-
-
+<Flex alignItems="center" justifyContent="center" my={2.5}>
+      <ChakraBox height="1px" width="97%" backgroundColor="gray.300" />
+</Flex>
       {chatGPTs.length === 0 && (
       <ChakraBox h={popup?.popupCTAPercentage  ?? undefined}  >
             <ChakraBox mx={1} display="flex">
@@ -342,8 +347,8 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                   size="xs"
                   my={2}
                   ml={1}
-                  padding={3}
-                  textColor={popup?.popupChatButtonBoxColor ?? undefined}
+                  padding={3.5}
+                  textColor={'black' ?? undefined} // TODO
                   onClick={() => handleButtonSubmit(suggestion.popupAdditionalText)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.94 }}
@@ -381,11 +386,10 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           <ChakraBox>
             <MotionButton 
             onClick={()=>handleChatGPTSubmit(question?.id ?? 1)} 
-            colorScheme={popup?.popupSendButtonColorScheme ?? undefined} 
+            colorScheme={popup?.popupSendButtonScheme ?? undefined} 
             bgColor={popup?.popupSendButtonColor ?? undefined} 
             borderColor={popup?.popupSendButtonBorderColor ?? undefined}
             borderWidth={'thin'}
-           
             m={2} 
             ml={3} 
             textColor={popup?.popupSendButtonTextColor ?? undefined} 

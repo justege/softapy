@@ -1,9 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ConvertPopup from './ConvertPopup';
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import '@fontsource/raleway/400.css'
+import '@fontsource/open-sans/700.css'
 
 const scriptElement = document.querySelector('script[name="convert-popup"]') as HTMLScriptElement;
+
+const theme = extendTheme({
+  fonts: {
+    heading: `'Open Sans', sans-serif`,
+    body: `'Raleway', sans-serif`,
+  },
+})
 
 // Retrieve the parameters from the script tag attributes
 const userId = scriptElement.getAttribute('userId')  ?? '0';
@@ -15,7 +24,7 @@ document.body.appendChild(widgetContainer);
 
 // Render the ConvertPopup component with the parameters
 ReactDOM.render(
-  <ChakraProvider>
+  <ChakraProvider theme={theme}>
     <React.StrictMode>
       <ConvertPopup id={parseInt(userId) } popupId={parseInt(popupId)} />
     </React.StrictMode>

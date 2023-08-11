@@ -299,6 +299,7 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
     borderColor={popup?.popupBorderColor ?? undefined}
     borderRadius={popup?.popupBorderRadius ?? '0'}
     boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
+    bgGradient={popup?.popupBackgroundGradient ?? undefined}
   >
   {mainComponents.includes('Questionaire') &&
   <>
@@ -387,7 +388,7 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
         onClick={() => setPopupEngagement(undefined)}
         bg={popup?.popupCloseButtonBoxColor ?? undefined}
         color={popup?.popupCloseButtonTextColor ?? undefined}
-        colorScheme={popup?.popupCloseButtonVariantBoxColor ?? undefined}
+        colorScheme={popup?.popupCloseButtonColorScheme ?? undefined}
         variant={popup?.popupCloseButtonVariant ?? undefined}
         position="absolute"
         top={-47}

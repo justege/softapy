@@ -238,7 +238,7 @@ export const ChatComponent = (props: ChatComponentProps) => {
           <ChakraBox>
             <MotionButton 
             onClick={()=>handleChatGPTSubmit(1)} 
-            colorScheme={popup?.popupSendButtonColorScheme ?? undefined} 
+            colorScheme={popup?.popupSendButtonScheme ?? undefined} 
             bgColor={popup?.popupSendButtonColor ?? undefined} 
             borderColor={popup?.popupSendButtonBorderColor ?? undefined}
             borderWidth={'thin'}

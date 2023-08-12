@@ -32,7 +32,7 @@ function ConvertPopup({ id, popupId }: Props) {
 
   const createNewPopupEngagement = async () => {
     try {
-      const response = await fetch(`${baseUrl}popup/createNewPopupEngagement/${popupId}/${id}`, {
+      const response = await fetch(`popup/createNewPopupEngagement/${popupId}/${id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -14,6 +14,14 @@ type FieldValues = {
   };
 }
 
+function getCookie(name: string): string | undefined {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift();
+  return undefined;
+}
+
+
 function ConvertPopup({ id, popupId }: Props) {
   const [popupEngagement, setPopupEngagement] = useState<PopupEngagement>()
   const [popupAdditionals, setPopupAdditionals] = useState<PopupAdditional[]>([])
@@ -30,13 +38,20 @@ function ConvertPopup({ id, popupId }: Props) {
   const mainComponents = [''] // TODO: change to dictionary 
 
 
+
+  const csrfToken = getCookie('csrftoken');
+
+  const headers = new Headers();
+headers.append('Content-Type', 'application/json');
+if (csrfToken) {
+  headers.append('X-CSRFToken', csrfToken);
+}
+
   const createNewPopupEngagement = async () => {
     try {
       const response = await fetch(`popup/createNewPopupEngagement/${popupId}/${id}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify({ conversationStartedAtWebsiteLink: window.location.href }),
       });
       if (!response.ok) {
@@ -54,9 +69,7 @@ function ConvertPopup({ id, popupId }: Props) {
       try {
         const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}/${question_id ?? null}`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: headers,
           body: JSON.stringify({ inputChatGPT: inputChatGPT }),
         });
         if (!response.ok) {
@@ -153,9 +166,7 @@ function ConvertPopup({ id, popupId }: Props) {
 
     await fetch(`${baseUrl}answer/${question?.id}/`, {  
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify({answer: combinedList, popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier}),
     })
     .then((response) => {

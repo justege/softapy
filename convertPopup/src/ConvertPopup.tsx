@@ -49,7 +49,7 @@ if (csrfToken) {
 
   const createNewPopupEngagement = async () => {
     try {
-      const response = await fetch(`popup/createNewPopupEngagement/${popupId}/${id}`, {
+      const response = await fetch(`/popup/createNewPopupEngagement/${popupId}/${id}`, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({ conversationStartedAtWebsiteLink: window.location.href }),
@@ -67,7 +67,7 @@ if (csrfToken) {
 
   const chatGPTInput = async (inputChatGPT: string, question_id?: number) => {
       try {
-        const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}/${question_id ?? null}`, {
+        const response = await fetch(`/popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
           method: 'POST',
           headers: headers,
           body: JSON.stringify({ inputChatGPT: inputChatGPT }),
@@ -90,7 +90,7 @@ if (csrfToken) {
 
   const fetchPopup = async () => {
     try {
-      const response = await fetch(`${baseUrl}popup/${popupId}/${id}`);
+      const response = await fetch(`/popup/${popupId}/${id}`);
       if (!response.ok) {
         throw new Error('Something went wrong, try again later');
       }
@@ -106,7 +106,7 @@ if (csrfToken) {
   const fetchChatGPTs = async () => {
     if (popupEngagement?.popupEngagementUniqueIdentifier){
       try {
-        const response = await fetch(`${baseUrl}popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}/${question?.id}`);
+        const response = await fetch(`/popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
         if (!response.ok) {
           throw new Error('Something went wrong, try again later');
         }
@@ -132,7 +132,7 @@ if (csrfToken) {
 
   // Fetch the questionnaire on component mount
   useEffect(() => {
-    fetch(`${baseUrl}/start/${popupId}/1/`)
+    fetch(`/start/${popupId}/1/`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -164,7 +164,7 @@ if (csrfToken) {
 
   const postAnswer = async (combinedList: any) => {  // Adjust this function to post an array of answer IDs
 
-    await fetch(`${baseUrl}answer/${question?.id}/`, {  
+    await fetch(`/answer/${question?.id}/`, {  
         method: 'POST',
         headers: headers,
         body: JSON.stringify({answer: combinedList, popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier}),

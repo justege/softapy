@@ -5,6 +5,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { Controller } from 'react-hook-form';
 import { baseUrl} from './shared'
 import DOMPurify from 'dompurify';
+import ThreeDotsWave from './ThreeDotsWave'
 
 
 
@@ -196,17 +197,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                     >
                     {pastChatGPTInput.length > 0 ?  
                       (!pastChatGPTOutput[index] ?       
-                    <MotionBox 
-                    animate={{                                
-                        opacity: [1, 0.6, 0.4, 0.3, 0.6, 1, 0.6, 0.3, 0.6, 1, 1.4],
-                        repeat: Infinity,
-                        duration: 10
-                    }}
-                    >
-                      <Text>
-                        ...
-                      </Text>
-                      </MotionBox> 
+                      <ThreeDotsWave />
                       : <Text dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(formatTextWithLinks(pastChatGPTOutput[index]))}} />) 
                       : popup?.popupExampleOutputChatGPT

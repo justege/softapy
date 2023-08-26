@@ -334,16 +334,18 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
             <ChakraBox mx={1} display="flex">
               {popupAdditionals?.map((suggestion, idx) => (
                 <MotionButton
-                  key={`${suggestion.popupAdditionalId }--${idx}`} 
-                  size="xs"
-                  my={2}
-                  ml={1}
-                  padding={3.5}
-                  textColor={'black' ?? undefined} // TODO
-                  onClick={() => handleButtonSubmit(suggestion.popupAdditionalText)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.94 }}
-                  variant='outline'
+                key={`${suggestion.popupAdditionalId }--${idx}`} 
+                size={"xs"}
+                my={2}
+                ml={1}
+                padding={3.5}
+                onClick={() => handleButtonSubmit(suggestion.popupAdditionalChatText)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.94 }}
+                color={popup?.popupSuggestionButtonTextColor ?? 'teal'}
+                backgroundColor={popup?.popupSuggestionButtonBoxColor ?? 'teal'}
+                borderColor={popup?.popupSuggestionButtonFocusBorderColor ?? undefined}
+                _hover={{bgColor: undefined}}
                 >
                   {suggestion.popupAdditionalText}
                 </MotionButton>

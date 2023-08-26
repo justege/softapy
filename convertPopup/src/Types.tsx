@@ -50,6 +50,7 @@ export interface PopupAdditional {
 popupAdditionalId: number;
 popupAdditionalText: string;
 popupAdditionalLink: string;
+popupAdditionalChatText: string;
 }
 
 export interface Popup {

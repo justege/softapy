@@ -77,6 +77,7 @@ popupBackgroundGradient: string | null;
 popupBorderColor: string | null;
 popupBorderWidth: string | null;
 popupTitle: string | null;
+popupTitleBgGradient: string | null;
 popupTitleHeight: number | null;
 popupTitleWidth: number | null;
 popupTitlePositioning: number | null;

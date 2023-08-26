@@ -106,7 +106,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                 fontSize= {popup?.popupTitleFontSize ?? "3xl"} 
                 fontWeight= {popup?.popupTitleFontWeight ?? "bold"} 
                 textAlign="center"   
-                bgGradient='linear(to-l, #7928CA, #FF0080)'
+                bgGradient={popup?.popupTitleBgGradient ?? 'linear(to-l, #7928CA, #FF0080)'}
                 bgClip='text'
                 >
                   {popup?.popupTitle}

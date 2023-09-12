@@ -1,5 +1,5 @@
 {
-  "proxy": "https://www.convertpopup.com/",
+  "proxy": "http://127.0.0.1:8000/",
   "devDependencies": {
     "@types/dompurify": "^3.0.2",
     "parcel": "^2.8.3",

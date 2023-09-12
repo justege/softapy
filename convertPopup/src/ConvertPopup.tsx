@@ -126,13 +126,11 @@ if (csrfToken) {
     }
   };
 
-
-
   const { control, watch, reset } = useForm<FieldValues>();
 
   // Fetch the questionnaire on component mount
   useEffect(() => {
-    fetch(`/start/${popupId}/1/`)
+    fetch(`/start/${popupId}/${popup?.questionnaire}/`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -143,7 +141,7 @@ if (csrfToken) {
       .catch((error) => {
         console.error('There has been a problem with your fetch operation:', error);
       });
-  }, []);
+  }, [popup?.questionnaire]);
 
   const submitAnswer = async () => {
 
@@ -151,9 +149,9 @@ if (csrfToken) {
     const combinedList = [
       ...selectedAnswers,
       ...(questionInputFormWatch
-        ? Object.entries(questionInputFormWatch).map(([answerId, text_for_chatgpt]) => text_for_chatgpt !=='' ? ({
+        ? Object.entries(questionInputFormWatch).map(([answerId, text]) => text !=='' ? ({
             answerId: parseInt(answerId),
-            customTextInput: text_for_chatgpt ?? '',
+            customTextInput: text ?? '',
           }) : null) 
         : []),
     ];
@@ -200,7 +198,7 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
      : [...selectedAnswers, { answerId: answerId, customTextInput: answerChatGPT }];
   });
 
-  return { answerId: answerId, text_for_chatgpt: answerChatGPT }
+  return { answerId: answerId, text: answerChatGPT }
 };
 
 const clickAnswer = (answerId: number, answerChatGPT: string) => {

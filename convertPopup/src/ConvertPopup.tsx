@@ -36,6 +36,8 @@ function ConvertPopup({ id, popupId }: Props) {
   const [popupCreationState, setPopupCreationState] = useState(false);
   const [shouldCreatePopupEngagement, setShouldCreatePopupEngagement] = useState(false);
   const mainComponents = [''] // TODO: change to dictionary 
+  const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
+  const [answerClickTime, setAnswerClickTime] = useState<number | null>(null);
 
 
 
@@ -61,7 +63,7 @@ function ConvertPopup({ id, popupId }: Props) {
         }
     }
   });
-  
+
   const createNewPopupEngagement = async () => {
     try {
       const response = await fetch(`/popup/createNewPopupEngagement/${popupId}/${id}`, {
@@ -146,6 +148,7 @@ function ConvertPopup({ id, popupId }: Props) {
   // Fetch the questionnaire on component mount
   useEffect(() => {
     if(popup?.questionnaire){
+    setQuestionStartTime(Date.now()); // Record the start time
     fetch(`/start/${popupId}/${popup?.questionnaire}/`)
       .then((response) => {
         if (!response.ok) {
@@ -176,35 +179,50 @@ function ConvertPopup({ id, popupId }: Props) {
     postAnswer(combinedList)
   }
 
+  console.log('helloo', answerClickTime, questionStartTime)
 
-  const postAnswer = async (combinedList: any) => {  // Adjust this function to post an array of answer IDs
+  const postAnswer = async (combinedList: any) => {
+    if (questionStartTime) {
 
-    await fetch(`/answer/${question?.id}/`, {  
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({answer: combinedList, popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier}),
-    })
-    .then((response) => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then((data) => {
-        AnswerQuestionForChatGPTInput(combinedList, data.id)
-        if(data.id){
-          setQuestion(data);
-        } else {
-          setQuestion(null)
-        }
-        setSelectedAnswers([]);  // Reset the selected answers when a new question is fetched
-        reset()
-        
-    })
-    .catch((error) => {
-        console.error('There has been a problem with your fetch operation:', error);
-    });
+        setAnswerClickTime(Date.now()); // Record the answer click time
+
+        const answerTime = (Date.now() - questionStartTime)/1000; // Calculate the time taken
+
+        await fetch(`/answer/${question?.id}/`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+                answer: combinedList,
+                popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier,
+                answerTime: answerTime,
+            }),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                AnswerQuestionForChatGPTInput(combinedList, data.id);
+                if (data.id) {
+                    setQuestionStartTime(Date.now());
+                    setQuestion(data);
+                } else {
+                    setQuestionStartTime(Date.now());
+                    setQuestion(null);
+                }
+                setSelectedAnswers([]); // Reset the selected answers when a new question is fetched
+                reset();
+            })
+            .catch((error) => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+    }
 };
+
+
+
 
 const toggleAnswer = (answerId: number, answerChatGPT: string) => {
   setSelectedAnswers((selectedAnswers) => {

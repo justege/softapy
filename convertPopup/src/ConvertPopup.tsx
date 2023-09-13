@@ -42,11 +42,26 @@ function ConvertPopup({ id, popupId }: Props) {
   const csrfToken = getCookie('csrftoken');
 
   const headers = new Headers();
-headers.append('Content-Type', 'application/json');
-if (csrfToken) {
-  headers.append('X-CSRFToken', csrfToken);
-}
+  headers.append('Content-Type', 'application/json');
+  if (csrfToken) {
+    headers.append('X-CSRFToken', csrfToken);
+  }
 
+  window.addEventListener('beforeunload', async (event: BeforeUnloadEvent) => {
+    event.preventDefault(); // Prompt the user with a confirmation dialog
+
+    if (popupEngagement?.id !== null) {
+        try {
+            await fetch(`/popup/updatePopupEngagementEnd/${popupEngagement?.id}`, {
+                method: 'POST',
+                headers: headers,
+            });
+        } catch (error) {
+            console.error('Error updating popup engagement end:', error);
+        }
+    }
+  });
+  
   const createNewPopupEngagement = async () => {
     try {
       const response = await fetch(`/popup/createNewPopupEngagement/${popupId}/${id}`, {

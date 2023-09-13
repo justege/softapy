@@ -130,6 +130,7 @@ if (csrfToken) {
 
   // Fetch the questionnaire on component mount
   useEffect(() => {
+    if(popup?.questionnaire){
     fetch(`/start/${popupId}/${popup?.questionnaire}/`)
       .then((response) => {
         if (!response.ok) {
@@ -141,6 +142,7 @@ if (csrfToken) {
       .catch((error) => {
         console.error('There has been a problem with your fetch operation:', error);
       });
+    }
   }, [popup?.questionnaire]);
 
   const submitAnswer = async () => {

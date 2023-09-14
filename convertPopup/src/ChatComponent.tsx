@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, MutableRefObject } from 'react';
 import { Box as ChakraBox, Button as ChakraButton,  Flex, Input, Text} from "@chakra-ui/react";
 import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType} from './Types'
 import { motion, useAnimation } from 'framer-motion';
@@ -15,7 +15,7 @@ type ChatComponentProps = {
     chatGPTs: ChatGPT[];
     pastChatGPTOutput: string[];
     popupAdditionals: PopupAdditional[];
-    inputChatGPT: string; 
+    inputChatGPT: MutableRefObject<HTMLInputElement|null>; 
     handleChatGPTSubmit: (questionId: number) => void;
     handleButtonSubmit: (ButtonInput: string) => void; 
     handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -224,7 +224,7 @@ export const ChatComponent = (props: ChatComponentProps) => {
           <ChakraBox width="80%">
             <Input
               type="text"
-              value={inputChatGPT}
+              ref={inputChatGPT}
               onChange={handleInputChange}
               placeholder={popup?.popupChatButtonText ?? "Enter text here"}
               borderRadius="md"

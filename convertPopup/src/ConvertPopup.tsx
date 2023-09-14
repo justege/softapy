@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { Box as ChakraBox, Button as ChakraButton,  Flex,  Spacer, Img, Text} from "@chakra-ui/react";
 import { baseUrl} from './shared'
 import { Props, ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType} from './Types'
@@ -29,7 +29,7 @@ function ConvertPopup({ id, popupId }: Props) {
   const [popup, setPopup] = useState<Popup>()
   const [error, setError] = useState<unknown>();
   const [chatGPTs, setChatGPTs] = useState<ChatGPT[]>([]);
-  const [inputChatGPT, setInputChatGPT] = useState('');
+  const inputChatGPT = useRef<HTMLInputElement>(null);
   const [pastChatGPTInput, setPastChatGPTInput] = useState<string[]>([]);
   const [question, setQuestion] = useState<Question  | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<selectedAnswersType>([]);  
@@ -43,11 +43,14 @@ function ConvertPopup({ id, popupId }: Props) {
 
   const csrfToken = getCookie('csrftoken');
 
-  const headers = new Headers();
-  headers.append('Content-Type', 'application/json');
-  if (csrfToken) {
-    headers.append('X-CSRFToken', csrfToken);
-  }
+  const headers = useMemo(() => {
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    if (csrfToken) {
+      headers.append('X-CSRFToken', csrfToken);
+    }
+    return headers;
+  }, [csrfToken]);
 
   window.addEventListener('beforeunload', async (event: BeforeUnloadEvent) => {
     event.preventDefault(); // Prompt the user with a confirmation dialog
@@ -148,7 +151,6 @@ function ConvertPopup({ id, popupId }: Props) {
   // Fetch the questionnaire on component mount
   useEffect(() => {
     if(popup?.questionnaire){
-    setQuestionStartTime(Date.now()); // Record the start time
     fetch(`/start/${popupId}/${popup?.questionnaire}/`)
       .then((response) => {
         if (!response.ok) {
@@ -179,47 +181,42 @@ function ConvertPopup({ id, popupId }: Props) {
     postAnswer(combinedList)
   }
 
-  console.log('helloo', answerClickTime, questionStartTime)
+  console.log('render')
 
-  const postAnswer = async (combinedList: any) => {
+  
+  const postAnswer = useCallback(async (combinedList: any) => {
     if (questionStartTime) {
-
-        setAnswerClickTime(Date.now()); // Record the answer click time
-
-        const answerTime = (Date.now() - questionStartTime)/1000; // Calculate the time taken
-
-        await fetch(`/answer/${question?.id}/`, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({
-                answer: combinedList,
-                popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier,
-                answerTime: answerTime,
-            }),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                AnswerQuestionForChatGPTInput(combinedList, data.id);
-                if (data.id) {
-                    setQuestionStartTime(Date.now());
-                    setQuestion(data);
-                } else {
-                    setQuestionStartTime(Date.now());
-                    setQuestion(null);
-                }
-                setSelectedAnswers([]); // Reset the selected answers when a new question is fetched
-                reset();
-            })
-            .catch((error) => {
-                console.error('There has been a problem with your fetch operation:', error);
-            });
+      setAnswerClickTime(Date.now()); // Record the answer click time
+      const answerTime = (Date.now() - questionStartTime) / 1000; // Calculate the time taken
+      try {
+        const response = await fetch(`/answer/${question?.id}/`, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({
+            answer: combinedList,
+            popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier,
+            answerTime: answerTime,
+          }),
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        AnswerQuestionForChatGPTInput(combinedList, data.id);
+        if (data.id) {
+          setQuestionStartTime(Date.now());
+          setQuestion(data);
+        } else {
+          setQuestionStartTime(Date.now());
+          setQuestion(null);
+        }
+        setSelectedAnswers([]); // Reset the selected answers when a new question is fetched
+        reset();
+      } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+      }
     }
-};
+  }, [questionStartTime, headers, popupEngagement, popup?.id, question, reset]);
 
 
 
@@ -275,39 +272,51 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
     fetchChatGPTs();
 }, [id,pastChatGPTInput]);
 
-  const handleChatGPTSubmit = (questionId: number) => {
-    setPastChatGPTInput((state) => [...state, inputChatGPT])
-    chatGPTInput(inputChatGPT, questionId);
-    fetchChatGPTs();
-    setInputChatGPT('')
-  }
 
-  const handleButtonSubmit = (ButtonInput: string) => {
-    setPastChatGPTInput((state) => [...state, ButtonInput])
+  const handleChatGPTSubmit = useCallback((questionId: number) => {
+    if (inputChatGPT.current !== null) {
+      const saySomethingImGivingUpOnYou = inputChatGPT.current.value;
+      setPastChatGPTInput((prev) => [...prev, saySomethingImGivingUpOnYou]);
+      chatGPTInput(saySomethingImGivingUpOnYou, questionId);
+      fetchChatGPTs();
+      inputChatGPT.current.value = '';
+    }
+  }, [chatGPTInput, fetchChatGPTs]);
+
+  const handleButtonSubmit = useCallback((ButtonInput: string) => {
+    setPastChatGPTInput((prev) => [...prev, ButtonInput]);
     chatGPTInput(ButtonInput);
     fetchChatGPTs();
-    setInputChatGPT('')
-  }
+    inputChatGPT.current!.value = '';
+  }, [chatGPTInput, fetchChatGPTs]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const message = event.target.value
-    setInputChatGPT(message);
+    const message = event.target.value;
+    
+    // Access the input element via the ref and update its value
+    if (inputChatGPT.current) {
+      inputChatGPT.current.value = message;
+    }
   };
+
 
   useEffect(() => {
     const handleMouseOut = (event: MouseEvent) => {
       if (event.clientY <= 0) {
         setPopupCreationState(true);
-        
+        setQuestionStartTime(Date.now());
       }
     };
+
     window.addEventListener('mouseout', handleMouseOut);
+
     return () => {
       window.removeEventListener('mouseout', handleMouseOut);
     };
   }, []);
 
   useEffect(() => {
+    if(!shouldCreatePopupEngagement){
     const handleWindowLoad = () => {
       setShouldCreatePopupEngagement(true);
     };
@@ -315,6 +324,7 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
     return () => {
       window.removeEventListener('load', handleWindowLoad);
     };
+  }
   }, []);
 
   useEffect(()=>{

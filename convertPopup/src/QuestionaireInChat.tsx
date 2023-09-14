@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useMemo, MutableRefObject } from 'react';
 import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, extendTheme} from "@chakra-ui/react";
 import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType} from './Types'
 import { motion, useAnimation } from 'framer-motion';
@@ -23,7 +23,7 @@ type QuestionaireInChatProps = {
     chatGPTs: ChatGPT[];
     pastChatGPTOutput: string[];
     popupAdditionals: PopupAdditional[];
-    inputChatGPT: string; 
+    inputChatGPT: MutableRefObject<HTMLInputElement | null>; 
     control: any;
     clickAnswer: (answerId: number, answerChatGPT: string) => void;
     toggleAnswer: (answerId: number, answerChatGPT: string) => void; 
@@ -208,7 +208,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
             ))}
     <HStack spacing={2} overflow='auto' height='90%' mt={2}>
       {question?.answers.map((answer) => (
-    <>
+         <React.Fragment key={answer.id}>
       {!answer.answerHasInputField &&
     (
       <MotionBox 
@@ -281,10 +281,10 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       </ChakraButton>
       </MotionBox>)
       }
-    </>
+   </React.Fragment>
     ))}
      {question?.answers.map(answer => (
-        <>
+         <React.Fragment key={answer.id}>
           {answer.answerHasInputField &&
             <MotionBox 
             borderWidth={2} 
@@ -319,7 +319,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           />
            </MotionBox>
         }
-    </>
+    </React.Fragment>
     ))}
     </HStack>  
     </Flex>
@@ -360,7 +360,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           <ChakraBox width="100%">
             <Input
               type="text"
-              value={inputChatGPT}
+              ref={inputChatGPT}
               onChange={handleInputChange}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {

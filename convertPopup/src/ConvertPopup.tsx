@@ -34,10 +34,8 @@ function ConvertPopup({ id, popupId }: Props) {
   const [question, setQuestion] = useState<Question  | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<selectedAnswersType>([]);  
   const [popupCreationState, setPopupCreationState] = useState(false);
-  const [shouldCreatePopupEngagement, setShouldCreatePopupEngagement] = useState(false);
   const mainComponents = [''] // TODO: change to dictionary 
-  const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
-  const [answerClickTime, setAnswerClickTime] = useState<number | null>(null);
+  const questionStartTime = useRef<number | null>(null)
 
 
 
@@ -178,16 +176,16 @@ function ConvertPopup({ id, popupId }: Props) {
         : []),
     ];
 
+
+
     postAnswer(combinedList)
   }
 
-  console.log('render')
-
   
-  const postAnswer = useCallback(async (combinedList: any) => {
+  const postAnswer = async (combinedList: any) => {
+    console.log('combşne', combinedList)
     if (questionStartTime) {
-      setAnswerClickTime(Date.now()); // Record the answer click time
-      const answerTime = (Date.now() - questionStartTime) / 1000; // Calculate the time taken
+      const answerTime = (Date.now() - questionStartTime.current!) / 1000; // Calculate the time taken
       try {
         const response = await fetch(`/answer/${question?.id}/`, {
           method: 'POST',
@@ -204,10 +202,10 @@ function ConvertPopup({ id, popupId }: Props) {
         const data = await response.json();
         AnswerQuestionForChatGPTInput(combinedList, data.id);
         if (data.id) {
-          setQuestionStartTime(Date.now());
+          questionStartTime.current = Date.now();
           setQuestion(data);
         } else {
-          setQuestionStartTime(Date.now());
+          questionStartTime.current = Date.now();
           setQuestion(null);
         }
         setSelectedAnswers([]); // Reset the selected answers when a new question is fetched
@@ -216,7 +214,7 @@ function ConvertPopup({ id, popupId }: Props) {
         console.error('There has been a problem with your fetch operation:', error);
       }
     }
-  }, [questionStartTime, headers, popupEngagement, popup?.id, question, reset]);
+  };
 
 
 
@@ -234,22 +232,24 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
 };
 
 const clickAnswer = (answerId: number, answerChatGPT: string) => {
+  console.log('click', answerId, answerChatGPT);
 
-  let selectedAnswer;
   setSelectedAnswers((selectedAnswers) => {
     const isSelected = selectedAnswers.some((e) => e.answerId === answerId);
 
-    selectedAnswer  = isSelected
-    ? selectedAnswers.filter((selectedAnswer) => selectedAnswer.answerId !== answerId)
-    : [...selectedAnswers, { answerId: answerId, customTextInput: answerChatGPT }]
+    const updatedAnswers = isSelected
+      ? selectedAnswers.filter((selectedAnswer) => selectedAnswer.answerId !== answerId)
+      : [...selectedAnswers, { answerId, customTextInput: answerChatGPT }];
 
-    return selectedAnswer
+    console.log('inner', updatedAnswers);
+
+    postAnswer(updatedAnswers);
+    setPastChatGPTInput([...pastChatGPTInput, answerChatGPT]);
+
+    return updatedAnswers;
   });
+};
 
-  postAnswer(selectedAnswer)
-  setPastChatGPTInput([...pastChatGPTInput,...[answerChatGPT]])
-
-}
 
   useEffect(() => {
     if (popupEngagement?.popupEngagementUniqueIdentifier){
@@ -269,6 +269,7 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
 
   
   useEffect(() => {
+    console.log('fetchChatGPTs')
     fetchChatGPTs();
 }, [id,pastChatGPTInput]);
 
@@ -302,9 +303,10 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
 
   useEffect(() => {
     const handleMouseOut = (event: MouseEvent) => {
-      if (event.clientY <= 0) {
-        setPopupCreationState(true);
-        setQuestionStartTime(Date.now());
+      if (event.clientY <= 0 && !popupCreationState) {
+          setPopupCreationState(true);
+          questionStartTime.current = Date.now();
+
       }
     };
 
@@ -313,12 +315,13 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
     return () => {
       window.removeEventListener('mouseout', handleMouseOut);
     };
-  }, []);
+  }, [popupCreationState]);
 
   useEffect(() => {
-    if(!shouldCreatePopupEngagement){
+    
+    if(!popupCreationState){
     const handleWindowLoad = () => {
-      setShouldCreatePopupEngagement(true);
+      createNewPopupEngagement()
     };
     window.addEventListener('load', handleWindowLoad);
     return () => {
@@ -326,12 +329,6 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
     };
   }
   }, []);
-
-  useEffect(()=>{
-    if (shouldCreatePopupEngagement){
-      createNewPopupEngagement()
-    }
-  },[shouldCreatePopupEngagement])
 
 
 

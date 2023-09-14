@@ -183,7 +183,6 @@ function ConvertPopup({ id, popupId }: Props) {
 
   
   const postAnswer = async (combinedList: any) => {
-    console.log('combşne', combinedList)
     if (questionStartTime) {
       const answerTime = (Date.now() - questionStartTime.current!) / 1000; // Calculate the time taken
       try {
@@ -232,16 +231,12 @@ const toggleAnswer = (answerId: number, answerChatGPT: string) => {
 };
 
 const clickAnswer = (answerId: number, answerChatGPT: string) => {
-  console.log('click', answerId, answerChatGPT);
-
   setSelectedAnswers((selectedAnswers) => {
     const isSelected = selectedAnswers.some((e) => e.answerId === answerId);
 
     const updatedAnswers = isSelected
       ? selectedAnswers.filter((selectedAnswer) => selectedAnswer.answerId !== answerId)
       : [...selectedAnswers, { answerId, customTextInput: answerChatGPT }];
-
-    console.log('inner', updatedAnswers);
 
     postAnswer(updatedAnswers);
     setPastChatGPTInput([...pastChatGPTInput, answerChatGPT]);
@@ -269,7 +264,6 @@ const clickAnswer = (answerId: number, answerChatGPT: string) => {
 
   
   useEffect(() => {
-    console.log('fetchChatGPTs')
     fetchChatGPTs();
 }, [id,pastChatGPTInput]);
 

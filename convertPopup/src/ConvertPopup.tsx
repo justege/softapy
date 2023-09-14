@@ -164,22 +164,20 @@ function ConvertPopup({ id, popupId }: Props) {
   }, [popup?.questionnaire]);
 
   const submitAnswer = async () => {
-
-    const questionInputFormWatch = watch('questionId');
-    const combinedList = [
-      ...selectedAnswers,
-      ...(questionInputFormWatch
-        ? Object.entries(questionInputFormWatch).map(([answerId, text]) => text !=='' ? ({
-            answerId: parseInt(answerId),
-            customTextInput: text ?? '',
-          }) : null) 
-        : []),
-    ];
-
-
-
-    postAnswer(combinedList)
+  const questionInputFormWatch = watch('questionId');
+  const combinedList = [
+    ...selectedAnswers,
+    ...(questionInputFormWatch
+      ? Object.entries(questionInputFormWatch).map(([answerId, text]) => text !=='' ? ({
+          answerId: parseInt(answerId),
+          customTextInput: text ?? '',
+        }) : null) 
+      : []),
+  ];
+  postAnswer(combinedList)
   }
+
+  console.log('questionStartTime.current', (Date.now() - questionStartTime.current!)/1000)
 
   
   const postAnswer = async (combinedList: any) => {
@@ -204,7 +202,7 @@ function ConvertPopup({ id, popupId }: Props) {
           questionStartTime.current = Date.now();
           setQuestion(data);
         } else {
-          questionStartTime.current = Date.now();
+          questionStartTime.current = null;
           setQuestion(null);
         }
         setSelectedAnswers([]); // Reset the selected answers when a new question is fetched

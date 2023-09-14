@@ -15,7 +15,7 @@ type ChatComponentProps = {
     chatGPTs: ChatGPT[];
     pastChatGPTOutput: string[];
     popupAdditionals: PopupAdditional[];
-    inputChatGPT: MutableRefObject<HTMLInputElement|null>; 
+    inputChatGPT: string; 
     handleChatGPTSubmit: (questionId: number) => void;
     handleButtonSubmit: (ButtonInput: string) => void; 
     handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;

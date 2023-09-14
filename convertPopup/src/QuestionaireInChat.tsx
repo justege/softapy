@@ -23,7 +23,7 @@ type QuestionaireInChatProps = {
     chatGPTs: ChatGPT[];
     pastChatGPTOutput: string[];
     popupAdditionals: PopupAdditional[];
-    inputChatGPT: MutableRefObject<HTMLInputElement | null>; 
+    inputChatGPT: string; 
     control: any;
     clickAnswer: (answerId: number, answerChatGPT: string) => void;
     toggleAnswer: (answerId: number, answerChatGPT: string) => void; 
@@ -360,7 +360,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           <ChakraBox width="100%">
             <Input
               type="text"
-              ref={inputChatGPT}
+              value={inputChatGPT}
               onChange={handleInputChange}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {

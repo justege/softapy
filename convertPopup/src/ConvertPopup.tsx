@@ -139,8 +139,6 @@ function ConvertPopup({ id, popupId }: Props) {
 
     const { control, watch, reset } = useForm<FieldValues>();
 
-    console.log('hello')
-
     const {
         popupEngagement,
         popupAdditionals,

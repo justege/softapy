@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ConvertPopup from './ConvertPopupOld';
+import ConvertPopup from './ConvertPopup';
 import { ChakraProvider } from "@chakra-ui/react";
 
 const scriptElement = document.querySelector('script[name="convert-popup"]') as HTMLScriptElement;

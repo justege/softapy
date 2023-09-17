@@ -408,11 +408,7 @@ function ConvertPopup({ id, popupId }: Props) {
     
       const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const message = event.target.value;
-        
-        // Access the input element via the ref and update its value
-        if (inputChatGPT) {
-            setTheReducerState({type: 'setInputChatGPT', payload: message})
-        }
+        setTheReducerState({type: 'setInputChatGPT', payload: message})
       };
     
 

@@ -117,6 +117,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
             {popup?.popupContent && (
               <ChakraBox
                 p={2}
+                mt={2}
                 minHeight={popup?.popupContentHeight ?? undefined}
                 width={popup?.popupContentWidth ?? undefined}
                 textColor={popup?.popupContentTextColor ?? undefined}
@@ -129,7 +130,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           </ChakraBox>
         </Flex>
       )}
-        <ChakraBox ref={flexContainerRef} overflowY="scroll" h={calculateHeight}>
+        <ChakraBox ref={flexContainerRef} overflowY="scroll" h={calculateHeight} mt={10}>
         <ChakraBox p={2} m={1}>
           <Flex direction="column">
             {(pastChatGPTInput.length>0 ? pastChatGPTInput : ['...']).map((input, index) => (

@@ -134,7 +134,7 @@ function getCookie(name: string): string | undefined {
   }
 
 
-function ConvertPopup({ id, popupId }: Props) {
+function ConvertPopup({ userId, popupId }: Props) {
     const [ theReducerState, setTheReducerState] = useReducer(theStateReducer, initialState)
 
     const { control, watch, reset } = useForm<FieldValues>();
@@ -184,7 +184,7 @@ function ConvertPopup({ id, popupId }: Props) {
 
     const createNewPopupEngagement = async () => {
         try {
-          const response = await fetch(`/popup/createNewPopupEngagement/${popupId}/${id}`, {
+          const response = await fetch(`/popup/createNewPopupEngagement/${popupId}/${userId}`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({ conversationStartedAtWebsiteLink: window.location.href }),
@@ -202,7 +202,7 @@ function ConvertPopup({ id, popupId }: Props) {
 
       const chatGPTInput = async (inputChatGPT: string, question_id?: number) => {
         try {
-          const response = await fetch(`/popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
+          const response = await fetch(`/popup/chatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({ inputChatGPT: inputChatGPT }),
@@ -293,7 +293,7 @@ function ConvertPopup({ id, popupId }: Props) {
 
     const fetchPopup = async () => {
         try {
-          const response = await fetch(`/popup/${popupId}/${id}`);
+          const response = await fetch(`/popup/${popupId}/${userId}`);
           if (!response.ok) {
             throw new Error('Something went wrong, try again later');
           }
@@ -311,7 +311,7 @@ function ConvertPopup({ id, popupId }: Props) {
       const fetchChatGPTs = async () => {
         if (popupEngagement?.popupEngagementUniqueIdentifier){
           try {
-            const response = await fetch(`/popup/chatgpt/${id}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
+            const response = await fetch(`/popup/chatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
             if (!response.ok) {
               throw new Error('Something went wrong, try again later');
             }
@@ -346,7 +346,7 @@ function ConvertPopup({ id, popupId }: Props) {
           fetchPopup();
           fetchChatGPTs();
         }
-      }, [id,popupEngagement?.popupEngagementUniqueIdentifier]);
+      }, [userId,popupEngagement?.popupEngagementUniqueIdentifier]);
     
       const AnswerQuestionForChatGPTInput = (combinedList: any, next_question_id?: number) => {
         const and = popup?.popupWordForAnd
@@ -384,7 +384,7 @@ function ConvertPopup({ id, popupId }: Props) {
 
     useEffect(() => {
         fetchChatGPTs();
-    }, [id,pastChatGPTInput]);
+    }, [userId,pastChatGPTInput]);
 
       
     const handleChatGPTSubmit = useCallback((questionId: number) => {

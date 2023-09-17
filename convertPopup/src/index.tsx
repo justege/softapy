@@ -18,7 +18,7 @@ document.body.appendChild(widgetContainer);
 ReactDOM.render(
   <ChakraProvider >
     <React.StrictMode>
-      <ConvertPopup id={parseInt(userId) } popupId={parseInt(popupId)} />
+      <ConvertPopup userId={parseInt(userId) } popupId={parseInt(popupId)} />
     </React.StrictMode>
   </ChakraProvider>,
   widgetContainer

@@ -22,7 +22,7 @@ function getCookie(name: string): string | undefined {
 }
 
 
-function ConvertPopupOld({ id, popupId }: Props) {
+function ConvertPopupOld({ userId: id, popupId }: Props) {
   const [popupEngagement, setPopupEngagement] = useState<PopupEngagement>()
   const [popupAdditionals, setPopupAdditionals] = useState<PopupAdditional[]>([])
   const [pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([])

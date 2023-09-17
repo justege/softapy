@@ -1,5 +1,5 @@
 export interface Props {
-    id: number;
+    userId: number;
     popupId: number;
     }
     

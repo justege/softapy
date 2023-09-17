@@ -60,6 +60,12 @@ export interface Props {
     export interface Popup {
     updateDate: string;
     id: number;
+    popupOrChat: string,
+    activateOnExit: boolean,
+    activateOnInactivity: boolean,
+    activateOnScroll: boolean,
+    teaserText: string,
+    teaserColor: string,
     questionnaire: number;
     status: boolean;
     name: string;

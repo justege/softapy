@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo, MutableRefObject } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, extendTheme} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, extendTheme, Wrap, WrapItem} from "@chakra-ui/react";
 import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType} from './Types'
 import { motion, useAnimation } from 'framer-motion';
 import { Controller } from 'react-hook-form';
@@ -97,7 +97,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
             {popup?.popupTitle && (
               <ChakraBox
                 p={2}
-                mt={1}
+                mt={2}
                 minHeight={popup?.popupTitleHeight ?? undefined}
                 width={popup?.popupTitleWidth ?? undefined}
                 textColor={popup?.popupTitleTextColor ?? undefined}
@@ -208,8 +208,10 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
               </ChakraBox>
             ))}
     <HStack spacing={2} overflow='auto' height='90%' mt={2}>
+    <Wrap spacing={4}>
       {question?.answers.map((answer) => (
-         <React.Fragment key={answer.id}>
+      <WrapItem >
+    <React.Fragment key={answer.id}>
       {!answer.answerHasInputField &&
     (
       <MotionBox 
@@ -283,7 +285,10 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       </MotionBox>)
       }
    </React.Fragment>
-    ))}
+   </WrapItem>
+    ))
+  }
+  </Wrap>
      {question?.answers.map(answer => (
          <React.Fragment key={answer.id}>
           {answer.answerHasInputField &&

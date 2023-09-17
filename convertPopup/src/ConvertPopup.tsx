@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState, useMemo, useCallback, useReducer } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex,  Spacer, Img, Text} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex,  Spacer, Img, Text, Button, useBreakpointValue} from "@chakra-ui/react";
 import { baseUrl} from './shared'
 import { Props, ChatGPT, PopupEngagement, PopupAdditional , Popup, Question, selectedAnswersType} from './Types'
 import { useForm } from 'react-hook-form';
-import {Questionaire} from './Questionaire'
 import {ChatComponent} from './ChatComponent'
-import { PopupCustomizationPage } from './PopupComponent'
 import { QuestionaireInChat } from './QuestionaireInChat';
+
 
 
 
@@ -136,6 +135,7 @@ function getCookie(name: string): string | undefined {
 
 function ConvertPopup({ userId, popupId }: Props) {
     const [ theReducerState, setTheReducerState] = useReducer(theStateReducer, initialState)
+    const [ isPopupOpen, setIsPopupOpen ] = useState(false)
 
     const { control, watch, reset } = useForm<FieldValues>();
 
@@ -410,10 +410,55 @@ function ConvertPopup({ userId, popupId }: Props) {
         const message = event.target.value;
         setTheReducerState({type: 'setInputChatGPT', payload: message})
       };
-    
+
+      useEffect(() => {
+        if(popup?.activateOnScroll){
+        const handleScroll = () => {
+          // Add your logic to determine when to show the popup after scrolling
+          if (!popupCreationState && window.scrollY > 500) {
+            setTheReducerState({ type: 'setPopupCreationState', payload: true });
+            setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now() });
+          }
+        };
+      
+        window.addEventListener('scroll', handleScroll);
+      
+        return () => {
+          window.removeEventListener('scroll', handleScroll);
+        };
+      }
+      }, [popupCreationState]);
+
+
+      useEffect(() => {
+      if (popup?.activateOnInactivity){
+      let inactivityTimeout: NodeJS.Timeout;
+
+      const handleActivity = () => {
+        clearTimeout(inactivityTimeout);
+        inactivityTimeout = setTimeout(() => {
+          // Add your logic to show the popup after inactivity
+          if (!popupCreationState) {
+            setTheReducerState({ type: 'setPopupCreationState', payload: true });
+            setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now() });
+          }
+        }, 10000);
+      };
+
+      window.addEventListener('mousemove', handleActivity);
+      window.addEventListener('keydown', handleActivity);
+
+      return () => {
+        window.removeEventListener('mousemove', handleActivity);
+        window.removeEventListener('keydown', handleActivity);
+        clearTimeout(inactivityTimeout);
+      };
+    }
+    }, [popupCreationState]);
 
 
   useEffect(() => {
+    if(popup?.activateOnExit){
     const handleMouseOut = (event: MouseEvent) => {
       if (event.clientY <= 0 && !popupCreationState) {
         setTheReducerState({type: 'setPopupCreationState', payload: true})
@@ -427,10 +472,10 @@ function ConvertPopup({ userId, popupId }: Props) {
     return () => {
       window.removeEventListener('mouseout', handleMouseOut);
     };
+  }
   }, [popupCreationState]);
 
   useEffect(() => {
-  
     if(!popupCreationState){
     const handleWindowLoad = () => {
       createNewPopupEngagement()
@@ -441,11 +486,35 @@ function ConvertPopup({ userId, popupId }: Props) {
     };
   }
   }, []);
-    
+
+  const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '57%', xl: '57%', '2xl': '62%' });
+  const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
+
+  console.log('right',top)
 
 
   return (
     <>
+
+    { !theReducerState.popupCreationState && popup?.popupOrChat == 'Chatbot' && (<ChakraBox     
+    >
+    <Button  
+      position="fixed"
+      borderRadius={'3xl'}
+      boxShadow={'md'}
+      bottom="2%"
+      right="1%"
+      p={5} 
+      fontSize={'2xl'} 
+      height={'70px'} 
+      w={'200px'} 
+      onClick={() => setTheReducerState({type: 'setPopupCreationState', payload: true})} 
+      colorScheme={popup?.teaserColor ?? 'purple'}
+    >
+    {popup?.teaserText ?? ''}
+    </Button>
+    </ChakraBox>)
+    }
     { (popupEngagement && popupCreationState) && (
       <>   
       <Flex
@@ -455,8 +524,8 @@ function ConvertPopup({ userId, popupId }: Props) {
         bg={popup?.popupBackgroundColor ?? "white"}
         p={4}
         position="fixed"
-        top="50%"
-        left="50%"
+        top={popup?.popupOrChat === "Chatbot" ? top : '50%'}
+        right={popup?.popupOrChat === "Chatbot" ? right : '50%'} 
         transform="translate(-50%, -50%)"
         border={popup?.popupBorderWidth ?? undefined}
         borderColor={popup?.popupBorderColor ?? undefined}
@@ -464,68 +533,6 @@ function ConvertPopup({ userId, popupId }: Props) {
         boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
         bgGradient={popup?.popupBackgroundGradient ?? undefined}
       >
-      {mainComponents.includes('Questionaire') &&
-      <>
-      {question ? (<>
-      <Questionaire 
-          {...{
-            popup,
-            question,
-            selectedAnswers,
-            control,
-            clickAnswer,
-            toggleAnswer,
-            submitAnswer,
-          }}
-        />
-        </>
-        )
-      :
-          <>
-         <a href={popup?.popupImageUrl!} target="_blank" rel="noopener noreferrer">
-          <Img
-            border={popup?.popupImageBorderWidth ?? undefined}
-            borderColor={popup?.popupImageBorderColor ?? undefined}
-            width={popup?.popupImageWidth ?? undefined}
-            height={popup?.popupImageHeight ?? undefined}
-            src={`${baseUrl}${popup?.popupImage}`}
-            alt="Popup Image"
-          />
-        </a>
-          { popup?.popupHasLogo && 
-          <Text h={'5%'} mt={1} align={'center'} fontSize={'sm'}>
-          {'Made with ♥ by convertpopup.com'}
-          </Text>
-          } 
-          </>
-            }
-      </>
-    }
-        
-        {mainComponents.includes('ChatComponent') &&
-        <ChakraBox w='45%'>
-        <ChatComponent 
-            {...{
-              popupEngagement,
-              popup,
-              question,
-              selectedAnswers,
-              pastChatGPTInput,
-              chatGPTs,
-              pastChatGPTOutput,
-              popupAdditionals,
-              inputChatGPT,
-              handleChatGPTSubmit,
-              handleButtonSubmit,
-              handleInputChange,
-            }}
-          /> 
-          </ChakraBox>
-        } 
-        {mainComponents.includes('popupCustomization') && 
-        <PopupCustomizationPage componentId={popupId} />
-        }
-    
         <QuestionaireInChat         
         {...{
               popupEngagement,
@@ -548,14 +555,14 @@ function ConvertPopup({ userId, popupId }: Props) {
         />
     
         <ChakraButton
-            onClick={() => setTheReducerState({type: 'setPopupEngagement', payload: undefined})}
+            onClick={() => setTheReducerState({type: 'setPopupCreationState', payload: false})}
             bg={popup?.popupCloseButtonBoxColor ?? undefined}
             color={popup?.popupCloseButtonTextColor ?? undefined}
             colorScheme={popup?.popupCloseButtonColorScheme ?? undefined}
             variant={popup?.popupCloseButtonVariant ?? undefined}
             position="absolute"
-            top={-47}
-            right={-47}
+            top={-41}
+            right={-41}
             m={1}
             p={1}
           >

@@ -155,7 +155,6 @@ function ConvertPopup({ userId, popupId }: Props) {
     } = theReducerState;
 
     const csrfToken = getCookie('csrftoken');
-    const mainComponents = [''] // TODO: change to dictionary 
 
 
     const headers = useMemo(() => {

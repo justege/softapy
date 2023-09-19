@@ -18,7 +18,6 @@ type FieldValues = {
 type ReducerState = {
     popupEngagement?: PopupEngagement;
     popupAdditionals: PopupAdditional[];
-    pastChatGPTOutput: string[];
     popup?: Popup;
     error?: unknown;
     chatGPTs: ChatGPT[];
@@ -33,7 +32,6 @@ type ReducerState = {
 const initialState: ReducerState = {
     popupEngagement: undefined,
     popupAdditionals: [],
-    pastChatGPTOutput: [],
     popup: undefined,
     error: undefined,
     chatGPTs: [],
@@ -48,7 +46,6 @@ const initialState: ReducerState = {
 type ReducerDispatchAction = 
 | { type: 'setPopupEngagement'; payload?: PopupEngagement}
 | { type: 'setPopupAdditionals'; payload: PopupAdditional[]}
-| { type: 'setPastChatGPTOutput'; payload?: string[]}
 | { type: 'setPopup'; payload?:Popup}
 | { type: 'setError'; payload?:unknown}
 | { type: 'setChatGPTs'; payload?:ChatGPT[]}
@@ -62,6 +59,8 @@ type ReducerDispatchAction =
 
 
 
+
+
 function theStateReducer(state: ReducerState, action: ReducerDispatchAction): ReducerState {
 
     switch(action.type) {
@@ -70,9 +69,6 @@ function theStateReducer(state: ReducerState, action: ReducerDispatchAction): Re
         }
         case 'setPopupAdditionals': {
             return { ...state, popupAdditionals: action.payload };
-        }
-        case 'setPastChatGPTOutput': {
-            return { ...state, pastChatGPTOutput: action.payload || [] };
         }
         case 'setPopup': {
             return { ...state, popup: action.payload };
@@ -136,13 +132,13 @@ function getCookie(name: string): string | undefined {
 function ConvertPopup({ userId, popupId }: Props) {
     const [ theReducerState, setTheReducerState] = useReducer(theStateReducer, initialState)
     const [ isPopupOpen, setIsPopupOpen ] = useState(false)
+    const [ pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([])
 
     const { control, watch, reset } = useForm<FieldValues>();
 
     const {
         popupEngagement,
         popupAdditionals,
-        pastChatGPTOutput,
         popup,
         error,
         chatGPTs,
@@ -211,15 +207,16 @@ function ConvertPopup({ userId, popupId }: Props) {
           }
           const data = await response.json();
           if (data.chatgpt.length > 0) {
+            
             setTheReducerState({type: 'setChatGPTs', payload: data.chatgpt})
             const output = data.chatgpt.map((e: any) => e.outputChatGPT)
-
-            setTheReducerState({type: 'setPastChatGPTOutput', payload: [...pastChatGPTOutput, ...output]})
+            setPastChatGPTOutput((oldState) => [...oldState, ...output])
   
           } 
           setTheReducerState({type: 'setError', payload: undefined})
         } catch (error) {
         setTheReducerState({type: 'setError', payload: error})
+        setTheReducerState({type: 'setChatGPTs', payload: []})
         }
     };
 
@@ -320,7 +317,9 @@ function ConvertPopup({ userId, popupId }: Props) {
             if (data.chatgpt.length) {
             setTheReducerState({type: 'setChatGPTs', payload: data.chatgpt})
 
-            setTheReducerState({type: 'setPastChatGPTOutput', payload: data.chatgpt.map((e: any)=> e.outputChatGPT)})
+            const output =  data.chatgpt.map((e: any)=> e.outputChatGPT)
+
+            setPastChatGPTOutput(output)
             } 
             setTheReducerState({type: 'setError', payload: undefined})
         } catch (error) {
@@ -386,7 +385,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     }, [userId,pastChatGPTInput]);
 
       
-    const handleChatGPTSubmit = useCallback((questionId: number) => {
+    const handleChatGPTSubmit = (questionId: number) => {
         if (inputChatGPT !== null) {
           const saySomethingImGivingUpOnYou = inputChatGPT
           setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, saySomethingImGivingUpOnYou]})
@@ -394,16 +393,16 @@ function ConvertPopup({ userId, popupId }: Props) {
           fetchChatGPTs();
           setTheReducerState({type: 'setInputChatGPT', payload: ''})
         }
-      }, [chatGPTInput, fetchChatGPTs]);
+      };
 
 
-      const handleButtonSubmit = useCallback((ButtonInput: string) => {
+      const handleButtonSubmit = (ButtonInput: string) => {
         setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, ButtonInput]})
 
         chatGPTInput(ButtonInput);
         fetchChatGPTs();
           setTheReducerState({type: 'setInputChatGPT', payload: ''})
-      }, [chatGPTInput, fetchChatGPTs]);
+      }
     
       const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const message = event.target.value;
@@ -488,6 +487,8 @@ function ConvertPopup({ userId, popupId }: Props) {
 
   const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '57%', xl: '57%', '2xl': '62%' });
   const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
+
+  console.log('cha', chatGPTs, pastChatGPTInput, pastChatGPTOutput)
 
   return (
     <>

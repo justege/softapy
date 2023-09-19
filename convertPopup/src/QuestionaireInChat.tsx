@@ -68,7 +68,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       const loadingAnimation = useAnimation();
     
       useEffect(() => {
-        if (chatGPTs.length === 0) {
+        if (chatGPTs.some((e)=> e.outputChatGPT = '')) {
           setLoading(true); // Set loading to true when there is no chat output
           const startLoadingAnimation = async () => {
             await loadingAnimation.start({
@@ -76,9 +76,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
               transition: { duration: 1, repeat: Infinity }, // Duration and repeat options
             });
           };
+
     
           startLoadingAnimation();
         } else {
+          loadingAnimation.stop()
           setLoading(false); // Set loading to false when chatGPTs have some output
         }
       }, [chatGPTs, loadingAnimation]);

@@ -336,15 +336,16 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       <ChakraBox height="1px" width="97%" backgroundColor="gray.300" />
 </Flex>
       {chatGPTs.length === 0 && (
-      <ChakraBox h={popup?.popupCTAPercentage  ?? undefined}  >
-            <ChakraBox mx={1} display="flex">
+      <ChakraBox h={popup?.popupCTAPercentage  ?? undefined} mx={1} display="flex"   overflowX="auto"  overflowY={'hidden'}
+       maxWidth={'450px'}>
               {popupAdditionals?.map((suggestion, idx) => (
                 <MotionButton
                 key={`${suggestion.popupAdditionalId }--${idx}`} 
                 size={"xs"}
                 my={2}
                 ml={1}
-                padding={3.5}
+                minW="auto" 
+                px={2}
                 onClick={() => handleButtonSubmit(suggestion.popupAdditionalChatText)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.94 }}
@@ -353,10 +354,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                 borderColor={popup?.popupSuggestionButtonFocusBorderColor ?? undefined}
                 _hover={{bgColor: undefined}}
                 >
-                  {suggestion.popupAdditionalText}
+                 <Text>
+                {suggestion.popupAdditionalText}
+                </Text>
                 </MotionButton>
               ))}
-            </ChakraBox>
       </ChakraBox>
       )}
 

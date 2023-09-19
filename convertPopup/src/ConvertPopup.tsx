@@ -489,9 +489,6 @@ function ConvertPopup({ userId, popupId }: Props) {
   const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '57%', xl: '57%', '2xl': '62%' });
   const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
 
-  console.log('right',top)
-
-
   return (
     <>
 

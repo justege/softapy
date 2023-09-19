@@ -130,7 +130,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           </ChakraBox>
         </Flex>
       )}
-        <ChakraBox ref={flexContainerRef} overflowY="scroll" h={calculateHeight} mt={10}>
+        <ChakraBox ref={flexContainerRef} overflowY="auto" h={calculateHeight} mt={10}>
         <ChakraBox p={2} m={1}>
           <Flex direction="column">
             {(pastChatGPTInput.length>0 ? pastChatGPTInput : ['...']).map((input, index) => (

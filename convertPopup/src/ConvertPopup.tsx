@@ -214,7 +214,7 @@ function ConvertPopup({ userId, popupId }: Props) {
             setTheReducerState({type: 'setChatGPTs', payload: data.chatgpt})
             const output = data.chatgpt.map((e: any) => e.outputChatGPT)
 
-            setTheReducerState({type: 'setPastChatGPTOutput', payload: [...pastChatGPTInput, ...output]})
+            setTheReducerState({type: 'setPastChatGPTOutput', payload: [...pastChatGPTOutput, ...output]})
   
           } 
           setTheReducerState({type: 'setError', payload: undefined})

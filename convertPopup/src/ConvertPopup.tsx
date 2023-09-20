@@ -111,6 +111,7 @@ function theStateReducer(state: ReducerState, action: ReducerDispatchAction): Re
             };
         }
         case 'setPopupCreationState': {
+         
             return { ...state, popupCreationState: action.payload || false };
         }
         case 'setQuestionStartTime': {
@@ -230,7 +231,11 @@ function ConvertPopup({ userId, popupId }: Props) {
             }
             return response.json();
           })
-          .then((data) => setTheReducerState({ type: 'setQuestion', payload: data }))
+          .then(
+            
+            (data) => {
+              setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now() });
+              setTheReducerState({ type: 'setQuestion', payload: data })})
           .catch((error) => {
             console.error('There has been a problem with your fetch operation:', error);
           });
@@ -255,6 +260,7 @@ function ConvertPopup({ userId, popupId }: Props) {
   
         const postAnswer = async (combinedList: any) => {
             if (questionStartTime) {
+            
               const answerTime = (Date.now() - questionStartTime) / 1000; // Calculate the time taken
               try {
                 const response = await fetch(`/answer/${question?.id}/`, {
@@ -360,6 +366,7 @@ function ConvertPopup({ userId, popupId }: Props) {
       
     const clickAnswer = (answerId: number, answerChatGPT: string) => {
 
+
         setTheReducerState({
             type: 'toggleAnswer',
             payload: { answerId: answerId, customTextInput: answerChatGPT },
@@ -373,6 +380,8 @@ function ConvertPopup({ userId, popupId }: Props) {
         : [...selectedAnswers, { answerId, customTextInput: answerChatGPT }];
       
         postAnswer(updatedAnswers);
+
+      
 
 
         setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, answerChatGPT]})
@@ -487,9 +496,7 @@ function ConvertPopup({ userId, popupId }: Props) {
 
   const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '57%', xl: '57%', '2xl': '62%' });
   const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
-
-  console.log('cha', chatGPTs, pastChatGPTInput, pastChatGPTOutput)
-
+  
   return (
     <>
 
@@ -505,7 +512,9 @@ function ConvertPopup({ userId, popupId }: Props) {
       fontSize={'2xl'} 
       height={'70px'} 
       w={'200px'} 
-      onClick={() => setTheReducerState({type: 'setPopupCreationState', payload: true})} 
+      onClick={() => {
+        setTheReducerState({type: 'setPopupCreationState', payload: true})
+      }} 
       colorScheme={popup?.teaserColor ?? 'purple'}
     >
     {popup?.teaserText ?? ''}

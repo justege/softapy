@@ -242,7 +242,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       borderColor={!!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? undefined)} 
       bgColor={!!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)} 
       textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
-      onClick={() => !question.multiSelection ? clickAnswer(answer.id, answer.text) : answer.answerHasCallToAction ? false :  toggleAnswer(answer.id, answer.text)}
+      onClick={() => clickAnswer(answer.id, answer.text_for_chatgpt)}
       href={answer.answerHasCallToAction ? answer.answerCallToActionURL : undefined} 
       target="_blank" // Open the URL in a new tab
       rel="noopener noreferrer" // Recommended for security reasons

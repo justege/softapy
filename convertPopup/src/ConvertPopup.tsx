@@ -434,7 +434,7 @@ function ConvertPopup({ userId, popupId }: Props) {
           window.removeEventListener('scroll', handleScroll);
         };
       }
-      }, [popupCreationState]);
+      }, [popupCreationState, popup?.activateOnScroll]);
 
 
       useEffect(() => {
@@ -461,11 +461,12 @@ function ConvertPopup({ userId, popupId }: Props) {
         clearTimeout(inactivityTimeout);
       };
     }
-    }, [popupCreationState]);
+    }, [popupCreationState, popup?.activateOnInactivity]);
 
 
   useEffect(() => {
     if(popup?.activateOnExit){
+   
     const handleMouseOut = (event: MouseEvent) => {
       if (event.clientY <= 0 && !popupCreationState) {
         setTheReducerState({type: 'setPopupCreationState', payload: true})
@@ -480,7 +481,7 @@ function ConvertPopup({ userId, popupId }: Props) {
       window.removeEventListener('mouseout', handleMouseOut);
     };
   }
-  }, [popupCreationState]);
+  }, [popupCreationState, popup?.activateOnExit]);
 
   useEffect(() => {
     if(!popupCreationState){

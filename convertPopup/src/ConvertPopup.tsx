@@ -532,7 +532,8 @@ function ConvertPopup({ userId, popupId }: Props) {
         p={4}
         position="fixed"
         top={popup?.popupOrChat === "Chatbot" ? top : '50%'}
-        right={popup?.popupOrChat === "Chatbot" ? right : '50%'} 
+        right={popup?.popupOrChat === "Chatbot" ? right : undefined} 
+        left={popup?.popupOrChat === "Popup" ? '50%' : undefined} 
         transform="translate(-50%, -50%)"
         border={popup?.popupBorderWidth ?? undefined}
         borderColor={popup?.popupBorderColor ?? undefined}

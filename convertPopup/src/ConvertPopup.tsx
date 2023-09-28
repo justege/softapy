@@ -168,7 +168,7 @@ function ConvertPopup({ userId, popupId }: Props) {
   
       if (popupEngagement?.id !== null) {
           try {
-              await fetch(`/popup/updatePopupEngagementEnd/${popupEngagement?.id}`, {
+              await fetch(`${baseUrl}/popup/updatePopupEngagementEnd/${popupEngagement?.id}`, {
                   method: 'POST',
                   headers: headers,
               });
@@ -180,7 +180,7 @@ function ConvertPopup({ userId, popupId }: Props) {
 
     const createNewPopupEngagement = async () => {
         try {
-          const response = await fetch(`/popup/createNewPopupEngagement/${popupId}/${userId}`, {
+          const response = await fetch(`${baseUrl}/popup/createNewPopupEngagement/${popupId}/${userId}`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({ conversationStartedAtWebsiteLink: window.location.href }),
@@ -198,7 +198,7 @@ function ConvertPopup({ userId, popupId }: Props) {
 
       const chatGPTInput = async (inputChatGPT: string, question_id?: number) => {
         try {
-          const response = await fetch(`/popup/chatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
+          const response = await fetch(`${baseUrl}/popup/chatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({ inputChatGPT: inputChatGPT }),
@@ -224,7 +224,7 @@ function ConvertPopup({ userId, popupId }: Props) {
 
     useEffect(() => {
         if(popup?.questionnaire){
-        fetch(`/start/${popupId}/${popup?.questionnaire}/`)
+        fetch(`${baseUrl}/start/${popupId}/${popup?.questionnaire}/`)
           .then((response) => {
             if (!response.ok) {
               throw new Error('Network response was not ok');
@@ -263,7 +263,7 @@ function ConvertPopup({ userId, popupId }: Props) {
             
               const answerTime = (Date.now() - questionStartTime) / 1000; // Calculate the time taken
               try {
-                const response = await fetch(`/answer/${question?.id}/`, {
+                const response = await fetch(`${baseUrl}/answer/${question?.id}/`, {
                   method: 'POST',
                   headers: headers,
                   body: JSON.stringify({
@@ -295,7 +295,7 @@ function ConvertPopup({ userId, popupId }: Props) {
 
     const fetchPopup = async () => {
         try {
-          const response = await fetch(`/popup/${popupId}/${userId}`);
+          const response = await fetch(`${baseUrl}/popup/${popupId}/${userId}`);
           if (!response.ok) {
             throw new Error('Something went wrong, try again later');
           }
@@ -313,7 +313,7 @@ function ConvertPopup({ userId, popupId }: Props) {
       const fetchChatGPTs = async () => {
         if (popupEngagement?.popupEngagementUniqueIdentifier){
           try {
-            const response = await fetch(`/popup/chatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
+            const response = await fetch(`${baseUrl}/popup/chatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
             if (!response.ok) {
               throw new Error('Something went wrong, try again later');
             }

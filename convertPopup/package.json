@@ -2,7 +2,7 @@
   "name": "convertPopup",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://react-django-backend-production.up.railway.app/",
+  "proxy": "https://react-django-backend-production.up.railway.app",
   "dependencies": {
     "@chakra-ui/react": "^2.6.1",
     "@emotion/react": "^11.11.0",

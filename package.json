@@ -1,5 +1,6 @@
 {
-  "proxy": "https://react-django-backend-production.up.railway.app/",
+  "homepage": "https://react-django-backend-production.up.railway.app",
+  "proxy": "https://react-django-backend-production.up.railway.app",
   "devDependencies": {
     "@types/dompurify": "^3.0.2",
     "parcel": "^2.8.3",

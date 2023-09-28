@@ -168,7 +168,7 @@ function ConvertPopup({ userId, popupId }: Props) {
   
       if (popupEngagement?.id !== null) {
           try {
-              await fetch(`${baseUrl}/popup/updatePopupEngagementEnd/${popupEngagement?.id}`, {
+             fetch(`${baseUrl}/popup/updatePopupEngagementEnd/${popupEngagement?.id}`, {
                   method: 'POST',
                   headers: headers,
               });
@@ -501,8 +501,8 @@ function ConvertPopup({ userId, popupId }: Props) {
   return (
     <>
 
-    { !theReducerState.popupCreationState && popup?.popupOrChat == 'Chatbot' && (<ChakraBox     
-    >
+    { !theReducerState.popupCreationState && popup?.popupOrChat == 'Chatbot' && (
+    <ChakraBox>
     <Button  
       position="fixed"
       borderRadius={'3xl'}
@@ -513,6 +513,7 @@ function ConvertPopup({ userId, popupId }: Props) {
       fontSize={'2xl'} 
       height={'70px'} 
       w={'200px'} 
+      zIndex={'popover'}
       onClick={() => {
         setTheReducerState({type: 'setPopupCreationState', payload: true})
       }} 
@@ -530,6 +531,7 @@ function ConvertPopup({ userId, popupId }: Props) {
         h={popup?.popupHeight ?? [500, 350]}
         bg={popup?.popupBackgroundColor ?? "white"}
         p={4}
+        zIndex={'popover'}
         position="fixed"
         top={popup?.popupOrChat === "Chatbot" ? top : '50%'}
         right={popup?.popupOrChat === "Chatbot" ? right : undefined} 

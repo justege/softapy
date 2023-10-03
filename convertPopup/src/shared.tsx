@@ -1,1 +1,1 @@
-export const baseUrl =  'https://react-django-backend-production.up.railway.app' //'https://www.convertpopup.com/'
+export const baseUrl =  '' //'https://www.convertpopup.com/'

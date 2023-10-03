@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState, useMemo, useCallback, useReducer } from 'react';
 import { Box as ChakraBox, Button as ChakraButton,  Flex,  Spacer, Img, Text, Button, useBreakpointValue} from "@chakra-ui/react";
 import { baseUrl} from './shared'
-import { Props, ChatGPT, PopupEngagement, PopupAdditional , Popup, Question, selectedAnswersType} from './Types'
+import { Props, ChatGPT, PopupEngagement, PopupAdditional , Popup, Question, selectedAnswersType, PopupPage } from './Types'
 import { useForm } from 'react-hook-form';
 import {ChatComponent} from './ChatComponent'
 import { QuestionaireInChat } from './QuestionaireInChat';
-
-
 
 
 type FieldValues = {
@@ -56,8 +54,6 @@ type ReducerDispatchAction =
 | { type: 'toggleAnswer'; payload: { answerId: number; customTextInput: string }}
 | { type: 'setPopupCreationState'; payload?:boolean}
 | { type: 'setQuestionStartTime'; payload:number | null}
-
-
 
 
 
@@ -134,6 +130,10 @@ function ConvertPopup({ userId, popupId }: Props) {
     const [ theReducerState, setTheReducerState] = useReducer(theStateReducer, initialState)
     const [ isPopupOpen, setIsPopupOpen ] = useState(false)
     const [ pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([])
+    const [ popupPages, setPopupPages] = useState<PopupPage[]>([]);
+    const [ canShowPopup, setCanShowPopup] = useState(false)
+
+
 
     const { control, watch, reset } = useForm<FieldValues>();
 
@@ -166,7 +166,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     window.addEventListener('beforeunload', async (event: BeforeUnloadEvent) => {
       event.preventDefault(); // Prompt the user with a confirmation dialog
   
-      if (popupEngagement?.id !== null) {
+      if (popupEngagement?.id !== null && popupEngagement?.id !== undefined) {
           try {
              fetch(`${baseUrl}/popup/updatePopupEngagementEnd/${popupEngagement?.id}`, {
                   method: 'POST',
@@ -198,7 +198,7 @@ function ConvertPopup({ userId, popupId }: Props) {
 
       const chatGPTInput = async (inputChatGPT: string, question_id?: number) => {
         try {
-          const response = await fetch(`${baseUrl}/popup/chatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
+          const response = await fetch(`${baseUrl}/popup/postchatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({ inputChatGPT: inputChatGPT }),
@@ -309,11 +309,40 @@ function ConvertPopup({ userId, popupId }: Props) {
         }
       };
 
+        const fetchPopupPages = async () => {
+          try {
+            const responsePopupPages = await fetch(`${baseUrl}/api/popupPages/${popupId}/`);
+            const data = await responsePopupPages.json();
+
+            const regex = new RegExp(
+              `^${data.popupPages.map((page: PopupPage) => {
+                const escapedPage = page.showOnWebsite.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+                return escapedPage.replace(/\/\*$/, '/?\\*?') + '/?'; // Make the trailing slash optional
+              }).join('|')}$`
+            );
+          
+            setCanShowPopup(data.popupPages.some((page: PopupPage) =>
+              regex.test(window.location.href)
+            ))
+
+            setPopupPages(data.popupPages);
+
+            
+
+          } catch (error) {
+            // Handle errors here
+            console.error('Error fetching Popup Pages:', error);
+          }
+        };
+    
+   
+
+
 
       const fetchChatGPTs = async () => {
         if (popupEngagement?.popupEngagementUniqueIdentifier){
           try {
-            const response = await fetch(`${baseUrl}/popup/chatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
+            const response = await fetch(`${baseUrl}/popup/getchatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
             if (!response.ok) {
               throw new Error('Something went wrong, try again later');
             }
@@ -357,7 +386,6 @@ function ConvertPopup({ userId, popupId }: Props) {
       
         const stringValue: string =  combinedList.map((e: any) => e?.customTextInput).filter((e: any)=> e !== '').join(` ${and} `) 
 
-
         setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput,...[stringValue]]})
         chatGPTInput(stringValue, next_question_id);
         fetchChatGPTs();
@@ -380,9 +408,6 @@ function ConvertPopup({ userId, popupId }: Props) {
         : [...selectedAnswers, { answerId, customTextInput: answerChatGPT }];
       
         postAnswer(updatedAnswers);
-
-      
-
 
         setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, answerChatGPT]})
       
@@ -484,24 +509,25 @@ function ConvertPopup({ userId, popupId }: Props) {
   }, [popupCreationState, popup?.activateOnExit]);
 
   useEffect(() => {
-    if(!popupCreationState){
-    const handleWindowLoad = () => {
-      createNewPopupEngagement()
-    };
-    window.addEventListener('load', handleWindowLoad);
-    return () => {
-      window.removeEventListener('load', handleWindowLoad);
-    };
-  }
+    fetchPopupPages()
   }, []);
 
-  const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '57%', xl: '57%', '2xl': '62%' });
+  useEffect(() => {
+    if(!popupCreationState && canShowPopup){
+        createNewPopupEngagement()
+    }
+  },[popupCreationState, canShowPopup])
+
+
+
+
+  const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '62%', xl: '62%', '2xl': '62%' });
   const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
   
   return (
     <>
 
-    { !theReducerState.popupCreationState && popup?.popupOrChat == 'Chatbot' && (
+    { (!theReducerState.popupCreationState && popup?.popupOrChat == 'Chatbot' && popup?.status) && (
     <ChakraBox>
     <Button  
       position="fixed"
@@ -523,7 +549,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     </Button>
     </ChakraBox>)
     }
-    { (popupEngagement && popupCreationState) && (
+    { (popupEngagement && popupCreationState && popup?.status ) && (
       <>   
       <Flex
         direction="row"

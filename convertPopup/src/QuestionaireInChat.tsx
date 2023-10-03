@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo, MutableRefObject } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, extendTheme, Wrap, WrapItem} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, extendTheme, Wrap, WrapItem, Img} from "@chakra-ui/react";
 import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType} from './Types'
 import { motion, useAnimation } from 'framer-motion';
 import { Controller } from 'react-hook-form';
@@ -87,7 +87,8 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
 
     return (
-     <ChakraBox>    
+     <ChakraBox>   
+      <Img src={popup?.popupImage} width={'200px'} zIndex={2} top={'-100px'} left={'140px'} position={'absolute'}/> 
       {popupEngagement?.popupEngagementUniqueIdentifier && (
         <Flex
           direction="column"
@@ -95,11 +96,12 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           ml={popup?.popupTextMarginLeft ?? undefined}
           mr={popup?.popupTextMarginRight ?? undefined}
         >
+          
           <ChakraBox>
             {popup?.popupTitle && (
               <ChakraBox
                 p={2}
-                mt={2}
+                mt={popup?.popupImage ? 10 : 3}
                 minHeight={popup?.popupTitleHeight ?? undefined}
                 width={popup?.popupTitleWidth ?? undefined}
                 textColor={popup?.popupTitleTextColor ?? undefined}
@@ -116,7 +118,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
               </ChakraBox>
             )}
 
-            {popup?.popupContent && (
+            {false && popup?.popupContent && (
               <ChakraBox
                 p={2}
                 mt={2}

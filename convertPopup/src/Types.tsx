@@ -56,6 +56,11 @@ export interface Props {
     popupAdditionalText: string;
     popupAdditionalChatText: string;
     }
+
+    export interface PopupPage {
+        id: number;
+        showOnWebsite: string;
+      }
     
     export interface Popup {
     updateDate: string;

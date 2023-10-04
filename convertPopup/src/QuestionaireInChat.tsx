@@ -88,7 +88,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
     return (
      <ChakraBox>   
-      <Img src={popup?.popupImage} width={'200px'} zIndex={2} top={'-100px'} left={'140px'} position={'absolute'}/> 
+      <Img src={`${baseUrl}${popup?.popupImage}`} width={'200px'} zIndex={2} top={'-100px'} left={'140px'} position={'absolute'}/> 
       {popupEngagement?.popupEngagementUniqueIdentifier && (
         <Flex
           direction="column"

@@ -65,6 +65,7 @@ export interface Props {
     export interface Popup {
     updateDate: string;
     id: number;
+    alwaysDisplay: boolean;
     popupOrChat: string,
     activateOnExit: boolean,
     activateOnInactivity: boolean,

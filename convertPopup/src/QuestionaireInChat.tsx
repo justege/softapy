@@ -88,7 +88,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
     return (
      <ChakraBox>   
-      <Img src={`${baseUrl}${popup?.popupImage}`} width={'200px'} zIndex={2} top={'-100px'} left={'140px'} position={'absolute'}/> 
+      <Img src={`${baseUrl}${popup?.popupImage}`} width={'200px'} zIndex={4} top={'-100px'} left={'140px'} position={'absolute'}/> 
       {popupEngagement?.popupEngagementUniqueIdentifier && (
         <Flex
           direction="column"
@@ -339,7 +339,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 <Flex alignItems="center" justifyContent="center" my={2.5}>
       <ChakraBox height="1px" width="97%" backgroundColor="gray.300" />
 </Flex>
-      {chatGPTs.length === 0 && (
+      {false && chatGPTs.length === 0 && (
       <ChakraBox h={popup?.popupCTAPercentage  ?? undefined} mx={1} display="flex"   overflowX="auto"  overflowY={'hidden'}
        maxWidth={'450px'}>
               {popupAdditionals?.map((suggestion, idx) => (
@@ -366,7 +366,8 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       </ChakraBox>
       )}
 
-
+        {false && (
+        <>
         <ChakraBox h={popup?.popupChatSendPercentage ?? undefined} >
         <Flex>
           <ChakraBox width="100%">
@@ -407,6 +408,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           </ChakraBox>
         </Flex>
         </ChakraBox>
+        </>)}
     </ChakraBox>
     )
 }

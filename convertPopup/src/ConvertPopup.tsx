@@ -118,22 +118,20 @@ function theStateReducer(state: ReducerState, action: ReducerDispatchAction): Re
     }
 }
 
-function getCookie(name: string): string | undefined {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift();
-    return undefined;
-  }
+    function getCookie(name: string): string | undefined {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return undefined;
+      }
 
 
-function ConvertPopup({ userId, popupId }: Props) {
-    const [ theReducerState, setTheReducerState] = useReducer(theStateReducer, initialState)
-    const [ isPopupOpen, setIsPopupOpen ] = useState(false)
-    const [ pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([])
-    const [ popupPages, setPopupPages] = useState<PopupPage[]>([]);
-    const [ canShowPopup, setCanShowPopup] = useState(false)
-
-
+    function ConvertPopup({ userId, popupId }: Props) {
+        const [ theReducerState, setTheReducerState] = useReducer(theStateReducer, initialState)
+        const [ isPopupOpen, setIsPopupOpen ] = useState(false)
+        const [ pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([])
+        const [ popupPages, setPopupPages] = useState<PopupPage[]>([]);
+        const [ canShowPopup, setCanShowPopup] = useState(false)
 
     const { control, watch, reset } = useForm<FieldValues>();
 
@@ -201,7 +199,7 @@ function ConvertPopup({ userId, popupId }: Props) {
           const response = await fetch(`${baseUrl}/popup/postchatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify({ inputChatGPT: inputChatGPT }),
+            body: JSON.stringify({ inputChatGPT: inputChatGPT, next_question_id: question_id }),
           });
           if (!response.ok) {
             throw new Error('Something went wrong, try again later');
@@ -314,17 +312,31 @@ function ConvertPopup({ userId, popupId }: Props) {
             const responsePopupPages = await fetch(`${baseUrl}/api/popupPages/${popupId}/`);
             const data = await responsePopupPages.json();
 
-            const regex = new RegExp(
-              `^${data.popupPages.map((page: PopupPage) => {
-                const escapedPage = page.showOnWebsite.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-                return escapedPage.replace(/\/\*$/, '/?\\*?') + '/?'; // Make the trailing slash optional
-              }).join('|')}$`
-            );
-          
-            setCanShowPopup(data.popupPages.some((page: PopupPage) =>
-              regex.test(window.location.href)
-            ))
+            const regexPattern = data.popupPages.map((page: PopupPage) => {
+              const escapedPage = page.showOnWebsite.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+              if (escapedPage.endsWith('/\\*')) {
+                // If showOnWebsite ends with '/*', match the entire domain and all subpages
+                return `(${escapedPage.replace(/\/\*$/, '(/.*)?')})`;
+              } else {
+                // Otherwise, match only the exact URL
+                return `^${escapedPage}$`; // Add '^' and '$' for exact matching
+              }
+            }).join('|');
+            
+            const regex = new RegExp(`(${regexPattern})`);
+            
+            const currentURL = window.location.href;
 
+
+            const regexResult = data.popupPages.some((page: PopupPage) =>
+            regex.test(currentURL)
+          )
+
+            console.log('Regex Pattern:', regexPattern, regexResult);
+            console.log('Current URL:', currentURL);
+            
+            setCanShowPopup(regexResult)
+            
             setPopupPages(data.popupPages);
 
             
@@ -513,10 +525,10 @@ function ConvertPopup({ userId, popupId }: Props) {
   }, []);
 
   useEffect(() => {
-    if(!popupCreationState && canShowPopup){
+    if(!popupCreationState){
         createNewPopupEngagement()
     }
-  },[popupCreationState, canShowPopup])
+  },[popupCreationState])
 
 
 
@@ -527,7 +539,7 @@ function ConvertPopup({ userId, popupId }: Props) {
   return (
     <>
 
-    { (!theReducerState.popupCreationState && popup?.popupOrChat == 'Chatbot' && popup?.status) && (
+    { (!(theReducerState.popupCreationState) && popup?.popupOrChat == 'Chatbot' && popup?.status && canShowPopup) && (
     <ChakraBox>
     <Button  
       position="fixed"
@@ -549,7 +561,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     </Button>
     </ChakraBox>)
     }
-    { (popupEngagement && popupCreationState && popup?.status ) && (
+    { (popupEngagement && popupCreationState && (popup?.status || popup?.alwaysDisplay) && canShowPopup) && (
       <>   
       <Flex
         direction="row"
@@ -589,7 +601,7 @@ function ConvertPopup({ userId, popupId }: Props) {
               submitAnswer,
             }}
         />
-    
+        {!popup?.alwaysDisplay &&
         <ChakraButton
             onClick={() => setTheReducerState({type: 'setPopupCreationState', payload: false})}
             bg={popup?.popupCloseButtonBoxColor ?? undefined}
@@ -604,6 +616,7 @@ function ConvertPopup({ userId, popupId }: Props) {
           >
             {popup?.popupCloseButtonText}
         </ChakraButton>
+    }
       </Flex>
       </>)}
     </>

@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form';
 import {ChatComponent} from './ChatComponent'
 import { QuestionaireInChat } from './QuestionaireInChat';
 
-
 type FieldValues = {
     questionId: {
       [key: string]: string;
@@ -126,16 +125,12 @@ function theStateReducer(state: ReducerState, action: ReducerDispatchAction): Re
       }
 
 
+
+
     function ConvertPopup({ userId, popupId }: Props) {
-        const [ theReducerState, setTheReducerState] = useReducer(theStateReducer, initialState)
-        const [ isPopupOpen, setIsPopupOpen ] = useState(false)
-        const [ pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([])
-        const [ popupPages, setPopupPages] = useState<PopupPage[]>([]);
-        const [ canShowPopup, setCanShowPopup] = useState(false)
 
-    const { control, watch, reset } = useForm<FieldValues>();
-
-    const {
+      const [ theReducerState, setTheReducerState] = useReducer(theStateReducer, initialState)
+      const {
         popupEngagement,
         popupAdditionals,
         popup,
@@ -148,6 +143,24 @@ function theStateReducer(state: ReducerState, action: ReducerDispatchAction): Re
         popupCreationState,
         questionStartTime,
     } = theReducerState;
+
+
+       
+        const [ pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([question?.text ?? ''])
+        const [ popupPages, setPopupPages] = useState<PopupPage[]>([]);
+        const [ canShowPopup, setCanShowPopup] = useState(false)
+
+        const showPopupButton = document.getElementById('showPopupButton');
+
+
+        showPopupButton?.addEventListener('click', function() {
+          setTheReducerState({ type: 'setPopupCreationState', payload: true });
+          setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now() });
+        });
+
+    const { control, watch, reset } = useForm<FieldValues>();
+
+
 
     const csrfToken = getCookie('csrftoken');
 
@@ -233,7 +246,8 @@ function theStateReducer(state: ReducerState, action: ReducerDispatchAction): Re
             
             (data) => {
               setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now() });
-              setTheReducerState({ type: 'setQuestion', payload: data })})
+              setTheReducerState({ type: 'setQuestion', payload: data })
+            })
           .catch((error) => {
             console.error('There has been a problem with your fetch operation:', error);
           });
@@ -331,15 +345,9 @@ function theStateReducer(state: ReducerState, action: ReducerDispatchAction): Re
             const regexResult = data.popupPages.some((page: PopupPage) =>
             regex.test(currentURL)
           )
-
-            console.log('Regex Pattern:', regexPattern, regexResult);
-            console.log('Current URL:', currentURL);
             
             setCanShowPopup(regexResult)
-            
             setPopupPages(data.popupPages);
-
-            
 
           } catch (error) {
             // Handle errors here
@@ -365,10 +373,8 @@ function theStateReducer(state: ReducerState, action: ReducerDispatchAction): Re
             setTheReducerState({type: 'setChatGPTs', payload: data.chatgpt})
 
             const output =  data.chatgpt.map((e: any)=> e.outputChatGPT)
-
-            setPastChatGPTOutput(output)
+              setPastChatGPTOutput(output)
             } 
-            setTheReducerState({type: 'setError', payload: undefined})
         } catch (error) {
         setTheReducerState({type: 'setError', payload: error})
         }
@@ -405,22 +411,16 @@ function theStateReducer(state: ReducerState, action: ReducerDispatchAction): Re
     
       
     const clickAnswer = (answerId: number, answerChatGPT: string) => {
-
-
         setTheReducerState({
             type: 'toggleAnswer',
             payload: { answerId: answerId, customTextInput: answerChatGPT },
         });
 
         const isSelected = selectedAnswers.some((e) => e.answerId === answerId);
-
-
         const updatedAnswers = isSelected
         ? selectedAnswers.filter((selectedAnswer) => selectedAnswer.answerId !== answerId)
         : [...selectedAnswers, { answerId, customTextInput: answerChatGPT }];
-      
         postAnswer(updatedAnswers);
-
         setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, answerChatGPT]})
       
         return updatedAnswers;
@@ -429,6 +429,8 @@ function theStateReducer(state: ReducerState, action: ReducerDispatchAction): Re
     useEffect(() => {
         fetchChatGPTs();
     }, [userId,pastChatGPTInput]);
+
+    console.log('chat', chatGPTs, pastChatGPTOutput)
 
       
     const handleChatGPTSubmit = (questionId: number) => {

@@ -1,0 +1,36 @@
+
+// const fetchChatGPTs = async () => {
+//     if (popupEngagement?.popupEngagementUniqueIdentifier){
+//       try {
+//         const response = await fetch(`${baseUrl}/popup/getchatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`);
+//         if (!response.ok) {
+//           throw new Error('Something went wrong, try again later');
+//         }
+//         const data = await response.json();
+//         setTheReducerState({type: 'setPopupAdditionals', payload: data.popupAdditional})
+  
+//         if (data.chatgpt.length) {
+//         setTheReducerState({type: 'setChatGPTs', payload: data.chatgpt})
+
+//         const output =  data.chatgpt.map((e: any)=> e.outputChatGPT)
+          
+//         output.length == 1 ? setPastChatGPTOutput((oldState)=>[...oldState, ...output]) : setPastChatGPTOutput(output)
+          
+//         } 
+//     } catch (error) {
+//     setTheReducerState({type: 'setError', payload: error})
+//     }
+//     }
+//   };
+
+  // const AnswerQuestionForChatGPTInput = (combinedList: any, next_question_id?: number) => {
+  //   const and = popup?.popupWordForAnd
+  
+  //   const stringValue: string =  combinedList.map((e: any) => e?.customTextInput).filter((e: any)=> e !== '').join(` ${and} `) 
+
+  //   setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput,...[stringValue]]})
+  //   chatGPTInput(stringValue, next_question_id);
+  //   fetchChatGPTs();
+  // };
+
+  

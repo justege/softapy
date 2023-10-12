@@ -45,7 +45,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       }
 
     useEffect(() => {
-        handleScrollToBottom(); // Scroll to the bottom after chatGPTs update
+        handleScrollToBottom(); 
       }, [pastChatGPTOutput]);
 
     const handleScrollToBottom = () => {
@@ -56,20 +56,17 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
     };
 
     const calculateHeight = useMemo(() => {
-        if (popup?.popupChatHistoryPercentage && popup?.popupCTAPercentage && chatGPTs.length > 0) {
-          return `${(parseInt(popup?.popupChatHistoryPercentage) + parseInt(popup?.popupCTAPercentage))}%`;
-        }
-        if (popup?.popupChatHistoryPercentage){
-          return popup?.popupChatHistoryPercentage
-        }
-      }, [popup, chatGPTs]);
+      if (popup?.popupChatHistoryPercentage && popup?.popupCTAPercentage && chatGPTs.length > 0) {
+        return `${(parseInt(popup?.popupChatHistoryPercentage) + parseInt(popup?.popupCTAPercentage))}%`;
+      }
+      if (popup?.popupChatHistoryPercentage){
+        return popup?.popupChatHistoryPercentage
+      }
+    }, [popup, chatGPTs]);
 
-      const [loading, setLoading] = useState(false);
       const loadingAnimation = useAnimation();
-    
       useEffect(() => {
         if (chatGPTs.some((e)=> e.outputChatGPT = '')) {
-          setLoading(true); // Set loading to true when there is no chat output
           const startLoadingAnimation = async () => {
             await loadingAnimation.start({
               opacity: [1, 0.6, 0.2, 1], // Opacity values for the loading animation
@@ -81,7 +78,6 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           startLoadingAnimation();
         } else {
           loadingAnimation.stop()
-          setLoading(false); // Set loading to false when chatGPTs have some output
         }
       }, [chatGPTs, loadingAnimation]);
 
@@ -134,7 +130,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           </ChakraBox>
         </Flex>
       )}
-        <ChakraBox ref={flexContainerRef} overflowY="auto" h={calculateHeight} mt={10}>
+        <ChakraBox ref={flexContainerRef} overflowY="auto" mt={10}  h={calculateHeight}>
         <ChakraBox p={2} m={1}>
           <Flex direction="column">
             {(pastChatGPTInput.length>0 ? pastChatGPTInput : ['...']).map((input, index) => (
@@ -200,13 +196,10 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       }}
                       textAlign={"left"}
                     >
-                    {pastChatGPTInput.length > 0 ?  
-                      (!pastChatGPTOutput[index] ?       
+                      {!pastChatGPTOutput[index] ?       
                       <ThreeDotsWave />
                       : <Text dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(formatTextWithLinks(pastChatGPTOutput[index]))}} />) 
-                      : popup?.popupExampleOutputChatGPT
-                      }
+                        __html: DOMPurify.sanitize(formatTextWithLinks(pastChatGPTOutput[index]))}} />}
                     </MotionBox>
                   </Flex>
               </ChakraBox>

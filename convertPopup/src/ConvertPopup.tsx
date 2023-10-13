@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, useMemo, useCallback, useReducer } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex,  Spacer, Img, Text, Button, useBreakpointValue} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Button, useBreakpointValue} from "@chakra-ui/react";
 import { baseUrl} from './shared'
-import { Props, ChatGPT, PopupEngagement, PopupAdditional , Popup, Question, selectedAnswersType, PopupPage } from './Types'
+import { Props, PopupPage } from './Types'
 import { useForm } from 'react-hook-form';
 import {ChatComponent} from './ChatComponent'
 import { QuestionaireInChat } from './QuestionaireInChat';
-import { ReducerState, initialState, ReducerDispatchAction, theStateReducer } from './Reducer'
+import { initialState, theStateReducer } from './Reducer'
 
 type FieldValues = {
   questionId: {
@@ -22,8 +22,6 @@ function getCookie(name: string): string | undefined {
 
 function ConvertPopup({ userId, popupId }: Props) {
   
-
-
   const showPopupButton = document.getElementById('showPopupButton');
 
   const { control, watch, reset } = useForm<FieldValues>();
@@ -165,29 +163,29 @@ function ConvertPopup({ userId, popupId }: Props) {
       const combinedList = [
         ...theReducerState.selectedAnswers,
         ...(questionInputFormWatch
-          ? Object.entries(questionInputFormWatch).map(([answerId, text]) => text !=='' ? ({
+          ? Object.entries(questionInputFormWatch).map(([answerId, text]) => text !== '' ? ({
               answerId: parseInt(answerId),
               customTextInput: text ?? '',
             }) : null) 
           : []),
       ];
+
       postAnswer(combinedList)
-      }
+    }
 
-        const AnswerQuestionForChatGPTInput = (combinedList: any, next_question_id?: number) => {
-        const and = popup?.popupWordForAnd
+    const AnswerQuestionForChatGPTInput = (combinedList: any, next_question_id?: number) => {
+    const and = popup?.popupWordForAnd
 
-        const stringValue: string =  combinedList.map((e: any) => e?.customTextInput).filter((e: any)=> e !== '').join(` ${and} `) 
+    const stringValue: string =  combinedList.map((e: any) => e?.customTextInput).filter((e: any)=> e !== '').join(` ${and} `) 
 
-        setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput,...[stringValue]]})
-        chatGPTInput(stringValue, next_question_id);
-        //fetchChatGPTs();
-        };
+    setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput,...[stringValue]]})
+    chatGPTInput(stringValue, next_question_id);
+    //fetchChatGPTs();
+    };
 
 
       const postAnswer = async (combinedList: any) => {
           if (questionStartTime) {
-            console.log('hello2')
             const answerTime = (Date.now() - questionStartTime) / 1000; // Calculate the time taken
             try {
               const response = await fetch(`${baseUrl}/answer/${question?.id}/`, {
@@ -203,12 +201,12 @@ function ConvertPopup({ userId, popupId }: Props) {
                 throw new Error('Network response was not ok');
               }
               const data = await response.json();
-              AnswerQuestionForChatGPTInput(combinedList, data.id);
+              
               if (data.id) {
               setTheReducerState({type: 'setQuestionStartTime', payload: Date.now()})
               setTheReducerState({type: 'setQuestion', payload: data})
-              console.log(' data.text', data.text)
               setPastChatGPTOutput((output) => [...output, data.text])
+              AnswerQuestionForChatGPTInput(combinedList, data.id);
               
               } else {
               setTheReducerState({type: 'setQuestion', payload: null})
@@ -234,16 +232,13 @@ function ConvertPopup({ userId, popupId }: Props) {
     
   const clickAnswer = (answerId: number, answerChatGPT: string) => {
 
-    console.log('hello')
-
       const isSelected = selectedAnswers.some((e) => e.answerId === answerId);
       const updatedAnswers = isSelected
       ? selectedAnswers.filter((selectedAnswer) => selectedAnswer.answerId !== answerId)
       : [...selectedAnswers, { answerId, customTextInput: answerChatGPT }];
       
       postAnswer(updatedAnswers);
-      
-      
+
       setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, answerChatGPT]})
     
       return updatedAnswers;
@@ -424,8 +419,8 @@ return (
           colorScheme={popup?.popupCloseButtonColorScheme ?? undefined}
           variant={popup?.popupCloseButtonVariant ?? undefined}
           position="absolute"
-          top={-41}
-          right={-41}
+          top={'-48px'}
+          right={'-48px'}
           m={1}
           p={1}
         >

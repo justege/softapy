@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef, useMemo, MutableRefObject } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, extendTheme, Wrap, WrapItem, Img} from "@chakra-ui/react";
+import React, { useEffect, useRef, useMemo } from 'react';
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, Wrap, WrapItem, Img} from "@chakra-ui/react";
 import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType} from './Types'
 import { motion, useAnimation } from 'framer-motion';
 import { Controller } from 'react-hook-form';
@@ -33,6 +33,7 @@ type QuestionaireInChatProps = {
     handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+
 export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
     const { popupEngagement, popup, pastChatGPTInput, chatGPTs, pastChatGPTOutput, popupAdditionals, inputChatGPT, handleChatGPTSubmit, handleButtonSubmit, handleInputChange, question, selectedAnswers, control, clickAnswer, toggleAnswer, submitAnswer} = props
@@ -65,26 +66,94 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
     }, [popup, chatGPTs]);
 
       const loadingAnimation = useAnimation();
+
+    
       useEffect(() => {
-        if (chatGPTs.some((e)=> e.outputChatGPT = '')) {
+        if(chatGPTs.some((e)=> e.outputChatGPT = '') && question?.text) {
+          console.log('running')
           const startLoadingAnimation = async () => {
             await loadingAnimation.start({
               opacity: [1, 0.6, 0.2, 1], // Opacity values for the loading animation
-              transition: { duration: 1, repeat: Infinity }, // Duration and repeat options
+              transition: { duration: 1, repeat: 5 }, // Duration and repeat options
             });
           };
-
-    
           startLoadingAnimation();
         } else {
+          console.log("Stopping loading animation");
           loadingAnimation.stop()
         }
-      }, [chatGPTs, loadingAnimation]);
+
+      if(!question?.text){
+        console.log("This is also true -topping loading animation");
+          loadingAnimation.stop()
+        }
+      }, [chatGPTs, loadingAnimation, question?.text]);
+
+    
+      const InputComponent = () => {
+        return (<MotionBox padding={3}>
+        {question?.answers.map(answer => (
+           <React.Fragment key={answer.id}>
+            {answer.answerHasInputField &&
+            <>
+            <Text maxH={'40%'} textAlign={'left'}>{answer.text}</Text>
+            <MotionBox 
+              mt={1}
+              borderWidth={2} 
+              padding={!!answer.answerPadding ? answer.answerPadding : (popup?.answerPadding ?? undefined)} 
+              borderRadius={!!answer.answerBorderRadius ? answer.answerBorderRadius : (popup?.answerBorderRadius ?? undefined)}
+              boxShadow={!!answer.answerBorderBoxShadow ? answer.answerBorderBoxShadow : (popup?.answerBorderBoxShadow ?? undefined)}
+              borderColor={!!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? undefined)} 
+              bgColor={!!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)} 
+              textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
+              margin = {!!answer.answerMargin ? answer.answerMargin : (popup?.answerMargin ?? undefined)}
+              whileFocus={{ boxShadow: "0 0 0 2px #black" }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+              >
+              <Controller
+              key={answer.id}
+              control={control}
+              name={`questionId.${answer.id}`}
+              render={({ field }) => (
+                <Input
+                  px={3}
+                  variant='flushed' 
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder= {answer.answerInputTextField}
+                  size='md'
+                />
+              )}
+            />
+             </MotionBox>
+           </>
+          }
+      </React.Fragment>
+      ))}
+    {question?.answers.some((e)=> e.answerHasInputField) && 
+      <ChakraButton 
+      w={'full'} 
+      mt={5}
+      onClick={submitAnswer}
+      textColor={popup?.popupQuestionarySubmitButtonTextColor ?? undefined}
+      backgroundColor={popup?.popupQuestionarySubmitButtonColor ?? undefined}
+      borderColor={popup?.popupQuestionarySubmitBorderColor ?? undefined} 
+      borderWidth={popup?.popupQuestionarySubmitHasBorder ? 'thin' : undefined}
+      >
+      {popup?.popupQuestionarySubmitButtonText ?? 'Submit'}
+      </ChakraButton>
+    }
+      </MotionBox>)
+    }
+      
 
 
     return (
      <ChakraBox>   
-      <Img src={`${baseUrl}${popup?.popupImage}`} width={'200px'} zIndex={4} top={'-100px'} left={'140px'} position={'absolute'}/> 
+      <Img src={`${baseUrl}${popup?.popupImage}`} width={'200px'} zIndex={4} top={'-115px'} left={'140px'} position={'absolute'}/> 
       {popupEngagement?.popupEngagementUniqueIdentifier && (
         <Flex
           direction="column"
@@ -97,7 +166,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
             {popup?.popupTitle && (
               <ChakraBox
                 p={2}
-                mt={popup?.popupImage ? 10 : 3}
+                mt={popup?.popupImage ? 7 : 3}
                 minHeight={popup?.popupTitleHeight ?? undefined}
                 width={popup?.popupTitleWidth ?? undefined}
                 textColor={popup?.popupTitleTextColor ?? undefined}
@@ -140,7 +209,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                     mt={1}
                     px={2}
                     py={2}
-                    fontSize={popup?.popupChatHistoryFontSize ?? "sm"}
+                    fontSize={popup?.popupChatHistoryFontSize ?? "md"}
                     borderRadius="8px 8px 0 8px"
                     borderWidth="1px"
                     borderColor={popup?.popupChatHistoryInputFocusBorderColor ?? undefined}
@@ -172,7 +241,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       mt={1}
                       px={2}
                       py={2}
-                      fontSize={popup?.popupChatHistoryFontSize ?? "sm"}
+                      fontSize={popup?.popupChatHistoryFontSize ?? "md"}
                       borderRadius="8px 8px 8px 0"
                       borderWidth="1px"
                       borderColor={popup?.popupChatHistoryOutputFocusBorderColor ?? undefined}
@@ -196,8 +265,10 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       }}
                       textAlign={"left"}
                     >
-                      {!pastChatGPTOutput[index] ?       
-                      <ThreeDotsWave />
+                      {!pastChatGPTOutput[index]  ? 
+                      question?.text ? // Question has input answers useState
+                      <ThreeDotsWave /> 
+                      : 'This was it, thank you very much!'
                       : <Text dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(formatTextWithLinks(pastChatGPTOutput[index]))}} />}
                     </MotionBox>
@@ -207,10 +278,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
     <HStack spacing={2} overflow='auto' height='90%' mt={2}>
     <Wrap spacing={4}>
       {question?.answers.map((answer) => (
-      <WrapItem >
+
     <React.Fragment key={answer.id}>
       {!answer.answerHasInputField &&
-    (
+     (
+      <WrapItem>
       <MotionBox 
       className='MainComponent'
       key = {answer.id}
@@ -241,8 +313,8 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       href={answer.answerHasCallToAction ? answer.answerCallToActionURL : undefined} 
       target="_blank" // Open the URL in a new tab
       rel="noopener noreferrer" // Recommended for security reasons
-      height={'100%'}
-      width={'150px'}
+      height={'160px'}
+      width={'200px'}
       p={0} // Remove padding to make image cover the whole button area
       >
       <Flex
@@ -266,11 +338,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           p={1}
           alignItems="center"
           justifyContent="center"
-          height={'40px'}
+          height={'35px'}
           w={'100%'}
         >
           <Text 
-            fontSize='sm' 
+            fontSize='md' 
             color={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
             textAlign="center" // Center align text
           >
@@ -279,61 +351,27 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         </Flex>
       </Flex>
       </ChakraButton>
-      </MotionBox>)
+      </MotionBox>
+      </WrapItem>
+      )
       }
    </React.Fragment>
-   </WrapItem>
+   
     ))
   }
   </Wrap>
-     {question?.answers.map(answer => (
-         <React.Fragment key={answer.id}>
-          {answer.answerHasInputField &&
-            <MotionBox 
-            borderWidth={2} 
-            padding={!!answer.answerPadding ? answer.answerPadding : (popup?.answerPadding ?? undefined)} 
-            borderRadius={!!answer.answerBorderRadius ? answer.answerBorderRadius : (popup?.answerBorderRadius ?? undefined)}
-            boxShadow={!!answer.answerBorderBoxShadow ? answer.answerBorderBoxShadow : (popup?.answerBorderBoxShadow ?? undefined)}
-            borderColor={!!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? undefined)} 
-            bgColor={!!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)} 
-            textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
-            margin = {!!answer.answerMargin ? answer.answerMargin : (popup?.answerMargin ?? undefined)}
-            whileFocus={{ boxShadow: "0 0 0 2px #black" }}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.3 }}
-            >
-            <Text maxH={'40%'}>{answer.text}</Text>
-            <Controller
-            key={answer.id}
-            control={control}
-            name={`questionId.${answer.id}`}
-            render={({ field }) => (
-              <Input
-                variant='flushed' 
-                maxH={'60%'}
-                value={field.value}
-                onChange={field.onChange}
-                placeholder= {answer.answerInputTextField}
-                size='sm'
-              />
-            )}
-          />
-           </MotionBox>
-        }
-    </React.Fragment>
-    ))}
     </HStack>  
     </Flex>
+   
 </ChakraBox>
+<InputComponent />
 </ChakraBox>
-
-<Flex alignItems="center" justifyContent="center" my={2.5}>
-      <ChakraBox height="1px" width="97%" backgroundColor="gray.300" />
-</Flex>
+      {false && (
+      <Flex alignItems="center" justifyContent="center" my={2.5}>
+            <ChakraBox height="1px" width="97%" backgroundColor="gray.300" />
+      </Flex>)}
       {false && chatGPTs.length === 0 && (
-      <ChakraBox h={popup?.popupCTAPercentage  ?? undefined} mx={1} display="flex"   overflowX="auto"  overflowY={'hidden'}
+      <ChakraBox h={popup?.popupCTAPercentage  ?? undefined} mx={1} display="flex" overflowX="auto"  overflowY={'hidden'}
        maxWidth={'450px'}>
               {popupAdditionals?.map((suggestion, idx) => (
                 <MotionButton

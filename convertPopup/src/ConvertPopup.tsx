@@ -244,12 +244,6 @@ function ConvertPopup({ userId, popupId }: Props) {
       return updatedAnswers;
   };
 
-  // useEffect(() => {
-  //     fetchChatGPTs();
-  // }, [userId,pastChatGPTInput]);
-
-  console.log('chat', chatGPTs, pastChatGPTOutput)
-
     
   const handleChatGPTSubmit = (questionId: number) => {
       if (inputChatGPT !== null) {

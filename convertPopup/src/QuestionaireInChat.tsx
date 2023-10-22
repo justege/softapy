@@ -70,7 +70,6 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
     
       useEffect(() => {
         if(chatGPTs.some((e)=> e.outputChatGPT = '') && question?.text) {
-          console.log('running')
           const startLoadingAnimation = async () => {
             await loadingAnimation.start({
               opacity: [1, 0.6, 0.2, 1], // Opacity values for the loading animation
@@ -79,12 +78,10 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           };
           startLoadingAnimation();
         } else {
-          console.log("Stopping loading animation");
           loadingAnimation.stop()
         }
 
       if(!question?.text){
-        console.log("This is also true -topping loading animation");
           loadingAnimation.stop()
         }
       }, [chatGPTs, loadingAnimation, question?.text]);
@@ -153,7 +150,9 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
     return (
      <ChakraBox>   
+      {popup?.popupImage && 
       <Img src={`${baseUrl}${popup?.popupImage}`} width={'200px'} zIndex={4} top={'-115px'} left={'140px'} position={'absolute'}/> 
+      }
       {popupEngagement?.popupEngagementUniqueIdentifier && (
         <Flex
           direction="column"

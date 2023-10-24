@@ -8,10 +8,11 @@ export type ReducerState = {
     chatGPTs: ChatGPT[];
     inputChatGPT: string;
     pastChatGPTInput: string[];
-    question: Question | null;
+    allQuestions: Question[] | [];
     selectedAnswers: selectedAnswersType;
     popupCreationState: boolean;
     questionStartTime: number | null;
+    question: Question | null;
 }
 
 export const initialState: ReducerState = {
@@ -22,10 +23,11 @@ export const initialState: ReducerState = {
     chatGPTs: [],
     inputChatGPT: '',
     pastChatGPTInput: ['Lets Go'],
-    question: null,
+    allQuestions: [],
     selectedAnswers: [],
     popupCreationState: false,
     questionStartTime: null,
+    question: null,
 }
 
 export type ReducerDispatchAction = 
@@ -36,7 +38,8 @@ export type ReducerDispatchAction =
 | { type: 'setChatGPTs'; payload?:ChatGPT[]}
 | { type: 'setInputChatGPT'; payload?:string}
 | { type: 'setPastChatGPTInput'; payload?:string[]}
-| { type: 'setQuestion'; payload:Question | null}
+| { type: 'setAllQuestions'; payload:Question[] | []}
+| { type: 'setQuestion'; payload: Question | null}
 | { type: 'setSelectedAnswers'; payload?: selectedAnswersType}
 | { type: 'toggleAnswer'; payload: { answerId: number; customTextInput: string }}
 | { type: 'setPopupCreationState'; payload?:boolean}
@@ -67,6 +70,9 @@ export function theStateReducer(state: ReducerState, action: ReducerDispatchActi
         }
         case 'setPastChatGPTInput': {
             return { ...state, pastChatGPTInput: action.payload || [] };
+        }
+        case 'setAllQuestions': {
+            return { ...state, allQuestions: action.payload };
         }
         case 'setQuestion': {
             return { ...state, question: action.payload };

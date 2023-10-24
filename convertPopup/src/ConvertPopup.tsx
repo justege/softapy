@@ -45,6 +45,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     chatGPTs,
     inputChatGPT,
     pastChatGPTInput,
+    allQuestions,
     question,
     selectedAnswers,
     popupCreationState,
@@ -87,7 +88,7 @@ function ConvertPopup({ userId, popupId }: Props) {
       setTheReducerState({type: 'setPopupEngagement', payload: data.customer})
       setTheReducerState({type: 'setPopup', payload: data.popup})
       setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now() });
-      setTheReducerState({ type: 'setQuestion', payload: data.question })
+      setTheReducerState({ type: 'setAllQuestions', payload: data.allQuestions })
       setPastChatGPTOutput([data.question.text])
       setTheReducerState({type: 'setChatGPTs', payload: [{id: 0, inputChatGPT: '', outputChatGPT: data.question.text, requestId: 0}]})
       setTheReducerState({type: 'setError', payload: undefined})
@@ -184,41 +185,43 @@ function ConvertPopup({ userId, popupId }: Props) {
     };
 
 
-      const postAnswer = async (combinedList: any) => {
-          if (questionStartTime) {
-            const answerTime = (Date.now() - questionStartTime) / 1000; // Calculate the time taken
-            try {
-              const response = await fetch(`${baseUrl}/answer/${question?.id}/`, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify({
-                  answer: combinedList,
-                  popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier,
-                  answerTime: answerTime,
-                }),
-              });
-              if (!response.ok) {
-                throw new Error('Network response was not ok');
-              }
-              const data = await response.json();
-              
-              if (data.id) {
-              setTheReducerState({type: 'setQuestionStartTime', payload: Date.now()})
-              setTheReducerState({type: 'setQuestion', payload: data})
-              setPastChatGPTOutput((output) => [...output, data.text])
-              AnswerQuestionForChatGPTInput(combinedList, data.id);
-              
-              } else {
-              setTheReducerState({type: 'setQuestion', payload: null})
-              setTheReducerState({type: 'setQuestionStartTime', payload: null})
-              }
-              setTheReducerState({type: 'setSelectedAnswers', payload: []})
-              reset();
-            } catch (error) {
-              console.error('There has been a problem with your fetch operation:', error);
-            }
+  const postAnswer = async (combinedList: any) => {
+      if (questionStartTime) {
+        const answerTime = (Date.now() - questionStartTime) / 1000; // Calculate the time taken
+        try {
+          const response = await fetch(`${baseUrl}/answer/${question?.id}/`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+              answer: combinedList,
+              popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier,
+              answerTime: answerTime,
+            }),
+          });
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
           }
-        };
+          const data = await response.json();
+          
+          if (data.id) {
+          setTheReducerState({type: 'setQuestionStartTime', payload: Date.now()})
+          setTheReducerState({type: 'setAllQuestions', payload: data.question})
+          setTheReducerState({type: 'setQuestion', payload: allQuestions.find((e) => e.id === data.question.id) ?? null})
+          setPastChatGPTOutput((output) => [...output, data.text])
+          AnswerQuestionForChatGPTInput(combinedList, data.id);
+          
+          } else {
+          setTheReducerState({type: 'setAllQuestions', payload: []})
+          setTheReducerState({type: 'setQuestion', payload: null})
+          setTheReducerState({type: 'setQuestionStartTime', payload: null})
+          }
+          setTheReducerState({type: 'setSelectedAnswers', payload: []})
+          reset();
+        } catch (error) {
+          console.error('There has been a problem with your fetch operation:', error);
+        }
+      }
+    };
 
   
   const toggleAnswer = (answerId: number, answerChatGPT: string) => {

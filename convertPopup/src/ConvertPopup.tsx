@@ -383,12 +383,12 @@ return (
   textColor={'white'}
   zIndex={'popover'}
   bottom="2%"
-  left={"43%"}
+  left={"44%"}
   >
     <Flex >
     {popup?.teaserImage &&
     <Avatar
-      src={popup?.teaserImage} 
+      src={`${baseUrl}${popup?.teaserImage}`} 
       height={'40px'}
       width={'40px'}
       alignSelf={'center'}

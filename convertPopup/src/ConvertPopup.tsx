@@ -1,11 +1,39 @@
 import { useEffect, useRef, useState, useMemo, useCallback, useReducer } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Button, useBreakpointValue} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Button, useBreakpointValue, Text, Avatar, Center, keyframes} from "@chakra-ui/react";
 import { baseUrl} from './shared'
 import { Props, PopupPage } from './Types'
 import { useForm } from 'react-hook-form';
 import {ChatComponent} from './ChatComponent'
 import { QuestionaireInChat } from './QuestionaireInChat';
 import { initialState, theStateReducer } from './Reducer'
+
+
+
+
+const shockwaveAnimation = keyframes`
+0% {
+  transform: scale(1);
+  box-shadow: 0 0 2px #27ae60;
+  opacity: 1;
+}
+25% {
+  transform: scale(1.05);
+  opacity: 1; /* Adjust the opacity to control the fade */
+}
+50% {
+  transform: scale(1.0);
+  opacity: 1; /* Adjust the opacity to control the fade */
+}
+75% {
+  transform: scale(0.98);
+  opacity: 1; /* Adjust the opacity to control the fade */
+}
+100% {
+  transform: scale(1.0);
+  opacity: 1; /* Adjust the opacity to control the fade */
+}
+`;
+  
 
 type FieldValues = {
   questionId: {
@@ -345,30 +373,64 @@ const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-1
 
 return (
   <>
+  {(!(theReducerState.popupCreationState) && popup?.popupOrChat == 'Chatbot' && popup?.status) && (
+  <ChakraBox           
+  rounded="2xl"
+  position="fixed"
+  backgroundColor={'blackAlpha.800'}
+  padding={4}
+  w={'200px'} 
+  textColor={'white'}
+  zIndex={'popover'}
+  bottom="2%"
+  left={"43%"}
+  >
+    <Flex >
+    {popup?.teaserImage &&
+    <Avatar
+      src={popup?.teaserImage} 
+      height={'40px'}
+      width={'40px'}
+      alignSelf={'center'}
+      m={{ base: '0 0 15px 0', md: '0 0 0 20px' }}
+      />
+      }
 
-  { (!(theReducerState.popupCreationState) && popup?.popupOrChat == 'Chatbot' && popup?.status) && (
-  <ChakraBox>
-  <Button  
-    position="fixed"
-    borderRadius={'3xl'}
-    boxShadow={'md'}
-    bottom="2%"
-    right="1%"
-    p={5} 
-    fontSize={'2xl'} 
-    height={'70px'} 
-    w={'200px'} 
-    zIndex={'popover'}
+    <ChakraBox padding={2}>
+      {popup?.teaserDescription &&
+      <Text fontSize={'small'}> 
+        {popup?.teaserDescription ?? ''}
+      </Text>
+      }
+      <Text fontSize={'xl'} fontWeight={'bold'}>
+        {popup?.teaserText ?? ''}
+      </Text>
+    </ChakraBox>
+    </Flex>
+    <Center>
+    <ChakraButton
+    animation={`${shockwaveAnimation} 1s ease-out infinite`}
+    id="showPopupButton"
+    rounded="2xl"
+    size="lg"
+    height="40px"
+    fontSize="xl"
+    _hover={{bg: popup?.teaserHoverColor}} 
+    bgGradient= {popup?.teaserBackgroundGradient}
+    px={6}
+    variant="outline"
+    textColor={popup?.teaserTextColor} 
     onClick={() => {
       setTheReducerState({type: 'setPopupCreationState', payload: true})
-    }} 
-    colorScheme={popup?.teaserColor ?? 'purple'}
-  >
-  {popup?.teaserText ?? ''}
-  </Button>
-  </ChakraBox>)
-  }
-  { (popupEngagement && popupCreationState && (popup?.status || popup?.alwaysDisplay)) && (
+    }}
+    >
+    {popup?.teaserButtonText ?? ''}
+  </ChakraButton>
+  </Center>
+  </ChakraBox>
+  )}
+
+  {(popupEngagement && popupCreationState && (popup?.status || popup?.alwaysDisplay)) && (
     <>   
     <Flex
       direction="row"

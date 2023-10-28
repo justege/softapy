@@ -14,6 +14,7 @@ const MotionBox = motion(ChakraBox)
 const MotionImage = motion(Image);
 
 
+
 type QuestionaireInChatProps = {
     popupEngagement: PopupEngagement;
     popup?: Popup;
@@ -33,9 +34,8 @@ type QuestionaireInChatProps = {
     handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-
 export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
-
+ 
     const { popupEngagement, popup, pastChatGPTInput, chatGPTs, pastChatGPTOutput, popupAdditionals, inputChatGPT, handleChatGPTSubmit, handleButtonSubmit, handleInputChange, question, selectedAnswers, control, clickAnswer, toggleAnswer, submitAnswer} = props
 
     const flexContainerRef = useRef<HTMLDivElement>(null);
@@ -145,10 +145,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
     }
       </MotionBox>)
     }
-      
+  
 
 
-    return (
+
+ return (
      <ChakraBox>   
       {popup?.popupImage && 
       <Img src={`${baseUrl}${popup?.popupImage}`} width={'200px'} zIndex={4} top={'-115px'} left={'140px'} position={'absolute'}/> 

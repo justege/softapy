@@ -67,11 +67,17 @@ export interface Props {
     id: number;
     alwaysDisplay: boolean;
     popupOrChat: string,
-    activateOnExit: boolean,
+    activateOnExit: boolean, 
     activateOnInactivity: boolean,
     activateOnScroll: boolean,
     teaserText: string,
     teaserColor: string,
+    teaserImage: string,
+    teaserDescription: string,
+    teaserButtonText: string,
+    teaserHoverColor: string,
+    teaserBackgroundGradient: string,
+    teaserTextColor: string,
     questionnaire: number;
     status: boolean;
     name: string;

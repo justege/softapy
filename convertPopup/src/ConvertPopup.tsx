@@ -379,7 +379,7 @@ return (
   position="fixed"
   backgroundColor={'blackAlpha.800'}
   padding={4}
-  w={'200px'} 
+  w={'345px'} 
   textColor={'white'}
   zIndex={'popover'}
   bottom="2%"

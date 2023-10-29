@@ -188,6 +188,8 @@ export interface Props {
         customTextInput: string
     }[]
 
+
+
     export type chatGPTInformation = {
         companyName: string;
         whatServicesDoYouOfferToClients: string;
@@ -198,3 +200,5 @@ export interface Props {
         howMuchDiscountCanYouDoMaximum: string;
         whatAreYourMostSoldProductsAndTheirSpecs: string;
     }
+
+    

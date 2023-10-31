@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useState,useEffect, useRef, useMemo } from 'react';
 import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, Wrap, WrapItem, Img} from "@chakra-ui/react";
 import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType} from './Types'
 import { motion, useAnimation } from 'framer-motion';
@@ -16,6 +16,7 @@ const MotionImage = motion(Image);
 
 
 type QuestionaireInChatProps = {
+    allQuestions: Question[];
     popupEngagement: PopupEngagement;
     popup?: Popup;
     question: Question | null;
@@ -36,7 +37,42 @@ type QuestionaireInChatProps = {
 
 export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
  
-    const { popupEngagement, popup, pastChatGPTInput, chatGPTs, pastChatGPTOutput, popupAdditionals, inputChatGPT, handleChatGPTSubmit, handleButtonSubmit, handleInputChange, question, selectedAnswers, control, clickAnswer, toggleAnswer, submitAnswer} = props
+    const { allQuestions, popupEngagement, popup, pastChatGPTInput, chatGPTs, pastChatGPTOutput, popupAdditionals, inputChatGPT, handleChatGPTSubmit, handleButtonSubmit, handleInputChange, question, selectedAnswers, control, clickAnswer, toggleAnswer, submitAnswer} = props
+
+  const [imagesPreloaded, setImagesPreloaded] = useState(false);
+
+  useEffect(() => {
+    async function preloadImages() {
+      const imagePreloadPromises: { [id: string]: Promise<void> } = {};
+      const preloadedImagesObject: { [id: string]: HTMLImageElement } = {};
+
+      for (const question of allQuestions) {
+        for (const answer of question.answers) {
+          const image = new window.Image();
+          const promise = new Promise<void>((resolve, reject) => {
+            image.onload = () => {
+              preloadedImagesObject[answer.id] = image;
+              resolve();
+            };
+            image.onerror = reject;
+          });
+
+          image.src = `${baseUrl}${answer.image}`
+          imagePreloadPromises[answer.id] = promise;
+        }
+      }
+
+      try {
+        await Promise.all(Object.values(imagePreloadPromises));
+        setImagesPreloaded(true);
+      } catch (error) {
+        console.error('Image preload error:', error);
+      }
+    }
+
+    preloadImages();
+  }, [allQuestions]);
+
 
     const flexContainerRef = useRef<HTMLDivElement>(null);
 

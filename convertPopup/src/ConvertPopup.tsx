@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo, useCallback, useReducer } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Button, useBreakpointValue, Text, Avatar, Center, keyframes} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Button, useBreakpointValue, Text, Avatar, Center, keyframes, SlideFade, Collapse} from "@chakra-ui/react";
 import { baseUrl} from './shared'
 import { Props, PopupPage } from './Types'
 import { useForm } from 'react-hook-form';
@@ -52,6 +52,7 @@ function ConvertPopup({ userId, popupId }: Props) {
   
   const showPopupButton = document.getElementById('showPopupButton');
 
+
   const { control, watch, reset } = useForm<FieldValues>();
 
   const csrfToken = getCookie('csrftoken');
@@ -80,6 +81,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     questionStartTime,
   } = theReducerState;
   const [ pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([question?.text ?? ''])
+  const [ showTeaserButton, setShowTeaserButton ] = useState(false)
     
   showPopupButton?.addEventListener('click', function() {
     setTheReducerState({ type: 'setPopupCreationState', payload: true });
@@ -116,10 +118,12 @@ function ConvertPopup({ userId, popupId }: Props) {
       setTheReducerState({type: 'setPopupEngagement', payload: data.customer})
       setTheReducerState({type: 'setPopup', payload: data.popup})
       setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now() });
+      setTheReducerState({type: 'setQuestion', payload: data.question})
       setTheReducerState({ type: 'setAllQuestions', payload: data.allQuestions })
       setPastChatGPTOutput([data.question.text])
       setTheReducerState({type: 'setChatGPTs', payload: [{id: 0, inputChatGPT: '', outputChatGPT: data.question.text, requestId: 0}]})
       setTheReducerState({type: 'setError', payload: undefined})
+      setShowTeaserButton(true)
     } catch (error) {
     setTheReducerState({type: 'setError', payload: error})
     }
@@ -162,7 +166,6 @@ function ConvertPopup({ userId, popupId }: Props) {
   }, []);
 
     const chatGPTInput = async (inputChatGPT: string, question_id?: number) => {
-      console.log('triggered')
       try {
         const response = await fetch(`${baseUrl}/popup/postchatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
           method: 'POST',
@@ -199,7 +202,7 @@ function ConvertPopup({ userId, popupId }: Props) {
           : []),
       ];
 
-      postAnswer(combinedList)
+      postAnswer(combinedList, 0)
     }
 
     const AnswerQuestionForChatGPTInput = (combinedList: any, next_question_id?: number) => {
@@ -212,10 +215,20 @@ function ConvertPopup({ userId, popupId }: Props) {
     //fetchChatGPTs();
     };
 
-
-  const postAnswer = async (combinedList: any) => {
+    const postAnswer = async (combinedList: any, answerId: number) => {
       if (questionStartTime) {
         const answerTime = (Date.now() - questionStartTime) / 1000; // Calculate the time taken
+    
+        // Set the reducer states before making the fetch request
+        setTheReducerState({type: 'setQuestionStartTime', payload: Date.now()})
+        const nextQuestionIdOfChosenAnswer = allQuestions.find((e) => e.id == question?.id)?.answers.find((f)=> f.id == answerId)?.next_question
+        const nextQuestionOfChosenAnswer = allQuestions.find((e) => e.id == nextQuestionIdOfChosenAnswer)
+        setTheReducerState({type: 'setQuestion', payload: nextQuestionOfChosenAnswer ?? null})
+        setPastChatGPTOutput((output) => [...output, nextQuestionOfChosenAnswer?.text ?? ""])
+        AnswerQuestionForChatGPTInput(combinedList, nextQuestionOfChosenAnswer?.id ?? 0);
+        setTheReducerState({type: 'setSelectedAnswers', payload: []})
+        reset();
+    
         try {
           const response = await fetch(`${baseUrl}/answer/${question?.id}/`, {
             method: 'POST',
@@ -229,27 +242,12 @@ function ConvertPopup({ userId, popupId }: Props) {
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
-          const data = await response.json();
-          
-          if (data.id) {
-          setTheReducerState({type: 'setQuestionStartTime', payload: Date.now()})
-          setTheReducerState({type: 'setAllQuestions', payload: data.question})
-          setTheReducerState({type: 'setQuestion', payload: allQuestions.find((e) => e.id === data.question.id) ?? null})
-          setPastChatGPTOutput((output) => [...output, data.text])
-          AnswerQuestionForChatGPTInput(combinedList, data.id);
-          
-          } else {
-          setTheReducerState({type: 'setAllQuestions', payload: []})
-          setTheReducerState({type: 'setQuestion', payload: null})
-          setTheReducerState({type: 'setQuestionStartTime', payload: null})
-          }
-          setTheReducerState({type: 'setSelectedAnswers', payload: []})
-          reset();
         } catch (error) {
           console.error('There has been a problem with your fetch operation:', error);
         }
       }
     };
+    
 
   
   const toggleAnswer = (answerId: number, answerChatGPT: string) => {
@@ -268,7 +266,7 @@ function ConvertPopup({ userId, popupId }: Props) {
       ? selectedAnswers.filter((selectedAnswer) => selectedAnswer.answerId !== answerId)
       : [...selectedAnswers, { answerId, customTextInput: answerChatGPT }];
       
-      postAnswer(updatedAnswers);
+      postAnswer(updatedAnswers, answerId);
 
       setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, answerChatGPT]})
     
@@ -371,9 +369,13 @@ useEffect(() => {
 const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '62%', xl: '62%', '2xl': '62%' });
 const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
 
+const left = useBreakpointValue({ base: '20%', sm: '28%', md: '32%', lg: '36%', xl: '39%', '2xl': '44%'});
+
+
 return (
   <>
   {(!(theReducerState.popupCreationState) && popup?.popupOrChat == 'Chatbot' && popup?.status) && (
+  <SlideFade in={showTeaserButton} transition={{exit: {delay: 1}, enter: {duration: 0.5}}}>
   <ChakraBox           
   rounded="2xl"
   position="fixed"
@@ -383,7 +385,7 @@ return (
   textColor={'white'}
   zIndex={'popover'}
   bottom="2%"
-  left={"44%"}
+  left={left}
   >
     <Flex >
     {popup?.teaserImage &&
@@ -428,6 +430,7 @@ return (
   </ChakraButton>
   </Center>
   </ChakraBox>
+  </SlideFade>
   )}
 
   {(popupEngagement && popupCreationState && (popup?.status || popup?.alwaysDisplay)) && (
@@ -452,6 +455,7 @@ return (
     >
       <QuestionaireInChat         
       {...{
+            allQuestions,
             popupEngagement,
             popup,
             question,

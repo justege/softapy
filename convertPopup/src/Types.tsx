@@ -24,7 +24,7 @@ export interface Props {
         question: number;
         id: number;
         text: string;
-        next_question: Question;
+        next_question: Question | number;
         image: string;
         text_for_chatgpt: string;
         answerHasInputField: boolean;

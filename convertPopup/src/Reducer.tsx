@@ -22,7 +22,7 @@ export const initialState: ReducerState = {
     error: undefined,
     chatGPTs: [],
     inputChatGPT: '',
-    pastChatGPTInput: ['Lets Go'],
+    pastChatGPTInput: [''],
     allQuestions: [],
     selectedAnswers: [],
     popupCreationState: false,

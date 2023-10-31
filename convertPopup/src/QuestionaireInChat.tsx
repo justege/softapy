@@ -304,7 +304,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       {!pastChatGPTOutput[index]  ? 
                       question?.text ? // Question has input answers useState
                       <ThreeDotsWave /> 
-                      : 'This was it, thank you very much!'
+                      : <Text>{popup?.popupChatFinishMessage ?? "Thank you very much!"}</Text>
                       : <Text dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(formatTextWithLinks(pastChatGPTOutput[index]))}} />}
                     </MotionBox>

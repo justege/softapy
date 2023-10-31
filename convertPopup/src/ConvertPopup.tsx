@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo, useCallback, useReducer } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Button, useBreakpointValue, Text, Avatar, Center, keyframes, SlideFade, Collapse} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Button, useBreakpointValue, Text, Avatar, Center, keyframes} from "@chakra-ui/react";
 import { baseUrl} from './shared'
 import { Props, PopupPage } from './Types'
 import { useForm } from 'react-hook-form';
@@ -119,6 +119,7 @@ function ConvertPopup({ userId, popupId }: Props) {
       setTheReducerState({type: 'setPopup', payload: data.popup})
       setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now() });
       setTheReducerState({type: 'setQuestion', payload: data.question})
+      setTheReducerState({type: 'setPastChatGPTInput', payload: [popup?.popupChatStartMessage ?? "Lets Start"]})
       setTheReducerState({ type: 'setAllQuestions', payload: data.allQuestions })
       setPastChatGPTOutput([data.question.text])
       setTheReducerState({type: 'setChatGPTs', payload: [{id: 0, inputChatGPT: '', outputChatGPT: data.question.text, requestId: 0}]})
@@ -375,7 +376,6 @@ const left = useBreakpointValue({ base: '20%', sm: '28%', md: '32%', lg: '36%', 
 return (
   <>
   {(!(theReducerState.popupCreationState) && popup?.popupOrChat == 'Chatbot' && popup?.status) && (
-  <SlideFade in={showTeaserButton} transition={{exit: {delay: 1}, enter: {duration: 0.5}}}>
   <ChakraBox           
   rounded="2xl"
   position="fixed"
@@ -430,11 +430,11 @@ return (
   </ChakraButton>
   </Center>
   </ChakraBox>
-  </SlideFade>
   )}
 
   {(popupEngagement && popupCreationState && (popup?.status || popup?.alwaysDisplay)) && (
     <>   
+    
     <Flex
       direction="row"
       w={popup?.popupWidth ?? [800, 550]}
@@ -491,7 +491,10 @@ return (
       </ChakraButton>
   }
     </Flex>
-    </>)}
+    
+    </>
+
+    )}
   </>
   );
 

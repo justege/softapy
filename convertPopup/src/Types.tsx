@@ -71,7 +71,6 @@ export interface Props {
     activateOnInactivity: boolean,
     activateOnScroll: boolean,
     teaserText: string,
-    teaserColor: string,
     teaserImage: string,
     teaserDescription: string,
     teaserButtonText: string,

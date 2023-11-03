@@ -48,6 +48,20 @@ function getCookie(name: string): string | undefined {
   return undefined;
 }
 
+// New function to increment the site visit count in cookies
+function incrementSiteVisitCount() {
+  const siteVisitCountCookie = getCookie('siteVisitCount');
+  let count = 1;
+
+  if (siteVisitCountCookie) {
+    count = parseInt(siteVisitCountCookie, 10) + 1;
+  }
+
+  // Set the updated count in cookies
+  document.cookie = `siteVisitCount=${count}`;
+}
+
+
 function ConvertPopup({ userId, popupId }: Props) {
   
   const showPopupButton = document.getElementById('showPopupButton');
@@ -81,7 +95,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     questionStartTime,
   } = theReducerState;
   const [ pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([question?.text ?? ''])
-  const [ showTeaserButton, setShowTeaserButton ] = useState(false)
+  const [ showTeaserButtonOnScreen, setShowTeaserButton ] = useState(false)
     
   showPopupButton?.addEventListener('click', function() {
     setTheReducerState({ type: 'setPopupCreationState', payload: true });
@@ -132,6 +146,16 @@ function ConvertPopup({ userId, popupId }: Props) {
 
 
   const fetchPopupPages = async () => {
+
+    const siteVisitCountCookie = getCookie('siteVisitCount');
+    const siteVisitCount = siteVisitCountCookie ? parseInt(siteVisitCountCookie, 10) : 0;
+
+    if (siteVisitCount >= 3) {
+      // If the user has visited the site three times, don't show the popup
+      return;
+    }
+
+
     try {
       const responsePopupPages = await fetch(`${baseUrl}/api/popupPages/${popupId}/`);
       const data = await responsePopupPages.json();
@@ -153,8 +177,10 @@ function ConvertPopup({ userId, popupId }: Props) {
 
       if (regexResult){
         fetchPopup()
+        incrementSiteVisitCount();
       }
 
+      
     } catch (error) {
       // Handle errors here
       console.error('Error fetching Popup Pages:', error);
@@ -369,36 +395,33 @@ useEffect(() => {
 
 const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '62%', xl: '62%', '2xl': '62%' });
 const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
-
 const left = useBreakpointValue({ base: '20%', sm: '28%', md: '32%', lg: '36%', xl: '39%', '2xl': '44%'});
 
 
 return (
   <>
-  {(!(theReducerState.popupCreationState) && popup?.popupOrChat == 'Chatbot' && popup?.status) && (
+  {(!(theReducerState.popupCreationState) && popup?.status) &&  showTeaserButtonOnScreen && (
   <ChakraBox           
   rounded="2xl"
   position="fixed"
   backgroundColor={'blackAlpha.800'}
   padding={4}
-  w={'345px'} 
   textColor={'white'}
   zIndex={'popover'}
   bottom="2%"
   left={left}
   >
-    <Flex >
+    <Flex justifyItems={"top"} align={"top"} padding={0}>
     {popup?.teaserImage &&
     <Avatar
       src={`${baseUrl}${popup?.teaserImage}`} 
       height={'40px'}
       width={'40px'}
       alignSelf={'center'}
-      m={{ base: '0 0 15px 0', md: '0 0 0 20px' }}
       />
       }
 
-    <ChakraBox padding={2}>
+    <ChakraBox padding={1}>
       {popup?.teaserDescription &&
       <Text fontSize={'small'}> 
         {popup?.teaserDescription ?? ''}
@@ -407,28 +430,34 @@ return (
       <Text fontSize={'xl'} fontWeight={'bold'}>
         {popup?.teaserText ?? ''}
       </Text>
-    </ChakraBox>
+          <Flex           
+          justify={'center'}
+          align={'center'} mt={3}>
+          <ChakraButton
+          animation={`${shockwaveAnimation} 1s ease-out infinite`}
+          id="showPopupButton"
+          rounded="2xl"
+          size="lg"
+          height="40px"
+          fontSize="xl"
+          _hover={{bg: popup?.teaserHoverColor}} 
+          bgGradient= {popup?.teaserBackgroundGradient}
+          px={6}
+          variant="outline"
+          textColor={popup?.teaserTextColor} 
+          onClick={() => {
+          setTheReducerState({type: 'setPopupCreationState', payload: true})
+          }}
+          >
+          {popup?.teaserButtonText ?? ''}
+          </ChakraButton>
+
+          </Flex>
+      </ChakraBox>
+      <Button size={"xs"} colorScheme='black' top={-3} right={-3} onClick={() => setShowTeaserButton(false)}>
+        X
+      </Button>
     </Flex>
-    <Center>
-    <ChakraButton
-    animation={`${shockwaveAnimation} 1s ease-out infinite`}
-    id="showPopupButton"
-    rounded="2xl"
-    size="lg"
-    height="40px"
-    fontSize="xl"
-    _hover={{bg: popup?.teaserHoverColor}} 
-    bgGradient= {popup?.teaserBackgroundGradient}
-    px={6}
-    variant="outline"
-    textColor={popup?.teaserTextColor} 
-    onClick={() => {
-      setTheReducerState({type: 'setPopupCreationState', payload: true})
-    }}
-    >
-    {popup?.teaserButtonText ?? ''}
-  </ChakraButton>
-  </Center>
   </ChakraBox>
   )}
 
@@ -443,9 +472,8 @@ return (
       p={4}
       zIndex={'popover'}
       position="fixed"
-      top={popup?.popupOrChat === "Chatbot" ? top : '50%'}
-      right={popup?.popupOrChat === "Chatbot" ? right : undefined} 
-      left={popup?.popupOrChat === "Popup" ? '50%' : undefined} 
+      top={'50%'}
+      left={'50%'} 
       transform="translate(-50%, -50%)"
       border={popup?.popupBorderWidth ?? undefined}
       borderColor={popup?.popupBorderColor ?? undefined}
@@ -490,6 +518,7 @@ return (
           {popup?.popupCloseButtonText}
       </ChakraButton>
   }
+
     </Flex>
     
     </>

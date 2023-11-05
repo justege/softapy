@@ -476,6 +476,15 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         </Flex>
         </ChakraBox>
         </>)}
+        <Flex justify={"center"}>
+        <Text fontSize={"10px"} mt={3}>
+          powered by        
+        </Text>
+        <ChakraBox fontSize={"10px"} mt={3} ml={1} fontWeight={"extrabold"} as={"a"} href='https://popupfunnel.com/'>
+          popupfunnel.com
+        </ChakraBox>
+        </Flex>
+
     </ChakraBox>
     )
 }

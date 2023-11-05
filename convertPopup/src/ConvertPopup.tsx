@@ -423,13 +423,14 @@ return (
 
     <ChakraBox padding={1}>
       {popup?.teaserDescription &&
-      <Text fontSize={'small'}> 
+      <Text fontSize={'14px'}> 
         {popup?.teaserDescription ?? ''}
       </Text>
       }
-      <Text fontSize={'xl'} fontWeight={'bold'}>
+      <Text fontSize={'20px'} fontWeight={'bold'}>
         {popup?.teaserText ?? ''}
       </Text>
+
           <Flex           
           justify={'center'}
           align={'center'} mt={3}>
@@ -437,9 +438,8 @@ return (
           animation={`${shockwaveAnimation} 1s ease-out infinite`}
           id="showPopupButton"
           rounded="2xl"
-          size="lg"
           height="40px"
-          fontSize="xl"
+          fontSize="20px"
           _hover={{bg: popup?.teaserHoverColor}} 
           bgGradient= {popup?.teaserBackgroundGradient}
           px={6}
@@ -463,6 +463,30 @@ return (
 
   {(popupEngagement && popupCreationState && (popup?.status || popup?.alwaysDisplay)) && (
     <>   
+    <ChakraBox
+          zIndex={'popover'}
+          position="fixed"
+          top={'50%'}
+          left={'50%'} 
+          transform="translate(-50%, -50%)"
+    >
+      <Flex justify={"flex-end"} >
+      {!popup?.alwaysDisplay &&
+      <ChakraButton
+          onClick={() => setTheReducerState({type: 'setPopupCreationState', payload: false})}
+          bg={popup?.popupCloseButtonBoxColor ?? undefined}
+          color={popup?.popupCloseButtonTextColor ?? undefined}
+          colorScheme={popup?.popupCloseButtonColorScheme ?? undefined}
+          variant={popup?.popupCloseButtonVariant ?? undefined}
+          fontSize={"16px"}
+          position="relative"
+          p={1}
+          right={"-40px"}
+        >
+          {popup?.popupCloseButtonText}
+      </ChakraButton>
+      }
+      </Flex>
     
     <Flex
       direction="row"
@@ -470,11 +494,7 @@ return (
       h={popup?.popupHeight ?? [500, 350]}
       bg={popup?.popupBackgroundColor ?? "white"}
       p={4}
-      zIndex={'popover'}
-      position="fixed"
-      top={'50%'}
-      left={'50%'} 
-      transform="translate(-50%, -50%)"
+
       border={popup?.popupBorderWidth ?? undefined}
       borderColor={popup?.popupBorderColor ?? undefined}
       borderRadius={popup?.popupBorderRadius ?? '0'}
@@ -502,24 +522,10 @@ return (
             submitAnswer,
           }}
       />
-      {!popup?.alwaysDisplay &&
-      <ChakraButton
-          onClick={() => setTheReducerState({type: 'setPopupCreationState', payload: false})}
-          bg={popup?.popupCloseButtonBoxColor ?? undefined}
-          color={popup?.popupCloseButtonTextColor ?? undefined}
-          colorScheme={popup?.popupCloseButtonColorScheme ?? undefined}
-          variant={popup?.popupCloseButtonVariant ?? undefined}
-          position="absolute"
-          top={'-48px'}
-          right={'-48px'}
-          m={1}
-          p={1}
-        >
-          {popup?.popupCloseButtonText}
-      </ChakraButton>
-  }
+
 
     </Flex>
+    </ChakraBox>
     
     </>
 

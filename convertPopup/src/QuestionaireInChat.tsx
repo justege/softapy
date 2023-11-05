@@ -202,13 +202,13 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
             {popup?.popupTitle && (
               <ChakraBox
                 p={2}
-                mt={popup?.popupImage ? 7 : 3}
+                mt={popup?.popupImage ? 9 : undefined}
                 minHeight={popup?.popupTitleHeight ?? undefined}
                 width={popup?.popupTitleWidth ?? undefined}
                 textColor={popup?.popupTitleTextColor ?? undefined}
               >
                 <Text 
-                fontSize= {popup?.popupTitleFontSize ?? "3xl"} 
+                fontSize= {popup?.popupTitleFontSize ?? "24px"} 
                 fontWeight= {popup?.popupTitleFontWeight ?? "bold"} 
                 textAlign="center"   
                 bgGradient={popup?.popupTitleBgGradient ?? 'linear(to-l, #7928CA, #FF0080)'}
@@ -227,7 +227,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                 width={popup?.popupContentWidth ?? undefined}
                 textColor={popup?.popupContentTextColor ?? undefined}
               >
-                <Text fontSize= {popup?.popupContentFontSize ?? "sm"} fontWeight= {popup?.popupContentFontWeight ?? "bold"} >
+                <Text fontSize= {popup?.popupContentFontSize ?? "16px"} fontWeight= {popup?.popupContentFontWeight ?? "bold"} >
                   {popup?.popupContent}
                   </Text>
               </ChakraBox>
@@ -245,7 +245,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                     mt={1}
                     px={2}
                     py={2}
-                    fontSize={popup?.popupChatHistoryFontSize ?? "md"}
+                    fontSize={popup?.popupChatHistoryFontSize ?? "14px"}
                     borderRadius="8px 8px 0 8px"
                     borderWidth="1px"
                     borderColor={popup?.popupChatHistoryInputFocusBorderColor ?? undefined}
@@ -277,7 +277,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       mt={1}
                       px={2}
                       py={2}
-                      fontSize={popup?.popupChatHistoryFontSize ?? "md"}
+                      fontSize={popup?.popupChatHistoryFontSize ?? "14px"}
                       borderRadius="8px 8px 8px 0"
                       borderWidth="1px"
                       borderColor={popup?.popupChatHistoryOutputFocusBorderColor ?? undefined}
@@ -350,7 +350,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       target="_blank" // Open the URL in a new tab
       rel="noopener noreferrer" // Recommended for security reasons
       height={'160px'}
-      width={'200px'}
+      width={'201px'}
       p={0} // Remove padding to make image cover the whole button area
       >
       <Flex
@@ -368,7 +368,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           flexShrink={0} // Prevent the image from shrinking
           flexGrow={1} // Allow the image to grow
           height={'100px'}
-          />
+        />
         <Flex 
           backgroundColor={selectedAnswers.some((e) => e.answerId === answer.id) ? "white" : !!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)}
           p={1}
@@ -377,13 +377,13 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           height={'35px'}
           w={'100%'}
         >
-          <Text 
-            fontSize='md' 
-            color={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
-            textAlign="center" // Center align text
+        <Text 
+          fontSize='16px' 
+          color={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
+          textAlign="center" // Center align text
           >
-            {answer.text}
-          </Text>
+          {answer.text}
+        </Text>
         </Flex>
       </Flex>
       </ChakraButton>

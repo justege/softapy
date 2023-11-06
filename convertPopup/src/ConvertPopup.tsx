@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import {ChatComponent} from './ChatComponent'
 import { QuestionaireInChat } from './QuestionaireInChat';
 import { initialState, theStateReducer } from './Reducer'
+import { Questionnaire } from './Questionnaire';
 
 
 
@@ -65,10 +66,7 @@ function incrementSiteVisitCount() {
 function ConvertPopup({ userId, popupId }: Props) {
   
   const showPopupButton = document.getElementById('showPopupButton');
-
-
   const { control, watch, reset } = useForm<FieldValues>();
-
   const csrfToken = getCookie('csrftoken');
   const headers = useMemo(() => {
     const headers = new Headers();
@@ -79,7 +77,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     return headers;
   }, [csrfToken]);
 
-  const [ theReducerState, setTheReducerState] = useReducer(theStateReducer, initialState)
+  const [ theReducerState, setTheReducerState ] = useReducer(theStateReducer, initialState)
   const {
     popupEngagement,
     popupAdditionals,
@@ -93,18 +91,20 @@ function ConvertPopup({ userId, popupId }: Props) {
     selectedAnswers,
     popupCreationState,
     questionStartTime,
-  } = theReducerState;
-  const [ pastChatGPTOutput, setPastChatGPTOutput] = useState<string[]>([question?.text ?? ''])
+    } = theReducerState;
+  const [ pastChatGPTOutput, setPastChatGPTOutput ] = useState<string[]>([question?.text ?? ''])
   const [ showTeaserButtonOnScreen, setShowTeaserButton ] = useState(false)
+  const [ isAllowedToCloseTeaser, setIsAllowedToCloseTeaser ] = useState<{time: any, state: Boolean}>()
+  const [imageLoaded, setImageLoaded] = useState(false); // State to track image loading
+
     
   showPopupButton?.addEventListener('click', function() {
     setTheReducerState({ type: 'setPopupCreationState', payload: true });
-    setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now() });
+    setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now()});
   });
 
   window.addEventListener('beforeunload', async (event: BeforeUnloadEvent) => {
     event.preventDefault(); // Prompt the user with a confirmation dialog
-
     if (popupEngagement?.id !== null && popupEngagement?.id !== undefined) {
         try {
             fetch(`${baseUrl}/popup/updatePopupEngagementEnd/${popupEngagement?.id}`, {
@@ -138,7 +138,13 @@ function ConvertPopup({ userId, popupId }: Props) {
       setPastChatGPTOutput([data.question.text])
       setTheReducerState({type: 'setChatGPTs', payload: [{id: 0, inputChatGPT: '', outputChatGPT: data.question.text, requestId: 0}]})
       setTheReducerState({type: 'setError', payload: undefined})
-      setShowTeaserButton(true)
+
+      setTimeout(() => {
+          setShowTeaserButton(true)
+      }, 3000);
+
+    
+      
     } catch (error) {
     setTheReducerState({type: 'setError', payload: error})
     }
@@ -146,7 +152,6 @@ function ConvertPopup({ userId, popupId }: Props) {
 
 
   const fetchPopupPages = async () => {
-
     const siteVisitCountCookie = getCookie('siteVisitCount');
     const siteVisitCount = siteVisitCountCookie ? parseInt(siteVisitCountCookie, 10) : 0;
 
@@ -187,10 +192,14 @@ function ConvertPopup({ userId, popupId }: Props) {
     }
   };
 
+    useEffect(() => {
+      fetchPopupPages()
 
-  useEffect(() => {
-    fetchPopupPages()
-  }, []);
+      setTimeout(() => {
+        setIsAllowedToCloseTeaser({state: true, time: Date.now})
+    }, 15000);
+
+    }, []);
 
     const chatGPTInput = async (inputChatGPT: string, question_id?: number) => {
       try {
@@ -254,6 +263,7 @@ function ConvertPopup({ userId, popupId }: Props) {
         setPastChatGPTOutput((output) => [...output, nextQuestionOfChosenAnswer?.text ?? ""])
         AnswerQuestionForChatGPTInput(combinedList, nextQuestionOfChosenAnswer?.id ?? 0);
         setTheReducerState({type: 'setSelectedAnswers', payload: []})
+        setIsAllowedToCloseTeaser({state: true, time: null})
         reset();
     
         try {
@@ -396,11 +406,17 @@ useEffect(() => {
 const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '62%', xl: '62%', '2xl': '62%' });
 const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
 const left = useBreakpointValue({ base: '20%', sm: '28%', md: '32%', lg: '36%', xl: '39%', '2xl': '44%'});
+const bottom = useBreakpointValue({ base: '-10%', sm: '-10%', md: '-12%', lg: '-13%', xl: '-14%', '2xl': '-14%'});
+
+const handleImageLoad = () => {
+  // This function is called when the image is successfully loaded
+  setImageLoaded(true);
+};
 
 
 return (
   <>
-  {(!(theReducerState.popupCreationState) && popup?.status) &&  showTeaserButtonOnScreen && (
+  {(!(theReducerState.popupCreationState) && popup?.status) && showTeaserButtonOnScreen && (
   <ChakraBox           
   rounded="2xl"
   position="fixed"
@@ -412,14 +428,16 @@ return (
   left={left}
   >
     <Flex justifyItems={"top"} align={"top"} padding={0}>
-    {popup?.teaserImage &&
-    <Avatar
-      src={`${baseUrl}${popup?.teaserImage}`} 
-      height={'40px'}
-      width={'40px'}
-      alignSelf={'center'}
-      />
-      }
+    {popup?.teaserImage && (
+        <Avatar
+          src={`${baseUrl}${popup?.teaserImage}`}
+          height={'40px'}
+          width={'40px'}
+          alignSelf={'center'}
+          style={{ display: imageLoaded ? 'block' : 'none' }} // Show if image is loaded
+          onLoad={handleImageLoad} // Call this function when the image is loaded
+        />
+      )}
 
     <ChakraBox padding={1}>
       {popup?.teaserDescription &&
@@ -454,9 +472,11 @@ return (
 
           </Flex>
       </ChakraBox>
+      {isAllowedToCloseTeaser?.state &&
       <Button size={"xs"} colorScheme='black' top={-3} right={-3} onClick={() => setShowTeaserButton(false)}>
         X
       </Button>
+      }
     </Flex>
   </ChakraBox>
   )}
@@ -466,7 +486,8 @@ return (
     <ChakraBox
           zIndex={'popover'}
           position="fixed"
-          top={'50%'}
+          bottom = {popup?.popupOrChat === 'Popup' ? bottom : undefined}
+          top={popup?.popupOrChat === 'Chatbot' ? '50%' : undefined}
           left={'50%'} 
           transform="translate(-50%, -50%)"
     >
@@ -488,43 +509,82 @@ return (
       }
       </Flex>
     
-    <Flex
-      direction="row"
-      w={popup?.popupWidth ?? [800, 550]}
-      h={popup?.popupHeight ?? [500, 350]}
-      bg={popup?.popupBackgroundColor ?? "white"}
-      p={4}
+    {popup?.popupOrChat === 'Chatbot' &&
+      <Flex
+        direction="row"
+        w={popup?.popupWidth ?? [800, 550]}
+        h={popup?.popupHeight ?? [500, 350]}
+        bg={popup?.popupBackgroundColor ?? "white"}
+        p={4}
 
-      border={popup?.popupBorderWidth ?? undefined}
-      borderColor={popup?.popupBorderColor ?? undefined}
-      borderRadius={popup?.popupBorderRadius ?? '0'}
-      boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
-      bgGradient={popup?.popupBackgroundGradient ?? undefined}
+        border={popup?.popupBorderWidth ?? undefined}
+        borderColor={popup?.popupBorderColor ?? undefined}
+        borderRadius={popup?.popupBorderRadius ?? '0'}
+        boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
+        bgGradient={popup?.popupBackgroundGradient ?? undefined}
+      >
+        <QuestionaireInChat         
+        {...{
+              allQuestions,
+              popupEngagement,
+              popup,
+              question,
+              selectedAnswers,
+              pastChatGPTInput,
+              chatGPTs,
+              pastChatGPTOutput,
+              popupAdditionals,
+              inputChatGPT,
+              handleChatGPTSubmit,
+              handleButtonSubmit,
+              handleInputChange,
+              control,
+              clickAnswer,
+              toggleAnswer,
+              submitAnswer,
+            }}
+        />
+      </Flex>
+    }
+
+    {popup?.popupOrChat==='Popup' &&
+    <Flex 
+    width={'820px'} 
+    minH={'270px'}
+    align={'center'}
+    justify={'center'}
+    bg={popup?.popupBackgroundColor ?? "white"}
+    px={4}
+    border={popup?.popupBorderWidth ?? undefined}
+    borderColor={popup?.popupBorderColor ?? undefined}
+    borderRadius={popup?.popupBorderRadius ?? '0'}
+    boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
+    bgGradient={popup?.popupBackgroundGradient ?? undefined}
     >
-      <QuestionaireInChat         
-      {...{
-            allQuestions,
-            popupEngagement,
-            popup,
-            question,
-            selectedAnswers,
-            pastChatGPTInput,
-            chatGPTs,
-            pastChatGPTOutput,
-            popupAdditionals,
-            inputChatGPT,
-            handleChatGPTSubmit,
-            handleButtonSubmit,
-            handleInputChange,
-            control,
-            clickAnswer,
-            toggleAnswer,
-            submitAnswer,
-          }}
+      <Questionnaire 
+        {...{
+          allQuestions,
+          popupEngagement,
+          popup,
+          question,
+          selectedAnswers,
+          pastChatGPTInput,
+          chatGPTs,
+          pastChatGPTOutput,
+          popupAdditionals,
+          inputChatGPT,
+          handleChatGPTSubmit,
+          handleButtonSubmit,
+          handleInputChange,
+          control,
+          clickAnswer,
+          toggleAnswer,
+          submitAnswer,
+        }}
       />
-
-
     </Flex>
+    }
+
     </ChakraBox>
 
     </>

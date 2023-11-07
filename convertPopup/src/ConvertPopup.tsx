@@ -103,19 +103,26 @@ function ConvertPopup({ userId, popupId }: Props) {
     setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now()});
   });
 
+
+  /*
   window.addEventListener('beforeunload', async (event: BeforeUnloadEvent) => {
     event.preventDefault(); // Prompt the user with a confirmation dialog
     if (popupEngagement?.id !== null && popupEngagement?.id !== undefined) {
-        try {
-            fetch(`${baseUrl}/popup/updatePopupEngagementEnd/${popupEngagement?.id}`, {
-                method: 'POST',
-                headers: headers,
-            });
-        } catch (error) {
-            console.error('Error updating popup engagement end:', error);
-        }
+      try {
+        await fetch(`${baseUrl}/popup/updatePopupEngagementEnd/${popupEngagement?.id}`, {
+          method: 'POST',
+          headers: headers,
+        });
+      } catch (error) {
+        console.error('Error updating popup engagement end:', error);
+      } finally {
+        // Remove the event listener after the engagement is updated
+        window.removeEventListener('beforeunload',event);
+      }
     }
   });
+  */
+  
 
   const fetchPopup = async () => {
     try {
@@ -182,7 +189,6 @@ function ConvertPopup({ userId, popupId }: Props) {
 
       if (regexResult){
         fetchPopup()
-        incrementSiteVisitCount();
       }
 
       

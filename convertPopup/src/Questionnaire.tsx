@@ -124,8 +124,12 @@ export const Questionnaire = (props: QuestionnaireProps) => {
 
     
       const InputComponent = () => {
-        return (<MotionBox padding={0}>
-        {question?.answers.map(answer => (
+        return (
+        <MotionBox padding={0}>
+        
+    {question?.answers.some((e)=> e.answerHasInputField) && 
+    <>
+    {question?.answers.map(answer => (
            <React.Fragment key={answer.id}>
             {answer.answerHasInputField &&
             <>
@@ -166,7 +170,6 @@ export const Questionnaire = (props: QuestionnaireProps) => {
           }
       </React.Fragment>
       ))}
-    {question?.answers.some((e)=> e.answerHasInputField) && 
       <ChakraButton 
       w={'full'} 
       mt={5}
@@ -178,14 +181,15 @@ export const Questionnaire = (props: QuestionnaireProps) => {
       >
       {popup?.popupQuestionarySubmitButtonText ?? 'Submit'}
       </ChakraButton>
+    </>
     }
     </MotionBox>
     )}
 
  return(
- <ChakraBox backgroundColor={'white'}>         
-    <ChakraBox ref={flexContainerRef} overflowY="auto" mt={5}> 
-    <Heading fontSize={'2xl'}>{question?.text ?? popup?.popupChatFinishMessage }</Heading> 
+ <ChakraBox>         
+    <ChakraBox ref={flexContainerRef} overflowY="auto" mt={5} textAlign={'center'}> 
+    <Heading fontSize={'2xl'} textAlign={'center'}>{question?.text ?? popup?.popupChatFinishMessage }</Heading> 
     <ChakraBox mt={2} >
     <Wrap spacing={4} direction={'row'} justify={'center'}>
       {question?.answers.map((answer) => (
@@ -272,7 +276,7 @@ export const Questionnaire = (props: QuestionnaireProps) => {
         }
         </Wrap>
 </ChakraBox>
-    <InputComponent />
+<InputComponent />
 
 </ChakraBox>
 <Flex justify={"center"} align={'center'} mt={5}>

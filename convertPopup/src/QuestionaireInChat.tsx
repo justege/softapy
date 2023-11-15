@@ -305,8 +305,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       question?.text ? // Question has input answers useState
                       <ThreeDotsWave /> 
                       : <Text>{popup?.popupChatFinishMessage ?? "Thank you very much!"}</Text>
-                      : <Text dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(formatTextWithLinks(pastChatGPTOutput[index]))}} />}
+                      : pastChatGPTOutput[index]}
                     </MotionBox>
                   </Flex>
               </ChakraBox>
@@ -346,7 +345,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       bgColor={!!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)} 
       textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
       onClick={() => clickAnswer(answer.id, answer.text_for_chatgpt)}
-      href={answer.answerHasCallToAction ? answer.answerCallToActionURL : undefined} 
+      href={answer.next_question ? undefined : (answer.answerHasCallToAction ? answer.answerCallToActionURL : undefined)} 
       target="_blank" // Open the URL in a new tab
       rel="noopener noreferrer" // Recommended for security reasons
       height={'160px'}
@@ -362,7 +361,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         width={'100%'}
       >
         <MotionImage 
-          src={`${baseUrl}${answer.image}`} 
+          src={answer.image ? `${baseUrl}${answer.image}` : answer.imageUrl} 
           boxSize="100%" 
           objectFit="cover"
           flexShrink={0} // Prevent the image from shrinking

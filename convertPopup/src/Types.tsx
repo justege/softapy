@@ -27,6 +27,7 @@ export interface Props {
         next_question: Question | number;
         image: string;
         text_for_chatgpt: string;
+        imageUrl: string;
         answerHasInputField: boolean;
         answerInputTextField: string;
         answerHasCallToAction: boolean;

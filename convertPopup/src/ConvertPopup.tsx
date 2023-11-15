@@ -411,7 +411,7 @@ useEffect(() => {
 
 const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '62%', xl: '62%', '2xl': '62%' });
 const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
-const left = useBreakpointValue({ base: '20%', sm: '28%', md: '32%', lg: '36%', xl: '39%', '2xl': '44%'});
+const left = useBreakpointValue({ base: '0%', sm: '0%', md: '0%', lg: '1%', xl: '1%', '2xl': '2%'});
 const bottom = useBreakpointValue({ base: '-10%', sm: '-10%', md: '-12%', lg: '-13%', xl: '-14%', '2xl': '-14%'});
 
 const handleImageLoad = () => {
@@ -459,7 +459,6 @@ return (
           justify={'center'}
           align={'center'} mt={3}>
           <ChakraButton
-          animation={`${shockwaveAnimation} 1s ease-out infinite`}
           id="showPopupButton"
           rounded="2xl"
           height="40px"

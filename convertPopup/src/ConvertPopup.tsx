@@ -103,25 +103,6 @@ function ConvertPopup({ userId, popupId }: Props) {
     setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now()});
   });
 
-
-  /*
-  window.addEventListener('beforeunload', async (event: BeforeUnloadEvent) => {
-    event.preventDefault(); // Prompt the user with a confirmation dialog
-    if (popupEngagement?.id !== null && popupEngagement?.id !== undefined) {
-      try {
-        await fetch(`${baseUrl}/popup/updatePopupEngagementEnd/${popupEngagement?.id}`, {
-          method: 'POST',
-          headers: headers,
-        });
-      } catch (error) {
-        console.error('Error updating popup engagement end:', error);
-      } finally {
-        // Remove the event listener after the engagement is updated
-        window.removeEventListener('beforeunload',event);
-      }
-    }
-  });
-  */
   
 
   const fetchPopup = async () => {
@@ -150,8 +131,6 @@ function ConvertPopup({ userId, popupId }: Props) {
           setShowTeaserButton(true)
       }, 3000);
 
-    
-      
     } catch (error) {
     setTheReducerState({type: 'setError', payload: error})
     }
@@ -190,7 +169,6 @@ function ConvertPopup({ userId, popupId }: Props) {
       if (regexResult){
         fetchPopup()
       }
-
       
     } catch (error) {
       // Handle errors here
@@ -219,18 +197,41 @@ function ConvertPopup({ userId, popupId }: Props) {
         }
         const data = await response.json();
         if (data.chatgpt.length > 0) {
-          
           setTheReducerState({type: 'setChatGPTs', payload: data.chatgpt})
           const output = data.chatgpt.map((e: any) => e.outputChatGPT)
-          //setPastChatGPTOutput((oldState) => [...oldState, ...output])
-
+          setPastChatGPTOutput((oldState) => [...oldState, ...output])
+          setTheReducerState({type: 'setQuestion', payload:  null})
         } 
         setTheReducerState({type: 'setError', payload: undefined})
       } catch (error) {
       setTheReducerState({type: 'setError', payload: error})
       setTheReducerState({type: 'setChatGPTs', payload: []})
       }
-  };
+    };
+
+    const submitAnswerPostReqeust = async (inputChatGPT: string, question_id?: number) => {
+      try {
+        const response = await fetch(`${baseUrl}/popup/submitAnswer/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({ inputChatGPT: inputChatGPT, next_question_id: question_id }),
+        });
+        if (!response.ok) {
+          throw new Error('Something went wrong, try again later');
+        }
+        const data = await response.json();
+        if (data.chatgpt.length > 0) {
+          
+          setTheReducerState({type: 'setChatGPTs', payload: data.chatgpt})
+          const output = data.chatgpt.map((e: any) => e.outputChatGPT)
+          //setPastChatGPTOutput((oldState) => [...oldState, ...output])
+        } 
+        setTheReducerState({type: 'setError', payload: undefined})
+      } catch (error) {
+      setTheReducerState({type: 'setError', payload: error})
+      setTheReducerState({type: 'setChatGPTs', payload: []})
+      }
+    };
 
     const submitAnswer = async () => {
       const questionInputFormWatch = watch('questionId');
@@ -253,7 +254,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     const stringValue: string =  combinedList.map((e: any) => e?.customTextInput).filter((e: any)=> e !== '').join(` ${and} `) 
 
     setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput,...[stringValue]]})
-    chatGPTInput(stringValue, next_question_id);
+    submitAnswerPostReqeust(stringValue, next_question_id);
     //fetchChatGPTs();
     };
 
@@ -411,7 +412,7 @@ useEffect(() => {
 
 const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '62%', xl: '62%', '2xl': '62%' });
 const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
-const left = useBreakpointValue({ base: '0%', sm: '0%', md: '0%', lg: '1%', xl: '1%', '2xl': '2%'});
+const left =  useBreakpointValue({ base: '2%', sm: '2%', md: '2%', lg: '2%', xl: '2%', '2xl': '2%'});
 const bottom = useBreakpointValue({ base: '-10%', sm: '-10%', md: '-12%', lg: '-13%', xl: '-14%', '2xl': '-14%'});
 
 const handleImageLoad = () => {

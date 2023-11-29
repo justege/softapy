@@ -8,7 +8,6 @@ import DOMPurify from 'dompurify';
 import ThreeDotsWave from './ThreeDotsWave'
 
 
-
 const MotionButton = motion(ChakraButton);
 const MotionBox = motion(ChakraBox)
 const MotionImage = motion(Image);
@@ -190,7 +189,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       {popup?.popupImage && 
       <Img src={`${baseUrl}${popup?.popupImage}`} width={'200px'} zIndex={4} top={'-115px'} left={'140px'} position={'absolute'}/> 
       }
-      {popupEngagement?.popupEngagementUniqueIdentifier && (
+      {popupEngagement?.popupEngagementUniqueIdentifier && false && (
         <Flex
           direction="column"
           h={popup?.popupTitleAndContentPercentage ?? undefined }
@@ -199,7 +198,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         >
           
           <ChakraBox>
-            {popup?.popupTitle && (
+            {false && popup?.popupTitle && (
               <ChakraBox
                 p={2}
                 mt={popup?.popupImage ? 9 : undefined}
@@ -235,7 +234,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           </ChakraBox>
         </Flex>
       )}
-        <ChakraBox ref={flexContainerRef} overflowY="auto" mt={10}  h={calculateHeight}>
+        <ChakraBox ref={flexContainerRef} overflowY="auto" h={calculateHeight}>
         <ChakraBox p={2} m={1}>
           <Flex direction="column">
             {(pastChatGPTInput.length>0 ? pastChatGPTInput : ['...']).map((input, index) => (
@@ -302,9 +301,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       textAlign={"left"}
                     >
                       {!pastChatGPTOutput[index]  ? 
-                      question?.text ? // Question has input answers useState
                       <ThreeDotsWave /> 
-                      : <Text>{popup?.popupChatFinishMessage ?? "Thank you very much!"}</Text>
                       : pastChatGPTOutput[index]}
                     </MotionBox>
                   </Flex>
@@ -312,8 +309,9 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
             ))}
     <HStack spacing={2} overflow='auto' height='90%' mt={2}>
     <Wrap spacing={4}>
-      {question?.answers.map((answer) => (
 
+
+      {question?.answers.map((answer) => (
     <React.Fragment key={answer.id}>
       {!answer.answerHasInputField &&
      (
@@ -356,19 +354,30 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         borderColor={!selectedAnswers.some((e) => e.answerId === answer.id) ? !!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? 'white') : undefined}
         direction="column" // stack child components vertically
         align="center" // center-align child components
-        justify="flex-start" // align child components to the start
+        justify="flex-end" // align child components to the start
         height="100%"
-        width={'100%'}
+        width='100%'
       >
+        {(answer.imageUrl !== undefined || answer.imageUrl !== undefined) ?
+        <>
         <MotionImage 
-          src={answer.image ? `${baseUrl}${answer.image}` : answer.imageUrl} 
+          src={answer.image ? `${baseUrl}${answer.image}` : answer.imageUrl ? answer.imageUrl : `${baseUrl}${'/uploads/questionMark.png'}`} 
           boxSize="100%" 
           objectFit="cover"
           flexShrink={0} // Prevent the image from shrinking
           flexGrow={1} // Allow the image to grow
           height={'100px'}
-        />
-        <Flex 
+        /> 
+        </>
+        : 
+        <MotionBox
+        boxSize="100%" 
+        height='100px'
+        >
+          <Text fontFamily={'fantasy'} fontSize={'30px'} >{answer.text}</Text>
+        </MotionBox>
+        }
+         <Flex 
           backgroundColor={selectedAnswers.some((e) => e.answerId === answer.id) ? "white" : !!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)}
           p={1}
           alignItems="center"
@@ -401,11 +410,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 </ChakraBox>
 <InputComponent />
 </ChakraBox>
-      {false && (
+      {true && (
       <Flex alignItems="center" justifyContent="center" my={2.5}>
             <ChakraBox height="1px" width="97%" backgroundColor="gray.300" />
       </Flex>)}
-      {false && chatGPTs.length === 0 && (
+      {true && chatGPTs.length === 0 && (
       <ChakraBox h={popup?.popupCTAPercentage  ?? undefined} mx={1} display="flex" overflowX="auto"  overflowY={'hidden'}
        maxWidth={'450px'}>
               {popupAdditionals?.map((suggestion, idx) => (
@@ -432,7 +441,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       </ChakraBox>
       )}
 
-        {false && (
+        {true && (
         <>
         <ChakraBox h={popup?.popupChatSendPercentage ?? undefined} >
         <Flex>

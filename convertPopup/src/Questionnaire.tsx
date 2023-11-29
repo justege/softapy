@@ -6,8 +6,7 @@ import { Controller } from 'react-hook-form';
 import { baseUrl} from './shared'
 import DOMPurify from 'dompurify';
 import ThreeDotsWave from './ThreeDotsWave'
-
-
+import shockWaveAnimation from './ConvertPopup'
 
 const MotionButton = motion(ChakraButton);
 const MotionBox = motion(ChakraBox)
@@ -236,18 +235,30 @@ export const Questionnaire = (props: QuestionnaireProps) => {
         borderColor={!selectedAnswers.some((e) => e.answerId === answer.id) ? !!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? 'white') : undefined}
         direction="column" // stack child components vertically
         align="center" // center-align child components
-        justify="flex-start" // align child components to the start
+        justify="flex-end" // align child components to the start
         height="100%"
         width='100%'
+
       >
+        {(answer.imageUrl !== undefined || answer.imageUrl !== undefined) ?
+        <>
         <MotionImage 
-          src={`${baseUrl}${answer.image}`} 
+          src={answer.image ? `${baseUrl}${answer.image}` : answer.imageUrl ? answer.imageUrl : `${baseUrl}${'/uploads/questionMark.png'}`} 
           boxSize="100%" 
           objectFit="cover"
           flexShrink={0} // Prevent the image from shrinking
           flexGrow={1} // Allow the image to grow
           height={'100px'}
-        />
+        /> 
+        </>
+        : 
+        <MotionBox
+        boxSize="100%" 
+        height='100px'
+        >
+          <Text fontFamily={'fantasy'} fontSize={'30px'} >{answer.text}</Text>
+        </MotionBox>
+        }
         <Flex 
           backgroundColor={selectedAnswers.some((e) => e.answerId === answer.id) ? "white" : !!answer.answerBackgroundColor ? answer.answerBackgroundColor : (popup?.answerBackgroundColor ?? undefined)}
           p={1}
@@ -265,6 +276,7 @@ export const Questionnaire = (props: QuestionnaireProps) => {
         </Text>
         </Flex>
       </Flex>
+
       </ChakraButton>
       </MotionBox>
       </WrapItem>

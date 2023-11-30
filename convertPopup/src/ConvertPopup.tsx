@@ -3,12 +3,9 @@ import { Box as ChakraBox, Button as ChakraButton,  Flex, Button, useBreakpointV
 import { baseUrl} from './shared'
 import { Props, PopupPage } from './Types'
 import { useForm } from 'react-hook-form';
-import {ChatComponent} from './ChatComponent'
 import { QuestionaireInChat } from './QuestionaireInChat';
 import { initialState, theStateReducer } from './Reducer'
 import { Questionnaire } from './Questionnaire';
-
-
 
 
 const shockwaveAnimation = keyframes`
@@ -34,7 +31,6 @@ const shockwaveAnimation = keyframes`
   opacity: 1; /* Adjust the opacity to control the fade */
 }
 `;
-  
 
 type FieldValues = {
   questionId: {
@@ -96,6 +92,7 @@ function ConvertPopup({ userId, popupId }: Props) {
   const [ showTeaserButtonOnScreen, setShowTeaserButton ] = useState(false)
   const [ isAllowedToCloseTeaser, setIsAllowedToCloseTeaser ] = useState<{time: any, state: Boolean}>()
   const [imageLoaded, setImageLoaded] = useState(false); // State to track image loading
+  const [ isLoadingThreeWave, setIsLoadingThreeWave ] =  useState(false); // State to track image loading
 
     
   showPopupButton?.addEventListener('click', function() {
@@ -185,7 +182,8 @@ function ConvertPopup({ userId, popupId }: Props) {
 
     }, []);
 
-    const chatGPTInput = async (inputChatGPT: string, question_id?: number) => {
+    const chatGPTConversationPostRequest = async (inputChatGPT: string, question_id?: number) => {
+      setIsLoadingThreeWave(true)
       try {
         const response = await fetch(`${baseUrl}/popup/postchatgpt/${userId}/${popupId}/${popupEngagement?.popupEngagementUniqueIdentifier}`, {
           method: 'POST',
@@ -207,6 +205,8 @@ function ConvertPopup({ userId, popupId }: Props) {
       setTheReducerState({type: 'setError', payload: error})
       setTheReducerState({type: 'setChatGPTs', payload: []})
       }
+
+      setIsLoadingThreeWave(false)
     };
 
     const submitAnswerPostReqeust = async (inputChatGPT: string, question_id?: number) => {
@@ -223,7 +223,7 @@ function ConvertPopup({ userId, popupId }: Props) {
         if (data.chatgpt.length > 0) {
           
           setTheReducerState({type: 'setChatGPTs', payload: data.chatgpt})
-          const output = data.chatgpt.map((e: any) => e.outputChatGPT)
+          //const output = data.chatgpt.map((e: any) => e.outputChatGPT)
           //setPastChatGPTOutput((oldState) => [...oldState, ...output])
         } 
         setTheReducerState({type: 'setError', payload: undefined})
@@ -248,51 +248,43 @@ function ConvertPopup({ userId, popupId }: Props) {
       postAnswer(combinedList, 0)
     }
 
-    const AnswerQuestionForChatGPTInput = (combinedList: any, next_question_id?: number) => {
-    const and = popup?.popupWordForAnd
-
-    const stringValue: string =  combinedList.map((e: any) => e?.customTextInput).filter((e: any)=> e !== '').join(` ${and} `) 
-
-    setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput,...[stringValue]]})
-    submitAnswerPostReqeust(stringValue, next_question_id);
-    //fetchChatGPTs();
-    };
-
     const postAnswer = async (combinedList: any, answerId: number) => {
       if (questionStartTime) {
         const answerTime = (Date.now() - questionStartTime) / 1000; // Calculate the time taken
     
         // Set the reducer states before making the fetch request
         setTheReducerState({type: 'setQuestionStartTime', payload: Date.now()})
+        
         const nextQuestionIdOfChosenAnswer = allQuestions.find((e) => e.id == question?.id)?.answers.find((f)=> f.id == answerId)?.next_question
         const nextQuestionOfChosenAnswer = allQuestions.find((e) => e.id == nextQuestionIdOfChosenAnswer)
+
         setTheReducerState({type: 'setQuestion', payload: nextQuestionOfChosenAnswer ?? null})
+
         setPastChatGPTOutput((output) => [...output, nextQuestionOfChosenAnswer?.text ?? ""])
-        AnswerQuestionForChatGPTInput(combinedList, nextQuestionOfChosenAnswer?.id ?? 0);
+
+        const and = popup?.popupWordForAnd
+        const stringValue: string =  combinedList.map((e: any) => e?.customTextInput).filter((e: any)=> e !== '').join(` ${and} `) 
+
+
+        submitAnswerPostReqeust(stringValue, nextQuestionOfChosenAnswer?.id ?? 0);
+
+        if (!nextQuestionIdOfChosenAnswer){
+          const newPastChatGPTInputValue = [...pastChatGPTInput,...[stringValue]]
+
+          setTheReducerState({type: 'setPastChatGPTInput', payload: [...newPastChatGPTInputValue, ...['hello']]})
+
+          chatGPTConversationPostRequest('hello')
+        } else {
+          setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput,...[stringValue]]})
+        }
+
         setTheReducerState({type: 'setSelectedAnswers', payload: []})
+
         setIsAllowedToCloseTeaser({state: true, time: null})
         reset();
-    
-        try {
-          const response = await fetch(`${baseUrl}/answer/${question?.id}/`, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({
-              answer: combinedList,
-              popup_engagement: popupEngagement?.popupEngagementUniqueIdentifier,
-              answerTime: answerTime,
-            }),
-          });
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-        } catch (error) {
-          console.error('There has been a problem with your fetch operation:', error);
-        }
       }
-    };
-    
 
+    };
   
   const toggleAnswer = (answerId: number, answerChatGPT: string) => {
       setTheReducerState({
@@ -311,8 +303,6 @@ function ConvertPopup({ userId, popupId }: Props) {
       : [...selectedAnswers, { answerId, customTextInput: answerChatGPT }];
       
       postAnswer(updatedAnswers, answerId);
-
-      setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, answerChatGPT]})
     
       return updatedAnswers;
   };
@@ -320,9 +310,8 @@ function ConvertPopup({ userId, popupId }: Props) {
     
   const handleChatGPTSubmit = (questionId: number) => {
       if (inputChatGPT !== null) {
-        const saySomethingImGivingUpOnYou = inputChatGPT
-        setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, saySomethingImGivingUpOnYou]})
-        chatGPTInput(saySomethingImGivingUpOnYou, questionId);
+        setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, inputChatGPT]})
+        chatGPTConversationPostRequest(inputChatGPT, questionId);
         //fetchChatGPTs();
         setTheReducerState({type: 'setInputChatGPT', payload: ''})
       }
@@ -332,7 +321,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     const handleButtonSubmit = (ButtonInput: string) => {
       setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput, ButtonInput]})
 
-      chatGPTInput(ButtonInput);
+      chatGPTConversationPostRequest(ButtonInput);
       //fetchChatGPTs();
       setTheReducerState({type: 'setInputChatGPT', payload: ''})
     }
@@ -408,10 +397,6 @@ useEffect(() => {
 }, [popupCreationState, popup?.activateOnExit]);
 
 
-
-
-const top = useBreakpointValue({ base: '57%', sm: '57%', md: '57%', lg: '62%', xl: '62%', '2xl': '62%' });
-const right = useBreakpointValue({ base: '-22%', sm: '-20%', md: '-18%', lg: '-16%', xl: '-14%', '2xl': '-11%'});
 const left =  useBreakpointValue({ base: '2%', sm: '2%', md: '2%', lg: '2%', xl: '2%', '2xl': '2%'});
 const bottom = useBreakpointValue({ base: '-10%', sm: '-10%', md: '-12%', lg: '-13%', xl: '-14%', '2xl': '-14%'});
 
@@ -419,6 +404,17 @@ const handleImageLoad = () => {
   // This function is called when the image is successfully loaded
   setImageLoaded(true);
 };
+
+// Assuming pastChatGPTInput and pastChatGPTOutput have the same length
+const conversationHistory = pastChatGPTInput.map((input, index) => {
+  return [
+    { type: 'input', text: input },
+    { type: 'output', text: pastChatGPTOutput[index] }
+  ];
+});
+
+// Flatten the array to get a single array of conversation turns
+const flatConversationHistory = conversationHistory.flat();
 
 
 return (
@@ -531,6 +527,8 @@ return (
       >
         <QuestionaireInChat         
         {...{
+              isLoadingThreeWave,
+              flatConversationHistory,
               allQuestions,
               popupEngagement,
               popup,

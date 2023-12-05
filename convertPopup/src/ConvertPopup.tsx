@@ -93,14 +93,13 @@ function ConvertPopup({ userId, popupId }: Props) {
   const [ isAllowedToCloseTeaser, setIsAllowedToCloseTeaser ] = useState<{time: any, state: Boolean}>()
   const [imageLoaded, setImageLoaded] = useState(false); // State to track image loading
   const [ isLoadingThreeWave, setIsLoadingThreeWave ] =  useState(false); // State to track image loading
+  const [ finalTextForProductRecommendingRequest , setFinalTextForProductRecommendingRequest] = useState(' ')
 
     
   showPopupButton?.addEventListener('click', function() {
     setTheReducerState({ type: 'setPopupCreationState', payload: true });
     setTheReducerState({ type: 'setQuestionStartTime', payload: Date.now()});
   });
-
-  
 
   const fetchPopup = async () => {
     try {
@@ -199,6 +198,8 @@ function ConvertPopup({ userId, popupId }: Props) {
           const output = data.chatgpt.map((e: any) => e.outputChatGPT)
           setPastChatGPTOutput((oldState) => [...oldState, ...output])
           setTheReducerState({type: 'setQuestion', payload:  null})
+          setTheReducerState({ type: 'setAllQuestions', payload: []})
+          setFinalTextForProductRecommendingRequest(' ')
         } 
         setTheReducerState({type: 'setError', payload: undefined})
       } catch (error) {
@@ -268,12 +269,18 @@ function ConvertPopup({ userId, popupId }: Props) {
 
         submitAnswerPostReqeust(stringValue, nextQuestionOfChosenAnswer?.id ?? 0);
 
+        setFinalTextForProductRecommendingRequest((oldState) => (oldState +  ` ${question?.text} ${stringValue}. `))
+
         if (!nextQuestionIdOfChosenAnswer){
           const newPastChatGPTInputValue = [...pastChatGPTInput,...[stringValue]]
 
-          setTheReducerState({type: 'setPastChatGPTInput', payload: [...newPastChatGPTInputValue, ...['hello']]})
+          const recommendingSentence = 'Recommend me 3 different products paccording to following speficications DO NOT include any links:' + finalTextForProductRecommendingRequest;
 
-          chatGPTConversationPostRequest('hello')
+          const recommendingSentenceShowingToPopup = 'Please make product recommendations.'
+
+          setTheReducerState({type: 'setPastChatGPTInput', payload: [...newPastChatGPTInputValue, ...[recommendingSentenceShowingToPopup]]})
+
+          chatGPTConversationPostRequest(recommendingSentence)
         } else {
           setTheReducerState({type: 'setPastChatGPTInput', payload: [...pastChatGPTInput,...[stringValue]]})
         }

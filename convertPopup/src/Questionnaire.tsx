@@ -295,8 +295,8 @@ export const Questionnaire = (props: QuestionnaireProps) => {
     <Text fontSize={"10px"}>
         powered by        
     </Text>
-    <ChakraBox fontSize={"10px"} ml={1} fontWeight={"extrabold"} as={"a"} href='https://popupfunnel.com/'>
-        popupfunnel.com
+    <ChakraBox fontSize={"10px"} ml={1} fontWeight={"extrabold"} as={"a"} href='https://erecommender.com/'>
+        eRecommender.com
     </ChakraBox>
 </Flex>
 </ChakraBox>

@@ -305,7 +305,9 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       }}
                       textAlign={"left"}
                     >
+                      <Text>
                       {pastChatGPTOutput[index]}
+                        </Text>
                   </MotionBox>
               </Flex>
               }
@@ -529,8 +531,8 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         <Text fontSize={"10px"} mt={3}>
           powered by        
         </Text>
-        <ChakraBox fontSize={"10px"} mt={3} ml={1} fontWeight={"extrabold"} as={"a"} href='https://popupfunnel.com/'>
-          popupfunnel.com
+        <ChakraBox fontSize={"10px"} mt={3} ml={1} fontWeight={"extrabold"} as={"a"} href='https://erecommender.com/'>
+          eRecommender.com
         </ChakraBox>
         </Flex>
 

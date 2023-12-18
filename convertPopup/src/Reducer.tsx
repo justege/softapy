@@ -1,8 +1,9 @@
-import { Props, ChatGPT, PopupEngagement, PopupAdditional , Popup, Question, selectedAnswersType, PopupPage } from './Types'
+import { Props, ChatGPT, PopupEngagement, PopupAdditional , Popup, Question, selectedAnswersType, PopupPage, RecommendedProduct } from './Types'
 
 export type ReducerState = {
     popupEngagement?: PopupEngagement;
     popupAdditionals: PopupAdditional[];
+    recommendedProducts: RecommendedProduct[];
     popup?: Popup;
     error?: unknown;
     chatGPTs: ChatGPT[];
@@ -18,6 +19,7 @@ export type ReducerState = {
 export const initialState: ReducerState = {
     popupEngagement: undefined,
     popupAdditionals: [],
+    recommendedProducts: [],
     popup: undefined,
     error: undefined,
     chatGPTs: [],
@@ -35,7 +37,8 @@ export type ReducerDispatchAction =
 | { type: 'setPopupAdditionals'; payload: PopupAdditional[]}
 | { type: 'setPopup'; payload?:Popup}
 | { type: 'setError'; payload?:unknown}
-| { type: 'setChatGPTs'; payload?:ChatGPT[]}
+| { type: 'setChatGPTs'; payload?: ChatGPT[]}
+| { type: 'setRecommendedProducts'; payload?: RecommendedProduct[]}
 | { type: 'setInputChatGPT'; payload?:string}
 | { type: 'setPastChatGPTInput'; payload?:string[]}
 | { type: 'setAllQuestions'; payload:Question[] | []}
@@ -64,6 +67,9 @@ export function theStateReducer(state: ReducerState, action: ReducerDispatchActi
         }
         case 'setChatGPTs': {
             return { ...state, chatGPTs: action.payload || [] };
+        }
+        case 'setRecommendedProducts': {
+            return { ...state, recommendedProducts: action.payload || [] };
         }
         case 'setInputChatGPT': {
             return { ...state, inputChatGPT: action.payload || '' };

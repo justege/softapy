@@ -58,6 +58,12 @@ export interface Props {
     popupAdditionalChatText: string;
     }
 
+    export interface RecommendedProduct {
+        productTitle: string;
+        productImage: string;
+        productLink: string;
+    }
+
     export interface PopupPage {
         id: number;
         showOnWebsite: string;

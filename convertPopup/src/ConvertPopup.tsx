@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo, useCallback, useReducer } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Button, useBreakpointValue, Text, Avatar, Center, keyframes} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Button, useBreakpointValue, Text, Avatar, Center, keyframes, Divider} from "@chakra-ui/react";
 import { baseUrl} from './shared'
 import { Props, PopupPage } from './Types'
 import { useForm } from 'react-hook-form';
@@ -87,6 +87,7 @@ function ConvertPopup({ userId, popupId }: Props) {
     selectedAnswers,
     popupCreationState,
     questionStartTime,
+    recommendedProducts,
     } = theReducerState;
   const [ pastChatGPTOutput, setPastChatGPTOutput ] = useState<string[]>([question?.text ?? ''])
   const [ showTeaserButtonOnScreen, setShowTeaserButton ] = useState(false)
@@ -195,10 +196,12 @@ function ConvertPopup({ userId, popupId }: Props) {
         const data = await response.json();
         if (data.chatgpt.length > 0) {
           setTheReducerState({type: 'setChatGPTs', payload: data.chatgpt})
+
           const output = data.chatgpt.map((e: any) => e.outputChatGPT)
           setPastChatGPTOutput((oldState) => [...oldState, ...output])
           setTheReducerState({type: 'setQuestion', payload:  null})
           setTheReducerState({ type: 'setAllQuestions', payload: []})
+          setTheReducerState({type: 'setRecommendedProducts', payload: data.recommendedProducts})
           setFinalTextForProductRecommendingRequest(' ')
         } 
         setTheReducerState({type: 'setError', payload: undefined})
@@ -224,6 +227,7 @@ function ConvertPopup({ userId, popupId }: Props) {
         if (data.chatgpt.length > 0) {
           
           setTheReducerState({type: 'setChatGPTs', payload: data.chatgpt})
+          //setTheReducerState({type: 'setRecommendedProducts', payload: data.recommendedProducts})
           //const output = data.chatgpt.map((e: any) => e.outputChatGPT)
           //setPastChatGPTOutput((oldState) => [...oldState, ...output])
         } 
@@ -499,32 +503,15 @@ return (
           top={popup?.popupOrChat === 'Chatbot' ? '50%' : undefined}
           left={'50%'} 
           transform="translate(-50%, -50%)"
+          
     >
-      <Flex justify={"flex-end"} >
-      {!popup?.alwaysDisplay &&
-      <ChakraButton
-          onClick={() => setTheReducerState({type: 'setPopupCreationState', payload: false})}
-          bg={popup?.popupCloseButtonBoxColor ?? undefined}
-          color={popup?.popupCloseButtonTextColor ?? undefined}
-          colorScheme={popup?.popupCloseButtonColorScheme ?? undefined}
-          variant={popup?.popupCloseButtonVariant ?? undefined}
-          fontSize={"16px"}
-          position="relative"
-          p={1}
-          right={"-40px"}
-        >
-          {popup?.popupCloseButtonText}
-      </ChakraButton>
-      }
-      </Flex>
-    
     {popup?.popupOrChat === 'Chatbot' &&
       <Flex
         direction="row"
         w={popup?.popupWidth ?? [800, 550]}
         h={popup?.popupHeight ?? [500, 350]}
         bg={popup?.popupBackgroundColor ?? "white"}
-        p={4}
+        p={2}
 
         border={popup?.popupBorderWidth ?? undefined}
         borderColor={popup?.popupBorderColor ?? undefined}
@@ -532,8 +519,31 @@ return (
         boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"} 
         bgGradient={popup?.popupBackgroundGradient ?? undefined}
       >
+        <Flex direction={'column'} width={'full'}>
+        <Flex justify={'space-between'} align={'center'} p={1} >
+          <ChakraBox> 
+            <Text>
+            Shop Recommender
+            </Text>
+          </ChakraBox>
+        {!popup?.alwaysDisplay &&
+        <ChakraButton
+            onClick={() => setTheReducerState({type: 'setPopupCreationState', payload: false})}
+            bg={popup?.popupCloseButtonBoxColor ?? undefined}
+            color={popup?.popupCloseButtonTextColor ?? undefined}
+            colorScheme={popup?.popupCloseButtonColorScheme ?? undefined}
+            variant={popup?.popupCloseButtonVariant ?? undefined}
+            fontSize={"16px"}
+            p={1}
+          >
+            {popup?.popupCloseButtonText}
+        </ChakraButton>
+        }
+        </Flex>
+        <Divider />
         <QuestionaireInChat         
         {...{
+              recommendedProducts,
               isLoadingThreeWave,
               flatConversationHistory,
               allQuestions,
@@ -555,6 +565,7 @@ return (
               submitAnswer,
             }}
         />
+        </Flex>
       </Flex>
     }
 

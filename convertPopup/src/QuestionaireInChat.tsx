@@ -378,7 +378,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
       transition={{ duration: 0.3 }}
-      w={'full'}
+      w={'97%'}
       >
       <ChakraButton
       key={answer.id}

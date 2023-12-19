@@ -1,5 +1,5 @@
 import React, { useState,useEffect, useRef, useMemo } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, Wrap, WrapItem, Img} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, Wrap, WrapItem, Img, Divider} from "@chakra-ui/react";
 import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType, RecommendedProduct} from './Types'
 import { motion, useAnimation } from 'framer-motion';
 import { Controller } from 'react-hook-form';
@@ -85,7 +85,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
     useEffect(() => {
         handleScrollToBottom(); 
-      }, [pastChatGPTOutput]);
+      }, [pastChatGPTOutput, recommendedProducts]);
 
     const handleScrollToBottom = () => {
       if (flexContainerRef.current) {
@@ -186,7 +186,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
 
  return (
-<ChakraBox h={'full'} >   
+    <ChakraBox h={'570px'} >   
       {popup?.popupImage && 
       <Img src={`${baseUrl}${popup?.popupImage}`} width={'200px'} zIndex={4} top={'-115px'} left={'140px'} position={'absolute'}/> 
       }
@@ -200,7 +200,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           >
           
           <ChakraBox>
-            {false && popup?.popupTitle && (
+            {true && popup?.popupTitle && (
               <ChakraBox
                 p={2}
                 mt={popup?.popupImage ? 9 : undefined}
@@ -220,7 +220,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
               </ChakraBox>
             )}
 
-            {false && popup?.popupContent && (
+            {true && popup?.popupContent && (
               <ChakraBox
                 p={2}
                 mt={2}
@@ -237,7 +237,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         </Flex>
       )}
       
-      <ChakraBox ref={flexContainerRef} overflowY="auto" h={calculateHeight}>
+    <ChakraBox ref={flexContainerRef} overflowY="auto" h={'470px'}>
         <ChakraBox p={2} m={1}>
           <Flex direction="column" >
             {(pastChatGPTInput.length>0 ? pastChatGPTInput : ['...']).map((input, index) => (
@@ -313,11 +313,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
             </ChakraBox>
             ))}
-            <ChakraBox>
+            
             {isLoadingThreeWave &&
+            <ChakraBox>
                   <Flex justifyContent="flex-start">
                     <MotionBox
-                      mt={1}
                       px={2}
                       py={2}
                       fontSize={popup?.popupChatHistoryFontSize ?? "14px"}
@@ -328,7 +328,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       textColor={popup?.popupChatHistoryOutputTextColor ?? undefined}
                       backgroundColor={popup?.popupChatHistoryOutputBoxColor ?? undefined}
                       position="relative"
-                      overflow="hidden"
+                      overflow="audo"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
@@ -347,11 +347,13 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       <ThreeDotsWave />
                   </MotionBox>
               </Flex>
+              </ChakraBox >
               }
-            </ChakraBox>
 
-    <HStack spacing={2} overflowY='auto' height='90%' mt={2} >
-    <Wrap spacing={2} >
+
+
+    <HStack mt={2}>
+    <Wrap>
     {question?.answers.map((answer) => (
     <React.Fragment key={answer.id}>
       {!answer.answerHasInputField &&
@@ -391,7 +393,6 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       target="_blank" // Open the URL in a new tab
       rel="noopener noreferrer" // Recommended for security reasons
       width={'full'}
-
       p={2} // Remove padding to make image cover the whole button area
       >
       <Flex
@@ -482,15 +483,15 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
    </HStack>  
 </Flex>
    
-</ChakraBox>
-<InputComponent />
-</ChakraBox>
-      {true && (
-      <Flex alignItems="center" justifyContent="center" my={2.5}>
-            <ChakraBox height="1px" width="97%" backgroundColor="gray.300" />
-      </Flex>)}
+    </ChakraBox>
+    <InputComponent />
+    </ChakraBox>
+
+
+      <Divider />
+
       {true && chatGPTs.length === 0 && (
-      <ChakraBox h={popup?.popupCTAPercentage  ?? undefined} mx={1} display="flex" overflowX="auto"  overflowY={'hidden'} maxWidth={'450px'}>
+      <ChakraBox  mx={1} display="flex" overflowX="auto"  overflowY={'auto'} maxWidth={'450px'}>
         {popupAdditionals?.map((suggestion, idx) => (
           <MotionButton
           key={`${suggestion.popupAdditionalId }--${idx}`} 
@@ -516,7 +517,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       )}
       { true && (
         <>
-        <ChakraBox h={popup?.popupChatSendPercentage ?? undefined} >
+        <ChakraBox p={1}>
         <Flex>
           <ChakraBox width="100%">
             <Input
@@ -534,7 +535,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
               textColor={popup?.popupChatButtonTextColor ?? undefined}
               _placeholder={{ color: popup?.popupChatButtonTextColor ?? undefined }}
               p={2}
-              m={2}
+              mt={2}
             />
           </ChakraBox>
           <ChakraBox>
@@ -558,10 +559,10 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         </ChakraBox>
         </>)}
         <Flex justify={"center"}>
-        <Text fontSize={"10px"} mt={3}>
+        <Text fontSize={"10px"} mt={0.5}>
           powered by        
         </Text>
-        <ChakraBox fontSize={"10px"} mt={3} ml={1} fontWeight={"extrabold"} as={"a"} href='https://erecommender.com/'>
+        <ChakraBox fontSize={"10px"} mt={0.5} ml={1} fontWeight={"extrabold"} as={"a"} href='https://erecommender.com/'>
           eRecommender.com
         </ChakraBox>
         </Flex>

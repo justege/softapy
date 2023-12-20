@@ -1,5 +1,5 @@
 import React, { useState,useEffect, useRef, useMemo } from 'react';
-import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, Wrap, WrapItem, Img, Divider} from "@chakra-ui/react";
+import { Box as ChakraBox, Button as ChakraButton,  Flex, Input,Image, Text, HStack, Wrap, WrapItem, Img, Divider, Avatar, Radio} from "@chakra-ui/react";
 import { ChatGPT, PopupEngagement, PopupAdditional, Popup, Question, selectedAnswersType, RecommendedProduct} from './Types'
 import { motion, useAnimation } from 'framer-motion';
 import { Controller } from 'react-hook-form';
@@ -255,10 +255,6 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                     textColor={popup?.popupChatHistoryInputTextColor ?? undefined}
                     backgroundColor={popup?.popupChatHistoryInputBoxColor ?? undefined}
                     position="relative"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.3 }}
                     _after={{
                       content: '""',
                       position: "absolute",
@@ -276,7 +272,14 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                 </Flex>
                 {pastChatGPTOutput[index] &&
                   <Flex justifyContent="flex-start">
+                     <Avatar
+                        src={`${baseUrl}${popup?.teaserImage}`}
+                        height={'25px'}
+                        width={'25px'}
+                        alignSelf={'center'}
+                      />
                     <MotionBox
+                      ml={2}
                       mt={1}
                       px={2}
                       py={2}
@@ -289,10 +292,6 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       backgroundColor={popup?.popupChatHistoryOutputBoxColor ?? undefined}
                       position="relative"
                       overflow="hidden"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ duration: 0.3 }}
                       _after={{
                         position: "absolute",
                         bottom: 0,
@@ -317,7 +316,14 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
             {isLoadingThreeWave &&
             <ChakraBox>
                   <Flex justifyContent="flex-start">
+                  <Avatar
+                        src={`${baseUrl}${popup?.teaserImage}`}
+                        height={'25px'}
+                        width={'25px'}
+                        alignSelf={'center'}
+                      />
                     <MotionBox
+                      ml={2}
                       px={2}
                       py={2}
                       fontSize={popup?.popupChatHistoryFontSize ?? "14px"}
@@ -329,10 +335,6 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                       backgroundColor={popup?.popupChatHistoryOutputBoxColor ?? undefined}
                       position="relative"
                       overflow="audo"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ duration: 0.3 }}
                       _after={{
                         position: "absolute",
                         bottom: 0,
@@ -352,7 +354,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
 
 
-    <HStack mt={2}>
+    <HStack mt={2}  >
     <Wrap>
     {question?.answers.map((answer) => (
     <React.Fragment key={answer.id}>
@@ -361,7 +363,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       <WrapItem 
       w={'full'}
       >
+     <Flex align={'center'} justify={'center'} h={'40px'} >
+      <Radio isChecked={false} ml={1}/>
+      </Flex>
       <MotionBox 
+      ml={'12px'}
       className='MainComponent'
       key = {answer.id}
       borderWidth={2} 
@@ -372,12 +378,6 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       textColor={!!answer.answerTextColor ? answer.answerTextColor : (popup?.answerTextColor ?? undefined)}
       overflow="hidden"
       borderColor={!selectedAnswers.some((e) => e.answerId === answer.id) ? !!answer.answerBorderColor ? answer.answerBorderColor : (popup?.answerBorderColor ?? 'teal') : "gray"}
-      whileHover={{ scale: 1.003 }}
-      whileTap={{ scale: 0.94 }}
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      transition={{ duration: 0.3 }}
       w={'97%'}
       >
       <ChakraButton
@@ -416,7 +416,15 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       <WrapItem
       w={'full'}
       >
+      <Flex align={'center'} justify={'center'} h={'65px'}>
+      <Radio isChecked={false} ml={1}/>
+      </Flex>
       <MotionBox 
+      href={product.productLink  ? product.productLink : undefined} 
+      as={'a'}
+      target="_blank" // Open the URL in a new tab
+      rel="noopener noreferrer" // Recommended for security reasons
+      ml={'12px'}
       className='MainComponent'
       borderWidth={2} 
       padding={0} 
@@ -426,14 +434,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       textColor={(popup?.answerTextColor ?? undefined)}
       overflow="hidden"
       borderColor={(popup?.answerBorderColor ?? 'teal')}
-      whileHover={{ scale: 1.003 }}
-      whileTap={{ scale: 0.94 }}
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      transition={{ duration: 0.3 }}  
       >
-
       <Flex
         p={2}
         borderColor={(popup?.answerBorderColor ?? 'white')}
@@ -465,10 +466,9 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           borderColor={ (popup?.answerBorderColor ?? undefined)} 
           bgColor={(popup?.answerBackgroundColor ?? undefined)} 
           textColor={(popup?.answerTextColor ?? undefined)}
-          //onClick 
+          target="_blank" // Open the URL in a new tab
+          rel="noopener noreferrer" // Recommended for security reasons
           href={product.productLink  ? product.productLink : undefined} 
-          target="_blank" 
-          rel="noopener noreferrer" 
           p={3} 
           >
           <LinkIcon />
@@ -518,10 +518,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       { true && (
         <>
         <ChakraBox p={1}>
-        <Flex>
+        <Flex ml={'15px'}>
           <ChakraBox width="100%">
             <Input
               type="text"
+              h={'40px'}
               value={inputChatGPT}
               onChange={handleInputChange}
               onKeyPress={(e) => {
@@ -547,6 +548,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
             borderWidth={'thin'}
             m={2} 
             ml={3} 
+            size={'md'}
             textColor={popup?.popupSendButtonTextColor ?? undefined} 
             variant = {popup?.popupSendButtonVariant ?? undefined} 
             whileHover={{ scale: 1.01 }}

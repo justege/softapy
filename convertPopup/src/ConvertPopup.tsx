@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { QuestionaireInChat } from './QuestionaireInChat';
 import { initialState, theStateReducer } from './Reducer'
 import { Questionnaire } from './Questionnaire';
+import { MinusIcon } from '@chakra-ui/icons';
 
 
 const shockwaveAnimation = keyframes`
@@ -511,8 +512,7 @@ return (
         w={popup?.popupWidth ?? [800, 550]}
         h={popup?.popupHeight ?? [500, 350]}
         bg={popup?.popupBackgroundColor ?? "white"}
-        p={2}
-
+        py={2}
         border={popup?.popupBorderWidth ?? undefined}
         borderColor={popup?.popupBorderColor ?? undefined}
         borderRadius={popup?.popupBorderRadius ?? '0'}
@@ -520,14 +520,16 @@ return (
         bgGradient={popup?.popupBackgroundGradient ?? undefined}
       >
         <Flex direction={'column'} width={'full'}>
-        <Flex justify={'space-between'} align={'center'} p={1} >
-          <ChakraBox> 
+        <Flex justify={'space-between'} align={'center'} px={2} py={1}>
+          <ChakraBox px={4}> 
             <Text>
-            Shop Recommender
+              Shop Recommender
             </Text>
           </ChakraBox>
         {!popup?.alwaysDisplay &&
+        <Flex direction={'row'} justify={'space-around'}>
         <ChakraButton
+            
             onClick={() => setTheReducerState({type: 'setPopupCreationState', payload: false})}
             bg={popup?.popupCloseButtonBoxColor ?? undefined}
             color={popup?.popupCloseButtonTextColor ?? undefined}
@@ -538,6 +540,7 @@ return (
           >
             {popup?.popupCloseButtonText}
         </ChakraButton>
+        </Flex>
         }
         </Flex>
         <Divider />

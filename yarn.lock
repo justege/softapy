@@ -1394,6 +1394,11 @@ posthtml@^0.16.4, posthtml@^0.16.5:
     posthtml-parser "^0.11.0"
     posthtml-render "^3.0.0"
 
+prettier@^3.0.0-alpha.6:
+  version "3.0.0-alpha.6"
+  resolved "https://registry.npmjs.org/prettier/-/prettier-3.0.0-alpha.6.tgz"
+  integrity sha512-AdbQSZ6Oo+iy9Ekzmsgno05P1uX2vqPkjOMJqRfP8hTe+m6iDw4Nt7bPFpWZ/HYCU+3f0P5U0o2ghxQwwkLH7A==
+
 react-dom@^18.0.0, react-dom@>=16.8:
   version "18.2.0"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-18.2.0.tgz"

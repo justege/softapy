@@ -281,7 +281,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         />
       )}
 
-      <ChakraBox ref={flexContainerRef} overflowY="auto" h={"470px"}>
+      <ChakraBox ref={flexContainerRef} overflowY="auto" h={"478px"}>
         <ChakraBox p={2} m={1}>
           <Flex direction="column">
             {(pastChatGPTInput.length > 0 ? pastChatGPTInput : ["..."]).map(
@@ -582,6 +582,11 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                                       ? `${product.productImage}`
                                       : `${baseUrl}${"/uploads/questionMark.png"}`
                                   }
+                                  borderRadius={
+                                    popup?.popupBorderRadius
+                                      ? "6px"
+                                      : undefined
+                                  }
                                   flexShrink={0} // Prevent the image from shrinking
                                   flexGrow={1} // Allow the image to grow
                                   height={"50px"}
@@ -673,7 +678,13 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       )}
       {true && (
         <>
-          <ChakraBox p={1}>
+          <ChakraBox 
+          p={1} 
+          backgroundColor={popup?.popupBackgroundColor}
+          borderBottom={popup?.popupBorderWidth ?? undefined}
+          borderColor={popup?.popupBorderColor ?? undefined}
+          borderBottomRadius={popup?.popupBorderRadius ?? "0"}
+          >
             <Flex ml={"15px"}>
               <ChakraBox width="100%">
                 <Input
@@ -701,7 +712,10 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                 <MotionButton
                   onClick={() => handleChatGPTSubmit(question?.id ?? 1)}
                   colorScheme={popup?.popupSendButtonScheme ?? undefined}
-                  bgColor={popup?.popupSendButtonColor ?? undefined}
+                  //bgColor={popup?.popupSendButtonColor ?? undefined} TODO
+                  bgGradient={
+                    "linear-gradient(91deg, #793DCC 0%, #A666FF 100%)"
+                  }
                   borderColor={popup?.popupSendButtonBorderColor ?? undefined}
                   borderWidth={"thin"}
                   m={2}

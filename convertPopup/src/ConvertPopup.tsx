@@ -21,6 +21,7 @@ import {
   VStack,
   StackDivider,
   Img,
+  Radio,
 } from "@chakra-ui/react";
 import { baseUrl } from "./shared";
 import { Props, PopupPage } from "./Types";
@@ -28,7 +29,13 @@ import { useForm } from "react-hook-form";
 import { QuestionaireInChat } from "./QuestionaireInChat";
 import { initialState, theStateReducer } from "./Reducer";
 import { Questionnaire } from "./Questionnaire";
-import { MinusIcon } from "@chakra-ui/icons";
+import {
+  ArrowRightIcon,
+  CheckIcon,
+  LinkIcon,
+  MinusIcon,
+  TimeIcon,
+} from "@chakra-ui/icons";
 
 const shockwaveAnimation = keyframes`
 0% {
@@ -656,13 +663,14 @@ function ConvertPopup({ userId, popupId }: Props) {
               top={popup?.popupOrChat === "Chatbot" ? "50%" : undefined}
               left={"50%"}
               transform="translate(-50%, -50%)"
+            
             >
               {popup?.popupOrChat === "Chatbot" && (
                 <Flex
                   direction="row"
                   w={popup?.popupWidth ?? [800, 550]}
                   h={popup?.popupHeight ?? [500, 350]}
-                  bg={popup?.popupBackgroundColor ?? "white"}
+                  bg={"white"}
                   border={popup?.popupBorderWidth ?? undefined}
                   borderColor={popup?.popupBorderColor ?? undefined}
                   borderRadius={popup?.popupBorderRadius ?? "0"}
@@ -670,7 +678,7 @@ function ConvertPopup({ userId, popupId }: Props) {
                   bgGradient={popup?.popupBackgroundGradient ?? undefined}
                 >
                   <Flex direction={"column"} width={"full"}>
-                    {true && (
+                    {pastChatGPTInput.length < 2 && (
                       <>
                         <Flex
                           w={"full"}
@@ -682,18 +690,32 @@ function ConvertPopup({ userId, popupId }: Props) {
                           border={popup?.popupBorderWidth ?? undefined}
                           borderColor={popup?.popupBorderColor ?? undefined}
                           borderRadius={popup?.popupBorderRadius ?? "0"}
-                          p={4}
+                          px={4}
+                          py={2}
                         >
-                  {popup?.teaserImage && (
-                <Avatar
-                  src={`${baseUrl}${popup?.teaserImage}`}
-                  height={"50px"}
-                  width={"50px"}
-                  alignSelf={"left"}
-                  style={{ display: imageLoaded ? "block" : "none" }} // Show if image is loaded
-                  onLoad={handleImageLoad} // Call this function when the image is loaded
-                />
-              )}
+                          {popup?.teaserImage && (
+                            <ChakraBox
+                              width="40px"
+                              height="40px"
+                              borderRadius="50%" // This creates a circular shape
+                              overflow="hidden" // This ensures the image stays within the circular shape
+                              borderColor="white" // Set background color to white
+                              borderWidth={"thin"}
+                            >
+                              <Avatar
+                                src={`${baseUrl}${popup?.teaserImage}`}
+                                height="50px"
+                                width="50px"
+                                alignSelf="left"
+                                style={{
+                                  display: imageLoaded ? "block" : "none",
+                                  width: "100%",
+                                  height: "100%",
+                                }}
+                                onLoad={handleImageLoad}
+                              />
+                            </ChakraBox>
+                          )}
                           <ChakraBox
                             h={
                               popup?.popupTitleAndContentPercentage ?? undefined
@@ -744,85 +766,312 @@ function ConvertPopup({ userId, popupId }: Props) {
                             <Flex
                               mt={4}
                               border={popup?.popupBorderWidth ?? undefined}
-                              borderColor={popup?.popupBorderColor ?? undefined}
+                              borderColor={"purple.400" ?? undefined}
                               boxShadow={"md"}
                               bg={"white"}
                               borderRadius={
                                 popup?.popupBorderRadius ? "12px" : undefined
                               }
                               w={"full"}
-                              h={"70px"}
+                              pb={2}
                               px={5}
-                              justify={"space-between"}
-                              align={"center"}
+                              justify={"space-around"}
                             >
                               <Flex direction={"column"}>
+                                <Flex
+                                  justify={"flex-end"}
+                                  align={"flex-end"}
+                                  mt={3}
+                                >
+                                  <TimeIcon />
+                                  <Text fontSize={"2xs"} ml={1}>
+                                    1 min.
+                                  </Text>
+                                </Flex>
                                 <Text fontWeight={"bold"} align={"left"}>
-                                  Send us a Message
+                                  Product Recommender
                                 </Text>
-                                <Text align={"left"}>
-                                  We will be back online later today.
+                                <Text align={"left"} fontSize={"sm"}>
+                                  Let your shop assistant recommend the most
+                                  suiting products according to your interests.
                                 </Text>
+                                <ChakraBox>
+                                  <Flex
+                                    w={"full"}
+                                    mt={4}
+                                    p={2}
+                                    align={"center"}
+                                    justifyContent={"space-around"}
+                                    borderWidth={"1px" ?? undefined}
+                                    borderColor={"purple.400" ?? undefined}
+                                    bgGradient={
+                                      "linear-gradient(91deg, #793DCC 0%, #A666FF 100%)"
+                                    }
+                                    textColor={"white"}
+                                    borderRadius={
+                                      popup?.popupBorderRadius
+                                        ? "12px"
+                                        : undefined
+                                    }
+                                  >
+                                    <ChakraBox
+                                      fontWeight={"extrabold"}
+                                      ml={2}
+                                      textAlign={"center"}
+                                    >
+                                      {question?.text}
+                                    </ChakraBox>
+                                  </Flex>
+                                </ChakraBox>
+                                <ChakraBox>
+                                  {question?.answers.map((answer) => (
+                                    <ChakraBox
+                                      mt={1}
+                                      className="MainComponent"
+                                      key={answer.id}
+                                      borderWidth={1}
+                                      padding={0}
+                                      borderRadius={
+                                        !!answer.answerBorderRadius
+                                          ? answer.answerBorderRadius
+                                          : popup?.answerBorderRadius ??
+                                            undefined
+                                      }
+                                      boxShadow={
+                                        !!answer.answerBorderBoxShadow
+                                          ? answer.answerBorderBoxShadow
+                                          : popup?.answerBorderBoxShadow ??
+                                            undefined
+                                      }
+                                      bgColor={
+                                        !!answer.answerBackgroundColor
+                                          ? answer.answerBackgroundColor
+                                          : popup?.answerBackgroundColor ??
+                                            undefined
+                                      }
+                                      textColor={
+                                        !!answer.answerTextColor
+                                          ? answer.answerTextColor
+                                          : popup?.answerTextColor ?? undefined
+                                      }
+                                      overflow="hidden"
+                                      borderColor={
+                                        !selectedAnswers.some(
+                                          (e) => e.answerId === answer.id
+                                        )
+                                          ? !!answer.answerBorderColor
+                                            ? answer.answerBorderColor
+                                            : popup?.answerBorderColor ?? "teal"
+                                          : "gray"
+                                      }
+                                    >
+                                      <ChakraButton
+                                        key={answer.id}
+                                        as="a"
+                                        borderRadius={
+                                          !!answer.answerBorderRadius
+                                            ? answer.answerBorderRadius
+                                            : popup?.answerBorderRadius ??
+                                              undefined
+                                        }
+                                        boxShadow={
+                                          !!answer.answerBorderBoxShadow
+                                            ? answer.answerBorderBoxShadow
+                                            : popup?.answerBorderBoxShadow ??
+                                              undefined
+                                        }
+                                        borderColor={
+                                          !!answer.answerBorderColor
+                                            ? answer.answerBorderColor
+                                            : popup?.answerBorderColor ??
+                                              undefined
+                                        }
+                                        bgColor={
+                                          !!answer.answerBackgroundColor
+                                            ? answer.answerBackgroundColor
+                                            : popup?.answerBackgroundColor ??
+                                              undefined
+                                        }
+                                        textColor={
+                                          !!answer.answerTextColor
+                                            ? answer.answerTextColor
+                                            : popup?.answerTextColor ??
+                                              undefined
+                                        }
+                                        onClick={() =>
+                                          clickAnswer(
+                                            answer.id,
+                                            answer.text_for_chatgpt
+                                          )
+                                        }
+                                        href={
+                                          answer.next_question
+                                            ? undefined
+                                            : answer.answerHasCallToAction
+                                            ? answer.answerCallToActionURL
+                                            : undefined
+                                        }
+                                        target="_blank" // Open the URL in a new tab
+                                        rel="noopener noreferrer" // Recommended for security reasons
+                                        width={"full"}
+                                        p={2} // Remove padding to make image cover the whole button area
+                                      >
+                                        <Flex
+                                          borderColor={
+                                            !selectedAnswers.some(
+                                              (e) => e.answerId === answer.id
+                                            )
+                                              ? !!answer.answerBorderColor
+                                                ? answer.answerBorderColor
+                                                : popup?.answerBorderColor ??
+                                                  "white"
+                                              : undefined
+                                          }
+                                          align={"center"}
+                                          width="100%"
+                                          px={2}
+                                        >
+                                          <CheckIcon />
+                                          <Text textAlign={"left"} ml={2}>
+                                            {answer.text}
+                                          </Text>
+                                        </Flex>
+                                      </ChakraButton>
+                                    </ChakraBox>
+                                  ))}
+                                </ChakraBox>
                               </Flex>
-                              <ChakraBox>
-                                <SendIcon />
-                              </ChakraBox>
                             </Flex>
 
-                            <Flex
-                              mt={4}
-                              border={popup?.popupBorderWidth ?? undefined}
-                              borderColor={popup?.popupBorderColor ?? undefined}
-                              boxShadow={'md'}
-                              bg={"white"}
-                              borderRadius={
-                                popup?.popupBorderRadius ? "12px" : undefined
-                              }
-                              w={"full"}
-                              h={"200px"}
-                              py={2}
-                              px={5}
-                              justify={"space-between"}
-                            >
-                              <Flex direction={"column"}>
-                                <Text fontWeight={"bold"} align={"left"}>
-                                  Product Recommender 
-                                </Text>
-                                <Text align={"left"}>
-                                  Our shop assistant has knowledge of all the products available and can help you find products according to your interests.
-                                </Text>
-                              </Flex>
-                              <Flex direction={'column'} justify={'center'} align={'center'}> 
-                              <Text fontSize={'xs'}>
-                                Recommended:
-                              </Text>
-                              <Img src={`${baseUrl}${popup?.teaserImage}`}  h={'100px'} w={'80px'}/>                              
-                              <ChakraButton w={'full'} mt={4}>
-                                Start Now
-                              </ChakraButton>
-                              </Flex>
-                            </Flex>
+                            {true && (
+                              <>
+                                <ChakraBox position="relative" mt={7}>
+                                  <ChakraBox
+                                    position="absolute"
+                                    top="-10px"
+                                    left="50%"
+                                    style={{ transform: "translate(-50%)" }}
+                                  >
+                                    <Text
+                                      textTransform="uppercase"
+                                      bg={"purple.100"}
+                                      px={3}
+                                      py={1}
+                                      color={"gray.900"}
+                                      fontSize="sm"
+                                      fontWeight="600"
+                                      rounded="xl"
+                                    >
+                                      Recommended
+                                    </Text>
+                                  </ChakraBox>
+                                </ChakraBox>
+                                <Flex
+                                  mt={4}
+                                  border={popup?.popupBorderWidth ?? undefined}
+                                  borderColor={
+                                   'purple.400' ?? undefined
+                                  }
+                                  boxShadow={"md"}
+                                  bg={"white"}
+                                  borderRadius={
+                                    popup?.popupBorderRadius
+                                      ? "12px"
+                                      : undefined
+                                  }
+                                  w={"full"}
+                                  h={"70px"}
+                                  px={5}
+                                  justify={"space-between"}
+                                  align={"center"}
+                                >
+                                  <Flex direction={"row"} justify={'center'} align={'center'}>
+                                    <Img
+                                      src={
+                                        recommendedProducts?.[0]?.productImage
+                                          ? `${recommendedProducts?.[0]?.productImage}`
+                                          : 'https://www.shutterstock.com/shutterstock/photos/2121480251/display_1500/stock-vector-mystery-box-icon-question-mark-inside-gift-box-for-rare-upcoming-product-online-shop-social-media-2121480251.jpg' //  `${baseUrl}${"/uploads/questionMark.png"}` //TODO
+                                      }
+                                      flexShrink={0} // Prevent the image from shrinking
+                                      flexGrow={1} // Allow the image to grow
+                                      height={"50px"}
+                                      maxW={"50px"}
+                                      borderRadius={
+                                        popup?.popupBorderRadius
+                                          ? "6px"
+                                          : undefined
+                                      }
+                                    />
+                                    <Text
+                                      ml={4}
+                                      color={"black"} //popup?.answerTextColor ?? undefined}
+                                      textAlign="left" // Center align text
+                                    >
+                                      {recommendedProducts?.[0]?.productTitle ?? "Your personal product recommendation"}
+                                    </Text>
+                                  </Flex>
+                                  <ChakraBox
+                                    as="a"
+                                    borderRadius={
+                                      popup?.answerBorderRadius ?? undefined
+                                    }
+                                    boxShadow={
+                                      popup?.answerBorderBoxShadow ?? undefined
+                                    }
+                                    borderColor={
+                                      popup?.answerBorderColor ?? undefined
+                                    }
+                                    bgColor={
+                                      popup?.answerBackgroundColor ?? undefined
+                                    }
+                                    textColor={
+                                      popup?.answerTextColor ?? undefined
+                                    }
+                                    target="_blank" // Open the URL in a new tab
+                                    rel="noopener noreferrer" // Recommended for security reasons
+                                    href={
+                                      recommendedProducts?.[0]?.productLink
+                                        ? recommendedProducts?.[0]?.productLink
+                                        : undefined
+                                    }
+                                    p={3}
+                                  >
+                                    <LinkIcon />
+                                  </ChakraBox>
+                                </Flex>
+                              </>
+                            )}
                           </ChakraBox>
                         </Flex>
                       </>
                     )}
 
-                    {false && (
+                    {pastChatGPTInput.length > 1 && (
                       <>
                         <Flex
                           justify={"space-between"}
                           align={"center"}
                           px={2}
                           py={1}
+                          bgGradient={
+                            "linear-gradient(91deg, #793DCC 0%, #A666FF 100%)"
+                          }
+                          borderTop={popup?.popupBorderWidth ?? undefined}
+                          borderColor={popup?.popupBorderColor ?? undefined}
+                          borderTopRadius={popup?.popupBorderRadius ?? "0"}
                         >
                           <ChakraBox px={4}>
-                            <Text>Shop Recommender</Text>
+                            <Text fontWeight={"bold"} 
+                            textColor={'white'} // TODO
+                            >
+                              Shop Recommender</Text>
                           </ChakraBox>
                           {!popup?.alwaysDisplay && (
                             <Flex
                               direction={"row"}
                               justify={"space-around"}
                               py={2}
+                              px={1}
                             >
                               <ChakraButton
                                 onClick={() =>
@@ -846,6 +1095,7 @@ function ConvertPopup({ userId, popupId }: Props) {
                                 }
                                 fontSize={"16px"}
                                 p={1}
+                                
                               >
                                 {popup?.popupCloseButtonText}
                               </ChakraButton>

@@ -183,7 +183,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                 </Text>
                 <MotionBox
                   mt={1}
-                  borderWidth={2}
+                  borderWidth={1}
                   padding={
                     !!answer.answerPadding
                       ? answer.answerPadding
@@ -433,7 +433,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                           ml={"12px"}
                           className="MainComponent"
                           key={answer.id}
-                          borderWidth={2}
+                          borderWidth={1}
                           padding={0}
                           borderRadius={
                             !!answer.answerBorderRadius
@@ -555,7 +555,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                             rel="noopener noreferrer" // Recommended for security reasons
                             ml={"12px"}
                             className="MainComponent"
-                            borderWidth={2}
+                            borderWidth={1}
                             padding={0}
                             borderRadius={
                               popup?.answerBorderRadius ?? undefined
@@ -717,7 +717,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                     "linear-gradient(91deg, #793DCC 0%, #A666FF 100%)"
                   }
                   borderColor={popup?.popupSendButtonBorderColor ?? undefined}
-                  borderWidth={"thin"}
+                  borderWidth={1}
                   m={2}
                   ml={3}
                   size={"md"}
@@ -733,8 +733,22 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           </ChakraBox>
         </>
       )}
-      <Flex justify={"center"}>
-        <Text fontSize={"10px"} mt={0.5}>
+      <Flex 
+      justify={"center"} 
+      align={'center'}
+      >
+        <ChakraBox
+        backgroundColor={'whiteAlpha.700'} 
+        width={'400px'} 
+        mt={0.25}
+        borderBottom={popup?.popupBorderWidth ?? undefined}
+        borderBottomRadius={popup?.popupBorderRadius ?? "0"}
+        >
+        <Flex 
+              justify={"center"} 
+              align={'center'}
+        >
+        <Text fontSize={"10px"} mt={0.5} textAlign={'center'}>
           powered by
         </Text>
         <ChakraBox
@@ -746,6 +760,8 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           href="https://erecommender.com/"
         >
           eRecommender.com
+        </ChakraBox>
+        </Flex>
         </ChakraBox>
       </Flex>
     </ChakraBox>

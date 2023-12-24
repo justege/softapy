@@ -169,6 +169,18 @@ function ConvertPopup({ userId, popupId }: Props) {
       setTheReducerState({ type: "setPopup", payload: data.popup });
       setTheReducerState({ type: "setQuestionStartTime", payload: Date.now() });
       setTheReducerState({ type: "setQuestion", payload: data.question });
+
+      const recommendedProductsFromQuery = data.recommendedProducts
+
+
+      if (pastChatGPTInput.length < 2) {
+        setTheReducerState({
+          type: "setRecommendedProducts",
+          payload: recommendedProductsFromQuery,
+        });
+      }
+      
+
       setTheReducerState({
         type: "setPastChatGPTInput",
         payload: [popup?.popupChatStartMessage ?? "Lets Start"],
@@ -353,6 +365,13 @@ function ConvertPopup({ userId, popupId }: Props) {
   const postAnswer = async (combinedList: any, answerId: number) => {
     if (questionStartTime) {
       const answerTime = (Date.now() - questionStartTime) / 1000; // Calculate the time taken
+
+      if (pastChatGPTInput.length > 0) {
+        setTheReducerState({
+          type: "setRecommendedProducts",
+          payload: [],
+        });
+      }
 
       // Set the reducer states before making the fetch request
       setTheReducerState({ type: "setQuestionStartTime", payload: Date.now() });
@@ -577,6 +596,7 @@ function ConvertPopup({ userId, popupId }: Props) {
 
   // Flatten the array to get a single array of conversation turns
   const flatConversationHistory = conversationHistory.flat();
+
 
   return (
     <>

@@ -692,7 +692,7 @@ function ConvertPopup({ userId, popupId }: Props) {
                   h={popup?.popupHeight ?? [500, 350]}
                   bg={"white"}
                   border={popup?.popupBorderWidth ?? undefined}
-                  borderColor={popup?.popupBorderColor ?? undefined}
+                  borderColor={'white' ?? undefined}
                   borderRadius={popup?.popupBorderRadius ?? "0"}
                   boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"}
                   bgGradient={popup?.popupBackgroundGradient ?? undefined}
@@ -704,9 +704,7 @@ function ConvertPopup({ userId, popupId }: Props) {
                           w={"full"}
                           h={"full"}
                           direction="column"
-                          bgGradient={
-                            "linear-gradient(180deg, rgba(166,102,255,1) 32%, rgba(255,255,255,1) 66%)"
-                          } // TODO: {popup?.popupBackgroundGradient ?? undefined}
+                          bgGradient={popup?.popupBackgroundGradient ?? undefined}
                           border={popup?.popupBorderWidth ?? undefined}
                           borderColor={popup?.popupBorderColor ?? undefined}
                           borderRadius={popup?.popupBorderRadius ?? "0"}
@@ -771,6 +769,7 @@ function ConvertPopup({ userId, popupId }: Props) {
                                 }
                               >
                                 <Text
+                                textAlign={'center'}
                                   fontSize={
                                     popup?.popupContentFontSize ?? "16px"
                                   }
@@ -823,9 +822,8 @@ function ConvertPopup({ userId, popupId }: Props) {
                                     align={"center"}
                                     justifyContent={"space-around"}
                                     borderWidth={"1px" ?? undefined}
-                                    borderColor={"purple.400" ?? undefined}
                                     bgGradient={
-                                      "linear-gradient(91deg, #793DCC 0%, #A666FF 100%)"
+                                     popup?.popupBackgroundGradient ?? undefined
                                     }
                                     textColor={"white"}
                                     borderRadius={
@@ -1073,8 +1071,8 @@ function ConvertPopup({ userId, popupId }: Props) {
                           align={"center"}
                           px={2}
                           py={1}
-                          bgGradient={
-                            "linear-gradient(91deg, #793DCC 0%, #A666FF 100%)"
+                          bgGradient={ 
+                            popup?.popupMainBackgroundGradient ?? "linear-gradient(91deg, #793DCC 0%, #A666FF 100%)"
                           }
                           borderTop={popup?.popupBorderWidth ?? undefined}
                           borderColor={popup?.popupBorderColor ?? undefined}

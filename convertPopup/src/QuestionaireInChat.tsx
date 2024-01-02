@@ -713,7 +713,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
                   onClick={() => handleChatGPTSubmit(question?.id ?? 1)}
                   colorScheme={popup?.popupSendButtonScheme ?? undefined}
                   //bgColor={popup?.popupSendButtonColor ?? undefined} TODO
-                  bgGradient={
+                  bgGradient={popup?.popupMainBackgroundGradient ??
                     "linear-gradient(91deg, #793DCC 0%, #A666FF 100%)"
                   }
                   borderColor={popup?.popupSendButtonBorderColor ?? undefined}
@@ -738,11 +738,8 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       align={'center'}
       >
         <ChakraBox
-        backgroundColor={'whiteAlpha.700'} 
         width={'400px'} 
         mt={0.25}
-        borderBottom={popup?.popupBorderWidth ?? undefined}
-        borderBottomRadius={popup?.popupBorderRadius ?? "0"}
         >
         <Flex 
               justify={"center"} 

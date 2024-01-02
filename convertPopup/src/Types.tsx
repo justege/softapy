@@ -144,6 +144,7 @@ export interface Props {
     popupChatButtonFocusBorderColor: string ;
     popupChatStartMessage: string;
     popupChatFinishMessage: string;
+    popupMainBackgroundGradient: string;
     popupSuggestionButtonPositioning: number ;
     popupSuggestionButtonTextColor: string ;
     popupSuggestionButtonTextSize: number ;

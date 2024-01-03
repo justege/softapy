@@ -281,7 +281,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
         />
       )}
 
-      <ChakraBox ref={flexContainerRef} overflowY="auto" h={"478px"}>
+      <ChakraBox ref={flexContainerRef} overflowY="auto" h={"415px"}>
         <ChakraBox p={2} m={1}>
           <Flex direction="column">
             {(pastChatGPTInput.length > 0 ? pastChatGPTInput : ["..."]).map(
@@ -643,13 +643,14 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
 
       <Divider />
 
-      {true && chatGPTs.length === 0 && (
+
+      {true  && (
         <ChakraBox
-          mx={1}
+          p={1}
           display="flex"
           overflowX="auto"
           overflowY={"auto"}
-          maxWidth={"450px"}
+          maxWidth={"full"}
         >
           {popupAdditionals?.map((suggestion, idx) => (
             <MotionButton
@@ -662,12 +663,9 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
               onClick={() =>
                 handleButtonSubmit(suggestion.popupAdditionalChatText)
               }
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.94 }}
-              color={popup?.popupSuggestionButtonTextColor ?? "teal"}
-              backgroundColor={popup?.popupSuggestionButtonBoxColor ?? "teal"}
+              borderWidth={'1px'}
               borderColor={
-                popup?.popupSuggestionButtonFocusBorderColor ?? undefined
+                popup?.popupBorderColor ?? undefined
               }
               _hover={{ bgColor: undefined }}
             >
@@ -676,6 +674,9 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           ))}
         </ChakraBox>
       )}
+
+
+      
       {true && (
         <>
           <ChakraBox 
@@ -738,7 +739,7 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
       align={'center'}
       >
         <ChakraBox
-        width={'400px'} 
+        width={"100%"} 
         mt={0.25}
         >
         <Flex 

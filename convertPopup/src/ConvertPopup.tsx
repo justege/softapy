@@ -169,6 +169,7 @@ function ConvertPopup({ userId, popupId }: Props) {
       setTheReducerState({ type: "setPopup", payload: data.popup });
       setTheReducerState({ type: "setQuestionStartTime", payload: Date.now() });
       setTheReducerState({ type: "setQuestion", payload: data.question });
+      setTheReducerState({ type: 'setPopupAdditionals', payload: data.popupAdditionals})
 
       const recommendedProductsFromQuery = data.recommendedProducts
 
@@ -695,7 +696,6 @@ function ConvertPopup({ userId, popupId }: Props) {
                   borderColor={'white' ?? undefined}
                   borderRadius={popup?.popupBorderRadius ?? "0"}
                   boxShadow={popup?.popupBorderBoxShadow ?? "dark-lg"}
-                  bgGradient={popup?.popupBackgroundGradient ?? undefined}
                 >
                   <Flex direction={"column"} width={"full"}>
                     {pastChatGPTInput.length < 2 && (
@@ -711,6 +711,7 @@ function ConvertPopup({ userId, popupId }: Props) {
                           px={4}
                           py={2}
                         >
+                          <Flex justify={'space-between'}>
                           {popup?.teaserImage && (
                             <ChakraBox
                               width="40px"
@@ -734,6 +735,24 @@ function ConvertPopup({ userId, popupId }: Props) {
                               />
                             </ChakraBox>
                           )}
+                            <ChakraBox
+                            as="button"
+                              onClick={() =>
+                                setTheReducerState({
+                                  type: "setPopupCreationState",
+                                  payload: false,
+                                })
+                              }
+                              color={
+                                'white'
+                              }
+                              fontSize={"20px"}
+                              
+                              mr={2}
+                              >
+                              {popup?.popupCloseButtonText}
+                            </ChakraBox>
+                          </Flex>
                           <ChakraBox
                             h={
                               popup?.popupTitleAndContentPercentage ?? undefined
@@ -785,7 +804,7 @@ function ConvertPopup({ userId, popupId }: Props) {
                             <Flex
                               mt={4}
                               border={popup?.popupBorderWidth ?? undefined}
-                              borderColor={"purple.400" ?? undefined}
+                              borderColor={popup?.popupBorderColor ?? undefined}
                               boxShadow={"md"}
                               bg={"white"}
                               borderRadius={
@@ -823,7 +842,7 @@ function ConvertPopup({ userId, popupId }: Props) {
                                     justifyContent={"space-around"}
                                     borderWidth={"1px" ?? undefined}
                                     bgGradient={
-                                     popup?.popupBackgroundGradient ?? undefined
+                                     popup?.popupMainBackgroundGradient ?? undefined
                                     }
                                     textColor={"white"}
                                     borderRadius={
@@ -972,7 +991,7 @@ function ConvertPopup({ userId, popupId }: Props) {
                                   >
                                     <Text
                                       textTransform="uppercase"
-                                      bg={"purple.100"}
+                                      bg={popup?.popupChatHistoryInputBoxColor ?? 'gray.100'}
                                       px={3}
                                       py={1}
                                       color={"gray.900"}
@@ -988,7 +1007,7 @@ function ConvertPopup({ userId, popupId }: Props) {
                                   mt={4}
                                   border={popup?.popupBorderWidth ?? undefined}
                                   borderColor={
-                                   'purple.400' ?? undefined
+                                   popup?.popupBorderColor ?? undefined
                                   }
                                   boxShadow={"md"}
                                   bg={"white"}

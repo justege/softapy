@@ -22,6 +22,7 @@ import {
   StackDivider,
   Img,
   Radio,
+  Input,
 } from "@chakra-ui/react";
 import { baseUrl } from "./shared";
 import { Props, PopupPage } from "./Types";
@@ -980,7 +981,100 @@ function ConvertPopup({ userId, popupId }: Props) {
                               </Flex>
                             </Flex>
 
-                            {true && (
+                            {true &&  (<>
+      {false  && (
+        <ChakraBox
+          p={1}
+          display="flex"
+          overflowX="auto"
+          overflowY={"auto"}
+          maxWidth={"full"}
+        >
+          {popupAdditionals?.map((suggestion, idx) => (
+            <ChakraButton
+              key={`${suggestion.popupAdditionalId}--${idx}`}
+              size={"xs"}
+              my={2}
+              ml={1}
+              minW="auto"
+              px={2}
+              onClick={() =>
+                handleButtonSubmit(suggestion.popupAdditionalChatText)
+              }
+              borderWidth={'1px'}
+              borderColor={
+                popup?.popupBorderColor ?? undefined
+              }
+              _hover={{ bgColor: undefined }}
+            >
+              <Text>{suggestion.popupAdditionalText}</Text>
+            </ChakraButton>
+          ))}
+        </ChakraBox>
+      )}
+
+      
+
+      {true && (
+        <>
+          <ChakraBox mt={4} textColor={popup?.popupMainBackgroundGradient}>
+            OR
+          </ChakraBox>
+          <ChakraBox 
+          p={1} 
+          mt={2}
+          backgroundColor={popup?.popupBackgroundColor}
+          >
+            <Flex ml={"15px"}>
+              <ChakraBox width="100%">
+                <Input
+                  type="text"
+                  h={"40px"}
+                  value={inputChatGPT}
+                  onChange={handleInputChange}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      handleChatGPTSubmit(question?.id ?? 1);
+                    }
+                  }}
+                  placeholder={popup?.popupChatButtonText ?? "Enter text here"}
+                  borderRadius="md"
+                  bgColor={popup?.popupChatButtonBoxColor ?? undefined}
+                  textColor={popup?.popupChatButtonTextColor ?? undefined}
+                  _placeholder={{
+                    color: popup?.popupChatButtonTextColor ?? undefined,
+                  }}
+                  p={2}
+                  mt={2}
+                />
+              </ChakraBox>
+              <ChakraBox>
+                <ChakraButton
+                  onClick={() => handleChatGPTSubmit(question?.id ?? 1)}
+                  colorScheme={popup?.popupSendButtonScheme ?? undefined}
+                  //bgColor={popup?.popupSendButtonColor ?? undefined} TODO
+                  bgGradient={popup?.popupMainBackgroundGradient ??
+                    "linear-gradient(91deg, #793DCC 0%, #A666FF 100%)"
+                  }
+                  borderColor={popup?.popupSendButtonBorderColor ?? undefined}
+                  borderWidth={1}
+                  m={2}
+                  ml={3}
+                  size={"md"}
+                  textColor={popup?.popupSendButtonTextColor ?? undefined}
+                  variant={popup?.popupSendButtonVariant ?? undefined}
+                >
+                  {popup?.popupSendButtonText ?? "Send"}
+                </ChakraButton>
+              </ChakraBox>
+            </Flex>
+          </ChakraBox>
+        </>
+      )}
+    
+        </>)}
+
+                            {false && (
                               <>
                                 <ChakraBox position="relative" mt={7}>
                                   <ChakraBox
@@ -1044,7 +1138,8 @@ function ConvertPopup({ userId, popupId }: Props) {
                                       color={"black"} //popup?.answerTextColor ?? undefined}
                                       textAlign="left" // Center align text
                                     >
-                                      {recommendedProducts?.[0]?.productTitle ?? "Your personal product recommendation"}
+                                  
+                                  {recommendedProducts?.[0]?.productTitle ?? "Your personal product recommendation"}
                                     </Text>
                                   </Flex>
                                   <ChakraBox

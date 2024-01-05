@@ -682,8 +682,6 @@ export const QuestionaireInChat = (props: QuestionaireInChatProps) => {
           <ChakraBox 
           p={1} 
           backgroundColor={popup?.popupBackgroundColor}
-          borderBottom={popup?.popupBorderWidth ?? undefined}
-          borderColor={popup?.popupBorderColor ?? undefined}
           borderBottomRadius={popup?.popupBorderRadius ?? "0"}
           >
             <Flex ml={"15px"}>

@@ -1018,7 +1018,9 @@ function ConvertPopup({ userId, popupId }: Props) {
       {true && (
         <>
           <ChakraBox mt={4} textColor={popup?.popupMainBackgroundGradient}>
-            OR
+            <Text textAlign={'center'}>
+              OR
+            </Text>
           </ChakraBox>
           <ChakraBox 
           p={1} 
